@@ -6,41 +6,41 @@
 
 ## Table of Contents
 
-* [Purpose](#purpose)
-* [Testing Philosophy](#testing-philosophy)
-  * [Core Principles](#core-principles)
-  * [Testing Pyramid](#testing-pyramid)
-* [Test Framework Configuration](#test-framework-configuration)
-  * [Jest Configuration](#jest-configuration)
-  * [Test Setup File](#test-setup-file)
-* [Unit Testing Standards](#unit-testing-standards)
-  * [Test Structure and Naming](#test-structure-and-naming)
-  * [Testing Async Operations](#testing-async-operations)
-  * [Mocking Best Practices](#mocking-best-practices)
-* [Integration Testing Standards](#integration-testing-standards)
-  * [Database Integration Tests](#database-integration-tests)
-  * [API Testing with Authentication](#api-testing-with-authentication)
-* [End-to-End Testing Standards](#end-to-end-testing-standards)
-  * [E2E Test Setup](#e2e-test-setup)
-* [Testing Database Operations](#testing-database-operations)
-  * [Repository Testing](#repository-testing)
-  * [Transaction Testing](#transaction-testing)
-* [Testing Middleware](#testing-middleware)
-  * [Authentication Middleware Testing](#authentication-middleware-testing)
-  * [Error Handling Middleware Testing](#error-handling-middleware-testing)
-* [Performance Testing](#performance-testing)
-  * [Load Testing with Jest](#load-testing-with-jest)
-* [Test Data Management](#test-data-management)
-  * [Fixtures and Factories](#fixtures-and-factories)
-  * [Database Seeding for Tests](#database-seeding-for-tests)
-* [Continuous Integration Testing](#continuous-integration-testing)
-  * [GitHub Actions Configuration](#github-actions-configuration)
-* [Test Scripts Configuration](#test-scripts-configuration)
-  * [Package.json Test Scripts](#packagejson-test-scripts)
-* [Testing Best Practices Summary](#testing-best-practices-summary)
-  * [DO](#do)
-  * [DON'T](#dont)
-* [Resources](#resources)
+- [Purpose](#purpose)
+- [Testing Philosophy](#testing-philosophy)
+  - [Core Principles](#core-principles)
+  - [Testing Pyramid](#testing-pyramid)
+- [Test Framework Configuration](#test-framework-configuration)
+  - [Jest Configuration](#jest-configuration)
+  - [Test Setup File](#test-setup-file)
+- [Unit Testing Standards](#unit-testing-standards)
+  - [Test Structure and Naming](#test-structure-and-naming)
+  - [Testing Async Operations](#testing-async-operations)
+  - [Mocking Best Practices](#mocking-best-practices)
+- [Integration Testing Standards](#integration-testing-standards)
+  - [Database Integration Tests](#database-integration-tests)
+  - [API Testing with Authentication](#api-testing-with-authentication)
+- [End-to-End Testing Standards](#end-to-end-testing-standards)
+  - [E2E Test Setup](#e2e-test-setup)
+- [Testing Database Operations](#testing-database-operations)
+  - [Repository Testing](#repository-testing)
+  - [Transaction Testing](#transaction-testing)
+- [Testing Middleware](#testing-middleware)
+  - [Authentication Middleware Testing](#authentication-middleware-testing)
+  - [Error Handling Middleware Testing](#error-handling-middleware-testing)
+- [Performance Testing](#performance-testing)
+  - [Load Testing with Jest](#load-testing-with-jest)
+- [Test Data Management](#test-data-management)
+  - [Fixtures and Factories](#fixtures-and-factories)
+  - [Database Seeding for Tests](#database-seeding-for-tests)
+- [Continuous Integration Testing](#continuous-integration-testing)
+  - [GitHub Actions Configuration](#github-actions-configuration)
+- [Test Scripts Configuration](#test-scripts-configuration)
+  - [Package.json Test Scripts](#packagejson-test-scripts)
+- [Testing Best Practices Summary](#testing-best-practices-summary)
+  - [DO](#do)
+  - [DON'T](#dont)
+- [Resources](#resources)
 
 ## Purpose
 
@@ -52,14 +52,14 @@ applications.
 
 ### Core Principles
 
-* **Test-Driven Development (TDD)**: Always apply Test-Driven Development - write tests before or alongside code to define expected behavior
-* **Behavior-Driven Development (BDD)**: Favor BDD where appropriate - tests should describe observable behavior rather than internal implementation details
-* **No Placeholder Tests**: Do not generate placeholder, empty, or fake tests (e.g., tests that contain `expect(true).toBe(true)` or meaningless assertions) simply to increase code coverage
-* **Real Browser Testing**: Front-end tests must run in a real browser environment (e.g. via Puppeteer, Playwright) instead of jsdom or simulated DOM unless explicitly justified
-* **Comprehensive Coverage**: Aim for 90%+ code coverage with meaningful tests
-* **Fast Feedback**: Unit tests should run in milliseconds, integration tests in seconds
-* **Isolated Testing**: Each test should be independent and repeatable
-* **Clear Intent**: Tests should serve as living documentation of expected behavior
+- **Test-Driven Development (TDD)**: Always apply Test-Driven Development - write tests before or alongside code to define expected behavior
+- **Behavior-Driven Development (BDD)**: Favor BDD where appropriate - tests should describe observable behavior rather than internal implementation details
+- **No Placeholder Tests**: Do not generate placeholder, empty, or fake tests (e.g., tests that contain `expect(true).toBe(true)` or meaningless assertions) simply to increase code coverage
+- **Real Browser Testing**: Front-end tests must run in a real browser environment (e.g. via Puppeteer, Playwright) instead of jsdom or simulated DOM unless explicitly justified
+- **Comprehensive Coverage**: Aim for 90%+ code coverage with meaningful tests
+- **Fast Feedback**: Unit tests should run in milliseconds, integration tests in seconds
+- **Isolated Testing**: Each test should be independent and repeatable
+- **Clear Intent**: Tests should serve as living documentation of expected behavior
 
 ### Testing Pyramid
 
@@ -105,7 +105,7 @@ applications.
 
 ```javascript
 // tests/setup.js
-const { sequelize } = require('../src/models');
+const { sequelize } = require("../src/models");
 
 // Global test setup
 beforeAll(async () => {
@@ -119,17 +119,17 @@ afterAll(async () => {
 });
 
 // Mock external services
-jest.mock('../src/services/emailService', () => ({
-  sendEmail: jest.fn().mockResolvedValue(true)
+jest.mock("../src/services/emailService", () => ({
+  sendEmail: jest.fn().mockResolvedValue(true),
 }));
 
 // Global test helpers
 global.testHelpers = {
   createMockUser: () => ({
-    id: 'test-user-id',
-    email: 'test@example.com',
-    name: 'Test User'
-  })
+    id: "test-user-id",
+    email: "test@example.com",
+    name: "Test User",
+  }),
 };
 ```
 
@@ -137,33 +137,33 @@ global.testHelpers = {
 
 ### Test Structure and Naming
 
-* **Descriptive Names**: Have descriptive, human-readable names that clearly state the intent (e.g., "renders login form with empty fields by default" rather than "test1")
-* **AAA Pattern**: Follow the AAA pattern: Arrange, Act, Assert
-* **Test Organization**: Group related tests using `describe` blocks
-* **Test Cases**: Use `it` or `test` for individual test cases
-* **Coverage Requirements**: All tests must cover:
-  * Happy paths
-  * Common edge cases
-  * Error and failure conditions
-* **Avoid Brittle Selectors**: Avoid brittle selectors or overly tight coupling to non-essential implementation details (e.g., prefer testing via user-visible elements over internal class names)
+- **Descriptive Names**: Have descriptive, human-readable names that clearly state the intent (e.g., "renders login form with empty fields by default" rather than "test1")
+- **AAA Pattern**: Follow the AAA pattern: Arrange, Act, Assert
+- **Test Organization**: Group related tests using `describe` blocks
+- **Test Cases**: Use `it` or `test` for individual test cases
+- **Coverage Requirements**: All tests must cover:
+  - Happy paths
+  - Common edge cases
+  - Error and failure conditions
+- **Avoid Brittle Selectors**: Avoid brittle selectors or overly tight coupling to non-essential implementation details (e.g., prefer testing via user-visible elements over internal class names)
 
 ### Test Quality Standards
 
-* **Meaningful Assertions**: Never generate tests that pass without meaningful assertions or fabricate behavior the code does not provide
-* **Runnable Tests**: Tests must be runnable as-is with the specified tooling (no fictional libraries or APIs)
-* **Integration Over Unit**: Prefer integration-level tests for user interfaces that simulate real user interaction rather than isolated unit tests where feasible
-* **API Testing Requirements**:
-  * Validate request/response structure, including headers, status codes, and body content
-  * Include tests for invalid inputs, authorization failures, and rate limiting or similar controls
-* **Test Documentation**: Include code examples of running tests (e.g., npm test, pytest) if generating documentation alongside tests
-* **Mocking Guidelines**:
-  * Use realistic data structures — never make up object shapes or API fields that don't exist
-  * Note assumptions or boundaries clearly in comments
-  * If uncertain about exact behavior of external APIs or systems, generate TODO comments or request clarifications rather than inventing responses or mocks
+- **Meaningful Assertions**: Never generate tests that pass without meaningful assertions or fabricate behavior the code does not provide
+- **Runnable Tests**: Tests must be runnable as-is with the specified tooling (no fictional libraries or APIs)
+- **Integration Over Unit**: Prefer integration-level tests for user interfaces that simulate real user interaction rather than isolated unit tests where feasible
+- **API Testing Requirements**:
+  - Validate request/response structure, including headers, status codes, and body content
+  - Include tests for invalid inputs, authorization failures, and rate limiting or similar controls
+- **Test Documentation**: Include code examples of running tests (e.g., npm test, pytest) if generating documentation alongside tests
+- **Mocking Guidelines**:
+  - Use realistic data structures — never make up object shapes or API fields that don't exist
+  - Note assumptions or boundaries clearly in comments
+  - If uncertain about exact behavior of external APIs or systems, generate TODO comments or request clarifications rather than inventing responses or mocks
 
 ```javascript
 // ✅ Good test structure
-describe('UserService', () => {
+describe("UserService", () => {
   let userService;
   let mockUserRepository;
 
@@ -172,20 +172,20 @@ describe('UserService', () => {
       findById: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
-      delete: jest.fn()
+      delete: jest.fn(),
     };
     userService = new UserService(mockUserRepository);
   });
 
-  describe('createUser', () => {
-    it('should create a new user with valid data', async () => {
+  describe("createUser", () => {
+    it("should create a new user with valid data", async () => {
       // Arrange
       const userData = {
-        email: 'test@example.com',
-        name: 'Test User',
-        password: 'securePassword123'
+        email: "test@example.com",
+        name: "Test User",
+        password: "securePassword123",
       };
-      const expectedUser = { id: '123', ...userData };
+      const expectedUser = { id: "123", ...userData };
       mockUserRepository.create.mockResolvedValue(expectedUser);
 
       // Act
@@ -196,18 +196,18 @@ describe('UserService', () => {
       expect(result).toEqual(expectedUser);
     });
 
-    it('should throw ValidationError when email is invalid', async () => {
+    it("should throw ValidationError when email is invalid", async () => {
       // Arrange
       const userData = {
-        email: 'invalid-email',
-        name: 'Test User',
-        password: 'securePassword123'
+        email: "invalid-email",
+        name: "Test User",
+        password: "securePassword123",
       };
 
       // Act & Assert
-      await expect(userService.createUser(userData))
-        .rejects
-        .toThrow(ValidationError);
+      await expect(userService.createUser(userData)).rejects.toThrow(
+        ValidationError,
+      );
     });
   });
 });
@@ -217,28 +217,28 @@ describe('UserService', () => {
 
 ```javascript
 // ✅ Good async testing patterns
-describe('async operations', () => {
-  it('should handle async success', async () => {
-    const result = await userService.fetchUser('123');
+describe("async operations", () => {
+  it("should handle async success", async () => {
+    const result = await userService.fetchUser("123");
     expect(result).toBeDefined();
   });
 
-  it('should handle async errors', async () => {
-    mockUserRepository.findById.mockRejectedValue(new Error('Database error'));
-    
-    await expect(userService.fetchUser('123'))
-      .rejects
-      .toThrow('Database error');
+  it("should handle async errors", async () => {
+    mockUserRepository.findById.mockRejectedValue(new Error("Database error"));
+
+    await expect(userService.fetchUser("123")).rejects.toThrow(
+      "Database error",
+    );
   });
 
-  it('should handle timeout scenarios', async () => {
+  it("should handle timeout scenarios", async () => {
     mockUserRepository.findById.mockImplementation(
-      () => new Promise(resolve => setTimeout(resolve, 11000))
+      () => new Promise((resolve) => setTimeout(resolve, 11000)),
     );
 
-    await expect(userService.fetchUser('123'))
-      .rejects
-      .toThrow('Operation timed out');
+    await expect(userService.fetchUser("123")).rejects.toThrow(
+      "Operation timed out",
+    );
   }, 12000); // Custom timeout for this test
 });
 ```
@@ -247,7 +247,7 @@ describe('async operations', () => {
 
 ```javascript
 // ✅ Good mocking patterns
-describe('UserController', () => {
+describe("UserController", () => {
   let userController;
   let mockUserService;
   let mockRequest;
@@ -258,29 +258,29 @@ describe('UserController', () => {
       createUser: jest.fn(),
       findUser: jest.fn(),
       updateUser: jest.fn(),
-      deleteUser: jest.fn()
+      deleteUser: jest.fn(),
     };
 
     mockRequest = {
       body: {},
       params: {},
       query: {},
-      user: { id: 'test-user-id' }
+      user: { id: "test-user-id" },
     };
 
     mockResponse = {
       status: jest.fn(() => mockResponse),
       json: jest.fn(() => mockResponse),
-      send: jest.fn(() => mockResponse)
+      send: jest.fn(() => mockResponse),
     };
 
     userController = new UserController(mockUserService);
   });
 
-  it('should create user and return 201 status', async () => {
+  it("should create user and return 201 status", async () => {
     // Arrange
-    const userData = { email: 'test@example.com', name: 'Test User' };
-    const createdUser = { id: '123', ...userData };
+    const userData = { email: "test@example.com", name: "Test User" };
+    const createdUser = { id: "123", ...userData };
     mockRequest.body = userData;
     mockUserService.createUser.mockResolvedValue(createdUser);
 
@@ -301,11 +301,11 @@ describe('UserController', () => {
 
 ```javascript
 // tests/integration/user.integration.test.js
-const request = require('supertest');
-const app = require('../../src/app');
-const { sequelize, User } = require('../../src/models');
+const request = require("supertest");
+const app = require("../../src/app");
+const { sequelize, User } = require("../../src/models");
 
-describe('User API Integration', () => {
+describe("User API Integration", () => {
   beforeAll(async () => {
     await sequelize.sync({ force: true });
   });
@@ -318,24 +318,24 @@ describe('User API Integration', () => {
     await sequelize.close();
   });
 
-  describe('POST /api/users', () => {
-    it('should create a new user', async () => {
+  describe("POST /api/users", () => {
+    it("should create a new user", async () => {
       const userData = {
-        email: 'test@example.com',
-        name: 'Test User',
-        password: 'securePassword123'
+        email: "test@example.com",
+        name: "Test User",
+        password: "securePassword123",
       };
 
       const response = await request(app)
-        .post('/api/users')
+        .post("/api/users")
         .send(userData)
         .expect(201);
 
       expect(response.body.data).toMatchObject({
         email: userData.email,
-        name: userData.name
+        name: userData.name,
       });
-      expect(response.body.data).not.toHaveProperty('password');
+      expect(response.body.data).not.toHaveProperty("password");
 
       // Verify database state
       const userInDb = await User.findByPk(response.body.data.id);
@@ -343,21 +343,21 @@ describe('User API Integration', () => {
       expect(userInDb.email).toBe(userData.email);
     });
 
-    it('should return validation error for invalid email', async () => {
+    it("should return validation error for invalid email", async () => {
       const userData = {
-        email: 'invalid-email',
-        name: 'Test User',
-        password: 'securePassword123'
+        email: "invalid-email",
+        name: "Test User",
+        password: "securePassword123",
       };
 
       const response = await request(app)
-        .post('/api/users')
+        .post("/api/users")
         .send(userData)
         .expect(400);
 
       expect(response.body.error).toMatchObject({
-        code: 'bad_request',
-        message: expect.stringContaining('email')
+        code: "bad_request",
+        message: expect.stringContaining("email"),
       });
     });
   });
@@ -368,49 +368,47 @@ describe('User API Integration', () => {
 
 ```javascript
 // tests/integration/auth.integration.test.js
-const request = require('supertest');
-const jwt = require('jsonwebtoken');
-const app = require('../../src/app');
+const request = require("supertest");
+const jwt = require("jsonwebtoken");
+const app = require("../../src/app");
 
-describe('Authenticated API endpoints', () => {
+describe("Authenticated API endpoints", () => {
   let authToken;
   let testUser;
 
   beforeEach(async () => {
     // Create test user
     testUser = await User.create({
-      email: 'test@example.com',
-      name: 'Test User',
-      password: 'hashedPassword'
+      email: "test@example.com",
+      name: "Test User",
+      password: "hashedPassword",
     });
 
     // Generate auth token
     authToken = jwt.sign(
       { userId: testUser.id, email: testUser.email },
       process.env.JWT_SECRET,
-      { expiresIn: '1h' }
+      { expiresIn: "1h" },
     );
   });
 
-  it('should access protected route with valid token', async () => {
+  it("should access protected route with valid token", async () => {
     const response = await request(app)
-      .get('/api/users/profile')
-      .set('Authorization', `Bearer ${authToken}`)
+      .get("/api/users/profile")
+      .set("Authorization", `Bearer ${authToken}`)
       .expect(200);
 
     expect(response.body.data.id).toBe(testUser.id);
   });
 
-  it('should reject access without token', async () => {
-    await request(app)
-      .get('/api/users/profile')
-      .expect(401);
+  it("should reject access without token", async () => {
+    await request(app).get("/api/users/profile").expect(401);
   });
 
-  it('should reject access with invalid token', async () => {
+  it("should reject access with invalid token", async () => {
     await request(app)
-      .get('/api/users/profile')
-      .set('Authorization', 'Bearer invalid-token')
+      .get("/api/users/profile")
+      .set("Authorization", "Bearer invalid-token")
       .expect(401);
   });
 });
@@ -422,11 +420,11 @@ describe('Authenticated API endpoints', () => {
 
 ```javascript
 // tests/e2e/user-workflow.e2e.test.js
-const request = require('supertest');
-const app = require('../../src/app');
-const { sequelize } = require('../../src/models');
+const request = require("supertest");
+const app = require("../../src/app");
+const { sequelize } = require("../../src/models");
 
-describe('User Workflow E2E', () => {
+describe("User Workflow E2E", () => {
   beforeAll(async () => {
     await sequelize.sync({ force: true });
   });
@@ -435,49 +433,49 @@ describe('User Workflow E2E', () => {
     await sequelize.close();
   });
 
-  it('should complete full user registration and login workflow', async () => {
+  it("should complete full user registration and login workflow", async () => {
     const userData = {
-      email: 'e2e@example.com',
-      name: 'E2E Test User',
-      password: 'securePassword123'
+      email: "e2e@example.com",
+      name: "E2E Test User",
+      password: "securePassword123",
     };
 
     // Step 1: Register user
     const registerResponse = await request(app)
-      .post('/api/auth/register')
+      .post("/api/auth/register")
       .send(userData)
       .expect(201);
 
     expect(registerResponse.body.data).toMatchObject({
       email: userData.email,
-      name: userData.name
+      name: userData.name,
     });
 
     // Step 2: Login user
     const loginResponse = await request(app)
-      .post('/api/auth/login')
+      .post("/api/auth/login")
       .send({
         email: userData.email,
-        password: userData.password
+        password: userData.password,
       })
       .expect(200);
 
-    expect(loginResponse.body.data).toHaveProperty('token');
+    expect(loginResponse.body.data).toHaveProperty("token");
     const token = loginResponse.body.data.token;
 
     // Step 3: Access protected profile
     const profileResponse = await request(app)
-      .get('/api/users/profile')
-      .set('Authorization', `Bearer ${token}`)
+      .get("/api/users/profile")
+      .set("Authorization", `Bearer ${token}`)
       .expect(200);
 
     expect(profileResponse.body.data.email).toBe(userData.email);
 
     // Step 4: Update profile
-    const updateData = { name: 'Updated Name' };
+    const updateData = { name: "Updated Name" };
     const updateResponse = await request(app)
-      .put('/api/users/profile')
-      .set('Authorization', `Bearer ${token}`)
+      .put("/api/users/profile")
+      .set("Authorization", `Bearer ${token}`)
       .send(updateData)
       .expect(200);
 
@@ -492,13 +490,13 @@ describe('User Workflow E2E', () => {
 
 ```javascript
 // tests/unit/repositories/userRepository.test.js
-const { User } = require('../../src/models');
-const UserRepository = require('../../src/repositories/userRepository');
+const { User } = require("../../src/models");
+const UserRepository = require("../../src/repositories/userRepository");
 
 // Mock Sequelize model
-jest.mock('../../src/models');
+jest.mock("../../src/models");
 
-describe('UserRepository', () => {
+describe("UserRepository", () => {
   let userRepository;
 
   beforeEach(() => {
@@ -506,31 +504,31 @@ describe('UserRepository', () => {
     jest.clearAllMocks();
   });
 
-  describe('findById', () => {
-    it('should return user when found', async () => {
-      const mockUser = { id: '123', email: 'test@example.com' };
+  describe("findById", () => {
+    it("should return user when found", async () => {
+      const mockUser = { id: "123", email: "test@example.com" };
       User.findByPk.mockResolvedValue(mockUser);
 
-      const result = await userRepository.findById('123');
+      const result = await userRepository.findById("123");
 
-      expect(User.findByPk).toHaveBeenCalledWith('123');
+      expect(User.findByPk).toHaveBeenCalledWith("123");
       expect(result).toEqual(mockUser);
     });
 
-    it('should return null when user not found', async () => {
+    it("should return null when user not found", async () => {
       User.findByPk.mockResolvedValue(null);
 
-      const result = await userRepository.findById('999');
+      const result = await userRepository.findById("999");
 
       expect(result).toBeNull();
     });
 
-    it('should handle database errors', async () => {
-      User.findByPk.mockRejectedValue(new Error('Database connection failed'));
+    it("should handle database errors", async () => {
+      User.findByPk.mockRejectedValue(new Error("Database connection failed"));
 
-      await expect(userRepository.findById('123'))
-        .rejects
-        .toThrow('Database connection failed');
+      await expect(userRepository.findById("123")).rejects.toThrow(
+        "Database connection failed",
+      );
     });
   });
 });
@@ -540,19 +538,19 @@ describe('UserRepository', () => {
 
 ```javascript
 // Testing database transactions
-describe('UserService with transactions', () => {
-  it('should rollback transaction on error', async () => {
+describe("UserService with transactions", () => {
+  it("should rollback transaction on error", async () => {
     const mockTransaction = {
       commit: jest.fn(),
-      rollback: jest.fn()
+      rollback: jest.fn(),
     };
-    
-    sequelize.transaction.mockResolvedValue(mockTransaction);
-    mockUserRepository.create.mockRejectedValue(new Error('Validation failed'));
 
-    await expect(userService.createUserWithProfile(userData))
-      .rejects
-      .toThrow('Validation failed');
+    sequelize.transaction.mockResolvedValue(mockTransaction);
+    mockUserRepository.create.mockRejectedValue(new Error("Validation failed"));
+
+    await expect(userService.createUserWithProfile(userData)).rejects.toThrow(
+      "Validation failed",
+    );
 
     expect(mockTransaction.rollback).toHaveBeenCalled();
     expect(mockTransaction.commit).not.toHaveBeenCalled();
@@ -566,30 +564,30 @@ describe('UserService with transactions', () => {
 
 ```javascript
 // tests/unit/middleware/auth.test.js
-const authMiddleware = require('../../src/middleware/auth');
-const jwt = require('jsonwebtoken');
+const authMiddleware = require("../../src/middleware/auth");
+const jwt = require("jsonwebtoken");
 
-jest.mock('jsonwebtoken');
+jest.mock("jsonwebtoken");
 
-describe('Auth Middleware', () => {
+describe("Auth Middleware", () => {
   let mockRequest;
   let mockResponse;
   let nextFunction;
 
   beforeEach(() => {
     mockRequest = {
-      headers: {}
+      headers: {},
     };
     mockResponse = {
       status: jest.fn(() => mockResponse),
-      json: jest.fn(() => mockResponse)
+      json: jest.fn(() => mockResponse),
     };
     nextFunction = jest.fn();
   });
 
-  it('should authenticate valid token', async () => {
-    const mockUser = { id: '123', email: 'test@example.com' };
-    mockRequest.headers.authorization = 'Bearer valid-token';
+  it("should authenticate valid token", async () => {
+    const mockUser = { id: "123", email: "test@example.com" };
+    mockRequest.headers.authorization = "Bearer valid-token";
     jwt.verify.mockReturnValue(mockUser);
 
     await authMiddleware(mockRequest, mockResponse, nextFunction);
@@ -598,7 +596,7 @@ describe('Auth Middleware', () => {
     expect(nextFunction).toHaveBeenCalled();
   });
 
-  it('should reject missing token', async () => {
+  it("should reject missing token", async () => {
     await authMiddleware(mockRequest, mockResponse, nextFunction);
 
     expect(mockResponse.status).toHaveBeenCalledWith(401);
@@ -611,10 +609,10 @@ describe('Auth Middleware', () => {
 
 ```javascript
 // tests/unit/middleware/errorHandler.test.js
-const errorHandler = require('../../src/middleware/errorHandler');
-const { ValidationError, NotFoundError } = require('../../src/utils/errors');
+const errorHandler = require("../../src/middleware/errorHandler");
+const { ValidationError, NotFoundError } = require("../../src/utils/errors");
 
-describe('Error Handler Middleware', () => {
+describe("Error Handler Middleware", () => {
   let mockRequest;
   let mockResponse;
   let nextFunction;
@@ -623,37 +621,37 @@ describe('Error Handler Middleware', () => {
     mockRequest = {};
     mockResponse = {
       status: jest.fn(() => mockResponse),
-      json: jest.fn(() => mockResponse)
+      json: jest.fn(() => mockResponse),
     };
     nextFunction = jest.fn();
   });
 
-  it('should handle ValidationError correctly', () => {
-    const error = new ValidationError('Invalid email', 'email');
+  it("should handle ValidationError correctly", () => {
+    const error = new ValidationError("Invalid email", "email");
 
     errorHandler(error, mockRequest, mockResponse, nextFunction);
 
     expect(mockResponse.status).toHaveBeenCalledWith(400);
     expect(mockResponse.json).toHaveBeenCalledWith({
       error: {
-        code: 'bad_request',
-        message: 'Invalid email',
-        params: [{ param: 'email', message: 'Invalid email' }]
-      }
+        code: "bad_request",
+        message: "Invalid email",
+        params: [{ param: "email", message: "Invalid email" }],
+      },
     });
   });
 
-  it('should handle unexpected errors', () => {
-    const error = new Error('Unexpected error');
+  it("should handle unexpected errors", () => {
+    const error = new Error("Unexpected error");
 
     errorHandler(error, mockRequest, mockResponse, nextFunction);
 
     expect(mockResponse.status).toHaveBeenCalledWith(500);
     expect(mockResponse.json).toHaveBeenCalledWith({
       error: {
-        code: 'internal_server_error',
-        message: 'Internal server error'
-      }
+        code: "internal_server_error",
+        message: "Internal server error",
+      },
     });
   });
 });
@@ -665,22 +663,22 @@ describe('Error Handler Middleware', () => {
 
 ```javascript
 // tests/performance/api.performance.test.js
-describe('API Performance Tests', () => {
-  it('should handle concurrent user creation', async () => {
+describe("API Performance Tests", () => {
+  it("should handle concurrent user creation", async () => {
     const concurrentRequests = 50;
     const userData = {
-      email: 'perf@example.com',
-      name: 'Performance Test',
-      password: 'password123'
+      email: "perf@example.com",
+      name: "Performance Test",
+      password: "password123",
     };
 
     const startTime = Date.now();
 
-    const promises = Array.from({ length: concurrentRequests }, (_, i) => 
+    const promises = Array.from({ length: concurrentRequests }, (_, i) =>
       request(app)
-        .post('/api/users')
+        .post("/api/users")
         .send({ ...userData, email: `perf${i}@example.com` })
-        .expect(201)
+        .expect(201),
     );
 
     await Promise.all(promises);
@@ -692,14 +690,12 @@ describe('API Performance Tests', () => {
     expect(duration).toBeLessThan(5000);
   });
 
-  it('should respond to health check quickly', async () => {
+  it("should respond to health check quickly", async () => {
     const iterations = 100;
     const startTime = Date.now();
 
     for (let i = 0; i < iterations; i++) {
-      await request(app)
-        .get('/api/health')
-        .expect(200);
+      await request(app).get("/api/health").expect(200);
     }
 
     const endTime = Date.now();
@@ -717,26 +713,26 @@ describe('API Performance Tests', () => {
 
 ```javascript
 // tests/fixtures/userFixtures.js
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 
 const userFixtures = {
   validUser: {
-    email: 'valid@example.com',
-    name: 'Valid User',
-    password: 'securePassword123'
+    email: "valid@example.com",
+    name: "Valid User",
+    password: "securePassword123",
   },
 
   adminUser: {
-    email: 'admin@example.com',
-    name: 'Admin User',
-    password: 'adminPassword123',
-    role: 'admin'
+    email: "admin@example.com",
+    name: "Admin User",
+    password: "adminPassword123",
+    role: "admin",
   },
 
   createUser: async (overrides = {}) => {
     const userData = {
       ...userFixtures.validUser,
-      ...overrides
+      ...overrides,
     };
 
     if (userData.password) {
@@ -749,13 +745,15 @@ const userFixtures = {
   createMultipleUsers: async (count = 5) => {
     const users = [];
     for (let i = 0; i < count; i++) {
-      users.push(await userFixtures.createUser({
-        email: `user${i}@example.com`,
-        name: `User ${i}`
-      }));
+      users.push(
+        await userFixtures.createUser({
+          email: `user${i}@example.com`,
+          name: `User ${i}`,
+        }),
+      );
     }
     return users;
-  }
+  },
 };
 
 module.exports = userFixtures;
@@ -765,26 +763,26 @@ module.exports = userFixtures;
 
 ```javascript
 // tests/helpers/seedDatabase.js
-const { User, Team, Project } = require('../../src/models');
+const { User, Team, Project } = require("../../src/models");
 
 const seedDatabase = async () => {
   // Create test users
   const users = await User.bulkCreate([
-    { email: 'user1@example.com', name: 'User One' },
-    { email: 'user2@example.com', name: 'User Two' },
-    { email: 'admin@example.com', name: 'Admin User', role: 'admin' }
+    { email: "user1@example.com", name: "User One" },
+    { email: "user2@example.com", name: "User Two" },
+    { email: "admin@example.com", name: "Admin User", role: "admin" },
   ]);
 
   // Create test teams
   const teams = await Team.bulkCreate([
-    { name: 'Development Team', ownerId: users[0].id },
-    { name: 'QA Team', ownerId: users[1].id }
+    { name: "Development Team", ownerId: users[0].id },
+    { name: "QA Team", ownerId: users[1].id },
   ]);
 
   // Create test projects
   await Project.bulkCreate([
-    { name: 'Project Alpha', teamId: teams[0].id },
-    { name: 'Project Beta', teamId: teams[1].id }
+    { name: "Project Alpha", teamId: teams[0].id },
+    { name: "Project Beta", teamId: teams[1].id },
   ]);
 
   return { users, teams };
@@ -815,7 +813,7 @@ jobs:
 
     services:
       mysql:
-        image: mysql:8.0
+        image: mysql:9.0.1
         env:
           MYSQL_ROOT_PASSWORD: password
           MYSQL_DATABASE: test_db
@@ -909,8 +907,8 @@ jobs:
 
 ## Resources
 
-* [Jest Documentation](https://jestjs.io/docs/getting-started)
-* [Supertest Documentation](https://github.com/visionmedia/supertest)
-* [Testing Node.js Applications](https://nodejs.org/en/docs/guides/testing/)
-* [Test-Driven Development](https://martinfowler.com/bliki/TestDrivenDevelopment.html)
-* [JavaScript Testing Best Practices](https://github.com/goldbergyoni/javascript-testing-best-practices)
+- [Jest Documentation](https://jestjs.io/docs/getting-started)
+- [Supertest Documentation](https://github.com/visionmedia/supertest)
+- [Testing Node.js Applications](https://nodejs.org/en/docs/guides/testing/)
+- [Test-Driven Development](https://martinfowler.com/bliki/TestDrivenDevelopment.html)
+- [JavaScript Testing Best Practices](https://github.com/goldbergyoni/javascript-testing-best-practices)

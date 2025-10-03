@@ -21,6 +21,16 @@ const config = {
       min: 0,
       acquire: 30000,
       idle: 10000
+    },
+    dialectOptions: {
+      // MySQL 9.0 compatibility - explicit charset and collation
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_0900_ai_ci'
+    },
+    define: {
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_0900_ai_ci',
+      timestamps: true
     }
   },
   test: {
@@ -36,6 +46,16 @@ const config = {
       min: 0,
       acquire: 30000,
       idle: 10000
+    },
+    dialectOptions: {
+      // MySQL 9.0 compatibility - explicit charset and collation
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_0900_ai_ci'
+    },
+    define: {
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_0900_ai_ci',
+      timestamps: true
     }
   },
   production: {
@@ -53,6 +73,13 @@ const config = {
       idle: 10000
     },
     dialectOptions: {
+      // MySQL 9.0 compatibility - explicit charset and collation
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_0900_ai_ci',
+      // MySQL 9.0 compatibility - caching_sha2_password authentication
+      authPlugins: {
+        caching_sha2_password: () => () => Buffer.from([])
+      },
       ssl:
         process.env.DB_SSL === 'true'
           ? {
@@ -60,6 +87,12 @@ const config = {
               rejectUnauthorized: false
             }
           : false
+    },
+    // Define charset at top level for table creation
+    define: {
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_0900_ai_ci',
+      timestamps: true
     }
   }
 };

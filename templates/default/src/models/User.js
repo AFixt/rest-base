@@ -22,6 +22,10 @@ module.exports = (sequelize, DataTypes) => {
         unique: true,
         validate: {
           isEmail: true
+        },
+        set(value) {
+          // Trim to prevent issues with NO PAD collation (utf8mb4_0900_ai_ci)
+          this.setDataValue('email', value ? value.trim() : value);
         }
       },
       password: {
@@ -36,6 +40,10 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         validate: {
           len: [1, 50]
+        },
+        set(value) {
+          // Trim to prevent issues with NO PAD collation (utf8mb4_0900_ai_ci)
+          this.setDataValue('firstName', value ? value.trim() : value);
         }
       },
       lastName: {
@@ -43,6 +51,10 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         validate: {
           len: [1, 50]
+        },
+        set(value) {
+          // Trim to prevent issues with NO PAD collation (utf8mb4_0900_ai_ci)
+          this.setDataValue('lastName', value ? value.trim() : value);
         }
       },
       isActive: {
