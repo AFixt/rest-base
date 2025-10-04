@@ -22,7 +22,10 @@
       "Bash(find:*)",
       "Bash(sed:*)",
       "Bash(mv:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git fetch:*)",
+      "Bash(git merge:*)",
+      "Bash(gh pr close:*)"
     ]
   },
   "enableAllProjectMcpServers": false

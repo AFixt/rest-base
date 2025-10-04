@@ -169,7 +169,7 @@
       "      ]",
       "    },",
       "    \"db\": {",
-      "      \"image\": \"mysql:8.0\",",
+      "      \"image\": \"mysql:9.0.1\",",
       "      \"environment\": [",
       "        \"MYSQL_DATABASE=${1:database_name}\",",
       "        \"MYSQL_USER=${2:db_user}\",",

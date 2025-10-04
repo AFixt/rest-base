@@ -5,18 +5,18 @@ various environments and deployment strategies.
 
 ## Table of Contents
 
-* [Overview](#overview)
-* [Pre-Deployment Checklist](#pre-deployment-checklist)
-* [Environment Configuration](#environment-configuration)
-* [Deployment Strategies](#deployment-strategies)
-* [Platform-Specific Deployments](#platform-specific-deployments)
-* [Container Deployments](#container-deployments)
-* [Database Migrations](#database-migrations)
-* [Monitoring and Health Checks](#monitoring-and-health-checks)
-* [Rollback Procedures](#rollback-procedures)
-* [Security Considerations](#security-considerations)
-* [Performance Optimization](#performance-optimization)
-* [Troubleshooting](#troubleshooting)
+- [Overview](#overview)
+- [Pre-Deployment Checklist](#pre-deployment-checklist)
+- [Environment Configuration](#environment-configuration)
+- [Deployment Strategies](#deployment-strategies)
+- [Platform-Specific Deployments](#platform-specific-deployments)
+- [Container Deployments](#container-deployments)
+- [Database Migrations](#database-migrations)
+- [Monitoring and Health Checks](#monitoring-and-health-checks)
+- [Rollback Procedures](#rollback-procedures)
+- [Security Considerations](#security-considerations)
+- [Performance Optimization](#performance-optimization)
+- [Troubleshooting](#troubleshooting)
 
 ## Overview
 
@@ -42,27 +42,27 @@ Code Commit → CI/CD Pipeline → Testing → Staging → Production
 
 ### Code Quality Verification
 
-* [ ] All tests pass (`npm test`)
-* [ ] Linting passes (`npm run lint`)
-* [ ] Type checking passes (`npm run typecheck`)
-* [ ] Security scan passes (`npm audit`)
-* [ ] Code coverage meets minimum threshold (80%)
+- [ ] All tests pass (`npm test`)
+- [ ] Linting passes (`npm run lint`)
+- [ ] Type checking passes (`npm run typecheck`)
+- [ ] Security scan passes (`npm audit`)
+- [ ] Code coverage meets minimum threshold (80%)
 
 ### Dependencies and Configuration
 
-* [ ] Dependencies are up to date and audited
-* [ ] Environment variables are configured
-* [ ] Configuration files are validated
-* [ ] Secrets are properly managed
-* [ ] Database migrations are ready
+- [ ] Dependencies are up to date and audited
+- [ ] Environment variables are configured
+- [ ] Configuration files are validated
+- [ ] Secrets are properly managed
+- [ ] Database migrations are ready
 
 ### Documentation and Validation
 
-* [ ] API documentation is updated
-* [ ] Changelog is updated
-* [ ] Version number is bumped
-* [ ] README is current
-* [ ] Deployment notes are prepared
+- [ ] API documentation is updated
+- [ ] Changelog is updated
+- [ ] Version number is bumped
+- [ ] README is current
+- [ ] Deployment notes are prepared
 
 ## Environment Configuration
 
@@ -113,34 +113,34 @@ const config = {
   development: {
     port: 3000,
     database: {
-      host: 'localhost',
+      host: "localhost",
       port: 3306,
-      name: 'myapp_dev'
-    }
+      name: "myapp_dev",
+    },
   },
   staging: {
     port: process.env.PORT || 3000,
     database: {
       host: process.env.DB_HOST,
       port: process.env.DB_PORT || 5432,
-      name: process.env.DB_NAME
-    }
+      name: process.env.DB_NAME,
+    },
   },
   production: {
     port: process.env.PORT || 3000,
     database: {
       host: process.env.DB_HOST,
       port: process.env.DB_PORT || 5432,
-      name: process.env.DB_NAME
+      name: process.env.DB_NAME,
     },
     cache: {
       ttl: 3600,
-      maxSize: 1000
-    }
-  }
+      maxSize: 1000,
+    },
+  },
 };
 
-module.exports = config[process.env.NODE_ENV || 'development'];
+module.exports = config[process.env.NODE_ENV || "development"];
 ```
 
 ## Deployment Strategies
@@ -364,7 +364,7 @@ services:
       * app-network
 
   db:
-    image: mysql:8.0
+    image: mysql:9.0.1
     environment:
       * MYSQL_DATABASE=myapp_prod
       * MYSQL_USER=app_user
@@ -479,35 +479,35 @@ spec:
 // migrations/001_initial_schema.js
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('users', {
+    await queryInterface.createTable("users", {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
-        autoIncrement: true
+        autoIncrement: true,
       },
       email: {
         type: Sequelize.STRING,
         unique: true,
-        allowNull: false
+        allowNull: false,
       },
       password_hash: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
       },
       createdAt: {
         type: Sequelize.DATE,
-        allowNull: false
+        allowNull: false,
       },
       updatedAt: {
         type: Sequelize.DATE,
-        allowNull: false
-      }
+        allowNull: false,
+      },
     });
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('users');
-  }
+    await queryInterface.dropTable("users");
+  },
 };
 ```
 
@@ -548,29 +548,39 @@ module.exports = {
     // Use transaction for multiple operations
     await queryInterface.sequelize.transaction(async (t) => {
       // Add column with default value first
-      await queryInterface.addColumn('users', 'status', {
-        type: Sequelize.STRING,
-        defaultValue: 'active'
-      }, { transaction: t });
-      
+      await queryInterface.addColumn(
+        "users",
+        "status",
+        {
+          type: Sequelize.STRING,
+          defaultValue: "active",
+        },
+        { transaction: t },
+      );
+
       // Populate new column
       await queryInterface.sequelize.query(
         "UPDATE users SET status = 'active'",
-        { transaction: t }
+        { transaction: t },
       );
-      
+
       // Make column non-nullable
-      await queryInterface.changeColumn('users', 'status', {
-        type: Sequelize.STRING,
-        allowNull: false,
-        defaultValue: 'active'
-      }, { transaction: t });
+      await queryInterface.changeColumn(
+        "users",
+        "status",
+        {
+          type: Sequelize.STRING,
+          allowNull: false,
+          defaultValue: "active",
+        },
+        { transaction: t },
+      );
     });
   },
-  
+
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.removeColumn('users', 'status');
-  }
+    await queryInterface.removeColumn("users", "status");
+  },
 };
 ```
 
@@ -580,49 +590,49 @@ module.exports = {
 
 ```javascript
 // routes/health.js
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const db = require('../db');
-const redis = require('../redis');
+const db = require("../db");
+const redis = require("../redis");
 
 // Basic health check
-router.get('/health', (req, res) => {
+router.get("/health", (req, res) => {
   res.json({
-    status: 'healthy',
+    status: "healthy",
     timestamp: new Date().toISOString(),
-    version: process.env.npm_package_version
+    version: process.env.npm_package_version,
   });
 });
 
 // Detailed health check
-router.get('/health/detailed', async (req, res) => {
+router.get("/health/detailed", async (req, res) => {
   const checks = await Promise.allSettled([
     checkDatabase(),
     checkRedis(),
-    checkExternalServices()
+    checkExternalServices(),
   ]);
 
   const results = {
-    status: 'healthy',
+    status: "healthy",
     timestamp: new Date().toISOString(),
     version: process.env.npm_package_version,
     checks: {
-      database: checks[0].status === 'fulfilled' ? 'healthy' : 'unhealthy',
-      redis: checks[1].status === 'fulfilled' ? 'healthy' : 'unhealthy',
-      external: checks[2].status === 'fulfilled' ? 'healthy' : 'unhealthy'
-    }
+      database: checks[0].status === "fulfilled" ? "healthy" : "unhealthy",
+      redis: checks[1].status === "fulfilled" ? "healthy" : "unhealthy",
+      external: checks[2].status === "fulfilled" ? "healthy" : "unhealthy",
+    },
   };
 
   const isHealthy = Object.values(results.checks).every(
-    status => status === 'healthy'
+    (status) => status === "healthy",
   );
-  results.status = isHealthy ? 'healthy' : 'unhealthy';
+  results.status = isHealthy ? "healthy" : "unhealthy";
 
   res.status(isHealthy ? 200 : 503).json(results);
 });
 
 async function checkDatabase() {
-  const result = await db.query('SELECT 1 as result');
+  const result = await db.query("SELECT 1 as result");
   return result[0][0].result === 1;
 }
 
@@ -633,7 +643,7 @@ async function checkRedis() {
 
 async function checkExternalServices() {
   // Check external API dependencies
-  const response = await fetch('https://api.external.com/health');
+  const response = await fetch("https://api.external.com/health");
   return response.ok;
 }
 
@@ -644,34 +654,34 @@ module.exports = router;
 
 ```javascript
 // monitoring/metrics.js
-const prometheus = require('prom-client');
+const prometheus = require("prom-client");
 
 // Default metrics
 prometheus.collectDefaultMetrics();
 
 // Custom metrics
 const httpRequestDuration = new prometheus.Histogram({
-  name: 'http_request_duration_seconds',
-  help: 'Duration of HTTP requests in seconds',
-  labelNames: ['method', 'route', 'status_code']
+  name: "http_request_duration_seconds",
+  help: "Duration of HTTP requests in seconds",
+  labelNames: ["method", "route", "status_code"],
 });
 
 const httpRequestTotal = new prometheus.Counter({
-  name: 'http_requests_total',
-  help: 'Total number of HTTP requests',
-  labelNames: ['method', 'route', 'status_code']
+  name: "http_requests_total",
+  help: "Total number of HTTP requests",
+  labelNames: ["method", "route", "status_code"],
 });
 
 const activeConnections = new prometheus.Gauge({
-  name: 'active_connections',
-  help: 'Number of active connections'
+  name: "active_connections",
+  help: "Number of active connections",
 });
 
 module.exports = {
   httpRequestDuration,
   httpRequestTotal,
   activeConnections,
-  register: prometheus.register
+  register: prometheus.register,
 };
 ```
 
@@ -735,14 +745,14 @@ echo "Database rollback completed"
 
 ### Deployment Security Checklist
 
-* [ ] Use HTTPS/TLS encryption
-* [ ] Implement proper authentication
-* [ ] Secure environment variables
-* [ ] Regular security updates
-* [ ] Network security (VPC, firewalls)
-* [ ] Container security scanning
-* [ ] Secrets management
-* [ ] Access logging and monitoring
+- [ ] Use HTTPS/TLS encryption
+- [ ] Implement proper authentication
+- [ ] Secure environment variables
+- [ ] Regular security updates
+- [ ] Network security (VPC, firewalls)
+- [ ] Container security scanning
+- [ ] Secrets management
+- [ ] Access logging and monitoring
 
 ### Secrets Management
 
@@ -793,27 +803,29 @@ server {
 
 ```javascript
 // app.js production configuration
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === "production") {
   // Enable compression
   app.use(compression());
-  
+
   // Set security headers
   app.use(helmet());
-  
+
   // Enable trust proxy
-  app.set('trust proxy', 1);
-  
+  app.set("trust proxy", 1);
+
   // Configure session for production
-  app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: true,
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
-    }
-  }));
+  app.use(
+    session({
+      secret: process.env.SESSION_SECRET,
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        secure: true,
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      },
+    }),
+  );
 }
 ```
 
@@ -871,7 +883,7 @@ kubectl exec -it <pod-name> -- /bin/sh
 
 ```bash
 # Test database connectivity
-kubectl run db-test --image=mysql:8.0 --rm -it -- mysql -h$DB_HOST -u$DB_USER -p$DB_PASSWORD $DB_NAME
+kubectl run db-test --image=mysql:9.0.1 --rm -it -- mysql -h$DB_HOST -u$DB_USER -p$DB_PASSWORD $DB_NAME
 
 # Check network policies
 kubectl get networkpolicy
@@ -931,8 +943,8 @@ echo "Deployment verification successful"
 
 ## Additional Resources
 
-* [Node.js Production Best Practices](https://nodejs.org/en/docs/guides/nodejs-docker-webapp/)
-* [Kubernetes Deployment Strategies](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
-* [Docker Multi-stage Builds](https://docs.docker.com/develop/dev-best-practices/)
-* [MySQL Backup and Recovery](https://dev.mysql.com/doc/refman/8.0/en/backup-and-recovery.html)
-* [Application Security Guidelines](https://owasp.org/www-project-top-ten/)
+- [Node.js Production Best Practices](https://nodejs.org/en/docs/guides/nodejs-docker-webapp/)
+- [Kubernetes Deployment Strategies](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
+- [Docker Multi-stage Builds](https://docs.docker.com/develop/dev-best-practices/)
+- [MySQL Backup and Recovery](https://dev.mysql.com/doc/refman/8.0/en/backup-and-recovery.html)
+- [Application Security Guidelines](https://owasp.org/www-project-top-ten/)

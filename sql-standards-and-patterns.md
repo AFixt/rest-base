@@ -33,12 +33,10 @@ This document outlines our SQL design patterns, naming conventions, and best pra
 
 1. **CamelCase for Column Names**: All column names use camelCase (e.g., `userId`, `tokenHash`, `permissionId`).
 2. **Primary Keys**:
-
    - `inc`: MUST NOT be used as an auto-incrementing integer primary key in most tables.
    - Entity-specific IDs: All tables MUST have a UUID-based identifier (e.g., `userId`, `teamId`, `logId`).
 
 3. **Common Columns**:
-
    - `created`: Timestamp column with default `CURRENT_TIMESTAMP`.
    - `updated`: Timestamp column with default `CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP`.
    - Entity-related IDs: Foreign key columns typically named as `entityId` (e.g., `userId`, `teamId`).
@@ -209,6 +207,67 @@ Each `up` migration should have a corresponding `down` migration to revert chang
 1. UTF-8 character encoding: `DEFAULT CHARACTER SET utf8mb4`.
 2. Case-insensitive collation with accent sensitivity: `COLLATE utf8mb4_0900_ai_ci`.
 
+#### Important: NO PAD Collation Behavior
+
+The `utf8mb4_0900_ai_ci` collation is a **NO PAD** collation, which has important implications for string handling:
+
+**Key Differences from PAD SPACE Collations:**
+
+1. **Trailing Spaces Are Significant**: Unlike older PAD SPACE collations, trailing spaces are treated as part of the string value.
+   - `'value'` and `'value '` are considered **different** strings
+   - This affects comparisons, sorting, and grouping operations
+
+2. **Impact on GROUP BY**: Strings with different trailing spaces will be grouped separately
+
+   ```sql
+   -- With utf8mb4_0900_ai_ci (NO PAD):
+   SELECT username, COUNT(*) FROM users GROUP BY username;
+   -- 'john' and 'john ' will create separate groups
+   ```
+
+3. **Impact on UNIQUE Constraints**: Both `'value'` and `'value '` can exist as separate unique values
+
+   ```sql
+   -- Both of these INSERTs will succeed with NO PAD collation:
+   INSERT INTO users (email) VALUES ('test@example.com');
+   INSERT INTO users (email) VALUES ('test@example.com ');  -- Note trailing space
+   ```
+
+4. **Impact on WHERE Clauses**: Exact matches require exact spacing
+
+   ```sql
+   -- These are different conditions with NO PAD:
+   WHERE email = 'test@example.com'
+   WHERE email = 'test@example.com '
+   ```
+
+**Best Practices to Handle NO PAD Collation:**
+
+1. **Always Trim Input**: Use application-layer validation to trim all string inputs before database operations
+
+2. **Use Sequelize Setters**: Implement automatic trimming in model definitions
+
+   ```javascript
+   email: {
+     type: DataTypes.STRING,
+     allowNull: false,
+     unique: true,
+     set(value) {
+       // Trim to prevent issues with NO PAD collation
+       this.setDataValue('email', value ? value.trim() : value);
+     }
+   }
+   ```
+
+3. **Test GROUP BY Queries**: After migration from older MySQL versions, thoroughly test all GROUP BY operations
+
+4. **Data Migration**: When upgrading from older MySQL versions with PAD SPACE collations:
+   - Scan existing data for trailing spaces
+   - Clean data before migration
+   - Test all unique constraints after migration
+
+5. **Review Joins**: Verify that JOIN operations on string columns work as expected
+
 ### Storage Engine
 
 InnoDB: Used for all tables to support transactions and foreign key constraints.
@@ -216,6 +275,126 @@ InnoDB: Used for all tables to support transactions and foreign key constraints.
 ### Time Zone Setting
 
 UTC is used as the standard time zone: `SET GLOBAL time_zone = '+0:00'`.
+
+## MySQL 9.0 Compatibility
+
+This section covers important compatibility considerations when using MySQL 9.0 or planning to upgrade from earlier versions.
+
+### Authentication Changes
+
+MySQL 9.0 has **removed** the `mysql_native_password` authentication plugin, which was deprecated in MySQL 8.0. This has important implications:
+
+**Key Changes:**
+
+1. **Default Authentication**: `caching_sha2_password` is now the only supported authentication method for new connections
+2. **Legacy Clients**: Older MySQL clients that don't support `caching_sha2_password` cannot connect
+3. **Driver Requirements**: Ensure your database drivers are updated to support the new authentication method
+
+**Required Updates:**
+
+- **mysql2 driver**: Version 3.6.0 or later
+- **sequelize ORM**: Version 6.35.0 or later
+
+**Configuration Example:**
+
+```javascript
+// In database.js configuration
+dialectOptions: {
+  // Explicit authentication plugin configuration
+  authPlugins: {
+    caching_sha2_password: () => () => Buffer.from([])
+  },
+  // Explicit charset and collation
+  charset: 'utf8mb4',
+  collate: 'utf8mb4_0900_ai_ci'
+}
+```
+
+### New Features Available
+
+**VECTOR Data Type (MySQL 9.0+):**
+
+MySQL 9.0 introduces the VECTOR data type for AI/ML applications:
+
+```sql
+CREATE TABLE embeddings (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  document_id VARCHAR(36) NOT NULL,
+  vector_data VECTOR(768),  -- 768 dimensions, max 16383
+  created DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+```
+
+**INTERSECT and EXCEPT Operators:**
+
+Available since MySQL 8.0.31, these set operators provide cleaner syntax for certain queries:
+
+```sql
+-- INTERSECT: Find common values
+SELECT user_id FROM premium_users
+INTERSECT
+SELECT user_id FROM active_users;
+
+-- EXCEPT: Find differences
+SELECT user_id FROM all_users
+EXCEPT
+SELECT user_id FROM banned_users;
+```
+
+### Deprecated Features to Avoid
+
+**Mixed Transaction Types:**
+
+MySQL 9.0 deprecates transactions that update both transactional (InnoDB) and non-transactional (MyISAM) tables,
+generating warnings. This project exclusively uses InnoDB, so no action is needed.
+
+**Information Schema Tables:**
+
+The following Information Schema tables are deprecated:
+
+- `TP_THREAD_GROUP_STATE`
+- `TP_THREAD_GROUP_STATS`
+- `TP_THREAD_STATE`
+
+These are not used in this project's standard patterns.
+
+### Version-Specific Recommendations
+
+**MySQL 8.4 LTS (Recommended for Production):**
+
+- Long-term support until April 2032
+- Stable and well-tested
+- Recommended for production deployments
+
+**MySQL 9.0.1+ (Innovation Release):**
+
+- Latest features including VECTOR type
+- **Avoid MySQL 9.0.0** - it was removed from distribution due to critical bugs
+- Suitable for development and testing of new features
+- Shorter support lifecycle than LTS releases
+
+### Upgrade Checklist
+
+When upgrading to MySQL 9.0:
+
+1. **Update Dependencies:**
+   - [ ] mysql2 to version 3.6.0+
+   - [ ] sequelize to version 6.35.0+
+
+2. **Review String Data:**
+   - [ ] Scan for trailing spaces in string columns
+   - [ ] Verify UNIQUE constraints
+   - [ ] Test GROUP BY operations
+
+3. **Test Authentication:**
+   - [ ] Verify connection with caching_sha2_password
+   - [ ] Test connection pooling
+   - [ ] Verify SSL connections if used
+
+4. **Verify Compatibility:**
+   - [ ] Run full test suite
+   - [ ] Test all SQL queries
+   - [ ] Monitor for deprecation warnings
 
 ## Security Considerations
 
