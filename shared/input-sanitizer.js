@@ -106,17 +106,32 @@ function sanitizeFilePath(path, basePath = process.cwd()) {
 
   const pathModule = require("path");
 
-  // Resolve to absolute path
-  const resolved = pathModule.resolve(basePath, path);
-
-  // Ensure the resolved path is within the base directory
-  if (!resolved.startsWith(pathModule.resolve(basePath))) {
-    return { isValid: false, error: "Path traversal detected" };
-  }
-
-  // Check for null bytes
+  // Check for null bytes first
   if (path.includes("\0")) {
     return { isValid: false, error: "Path contains null bytes" };
+  }
+
+  // Check for Windows-style path separators on Unix (potential traversal attempt)
+  if (process.platform !== "win32" && path.includes("\\")) {
+    return { isValid: false, error: "Invalid path separators" };
+  }
+
+  // Reject absolute paths when basePath is provided
+  if (pathModule.isAbsolute(path) && basePath) {
+    return { isValid: false, error: "Absolute paths are not allowed" };
+  }
+
+  // Resolve to absolute path
+  const resolved = pathModule.resolve(basePath, path);
+  const normalizedBase = pathModule.resolve(basePath);
+
+  // Ensure the resolved path is within the base directory
+  // The resolved path must either be the base itself or start with base + separator
+  if (
+    !resolved.startsWith(normalizedBase + pathModule.sep) &&
+    resolved !== normalizedBase
+  ) {
+    return { isValid: false, error: "Path traversal detected" };
   }
 
   return { isValid: true, sanitized: resolved };
@@ -200,7 +215,9 @@ function escapeShellArg(arg) {
     return '"' + arg.replace(/"/g, '""') + '"';
   }
 
-  // For Unix-like systems
+  // For Unix-like systems - use the standard approach:
+  // Wrap in single quotes and escape any single quotes by:
+  // ending the quote, adding an escaped single quote, then starting a new quote
   return "'" + arg.replace(/'/g, "'\\''") + "'";
 }
 

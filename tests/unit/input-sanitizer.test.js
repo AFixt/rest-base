@@ -162,7 +162,9 @@ describe("Input Sanitizer", () => {
       if (process.platform === "win32") {
         expect(escaped).toBe('"\'; rm -rf /"');
       } else {
-        expect(escaped).toBe("'\\'; rm -rf /'");
+        // Standard shell escaping: wrap in quotes and escape embedded quotes
+        // by ending quote, adding escaped quote, restarting quote
+        expect(escaped).toBe("''\\''; rm -rf /'");
       }
     });
 

@@ -111,27 +111,33 @@ const databaseDefaults = {
 
 /**
  * Secure defaults for logging
+ * @param {string} environment - Environment (development, test, production)
+ * @returns {Object} Logging defaults
  */
-const loggingDefaults = {
-  bunyan: {
-    level: process.env.NODE_ENV === "production" ? "info" : "debug",
-    name: "rest-base",
-    streams: [
-      {
-        level: "info",
-        stream: process.stdout,
-      },
-      {
-        level: "error",
-        path: "logs/error.log",
-      },
-      {
-        level: "info",
-        path: "logs/combined.log",
-      },
-    ],
-  },
-};
+function getLoggingDefaults(
+  environment = process.env.NODE_ENV || "development",
+) {
+  return {
+    bunyan: {
+      level: environment === "production" ? "info" : "debug",
+      name: "rest-base",
+      streams: [
+        {
+          level: "info",
+          stream: process.stdout,
+        },
+        {
+          level: "error",
+          path: "logs/error.log",
+        },
+        {
+          level: "info",
+          path: "logs/combined.log",
+        },
+      ],
+    },
+  };
+}
 
 /**
  * Secure defaults for authentication and authorization
@@ -255,7 +261,7 @@ function getSecureDefaults(
   const defaults = {
     express: expressDefaults,
     database: databaseDefaults,
-    logging: loggingDefaults,
+    logging: getLoggingDefaults(environment),
     auth: authDefaults,
     file: fileDefaults,
     api: apiDefaults,
@@ -353,7 +359,7 @@ module.exports = {
   validateConfiguration,
   expressDefaults,
   databaseDefaults,
-  loggingDefaults,
+  loggingDefaults: getLoggingDefaults(),
   authDefaults,
   fileDefaults,
   apiDefaults,
