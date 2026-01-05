@@ -86,8 +86,9 @@ async function parseRouteFile(filePath) {
 
   const routes = [];
   const routeComments = new Map();
+  const variables = new Map(); // Track variable declarations
 
-  // First pass: collect JSDoc comments
+  // First pass: collect JSDoc comments and variable declarations
   traverse(ast, {
     enter(path) {
       if (path.node.leadingComments) {
@@ -102,8 +103,60 @@ async function parseRouteFile(filePath) {
           }
         });
       }
+
+      // Track variable declarations
+      if (
+        path.node.type === "VariableDeclarator" &&
+        path.node.id?.name &&
+        path.node.init?.value
+      ) {
+        variables.set(path.node.id.name, path.node.init.value);
+      }
     },
   });
+
+  // Helper function to resolve route path from AST node
+  const resolveRoutePath = (node) => {
+    if (!node) return null;
+
+    // Simple string literal
+    if (node.type === "StringLiteral") {
+      return node.value;
+    }
+
+    // Template literal
+    if (node.type === "TemplateLiteral") {
+      let path = "";
+      for (let i = 0; i < node.quasis.length; i++) {
+        path += node.quasis[i].value.raw;
+        if (i < node.expressions.length) {
+          const expr = node.expressions[i];
+          if (expr.type === "Identifier" && variables.has(expr.name)) {
+            path += variables.get(expr.name);
+          } else {
+            return null; // Can't resolve variable
+          }
+        }
+      }
+      return path;
+    }
+
+    // Binary expression (concatenation)
+    if (node.type === "BinaryExpression" && node.operator === "+") {
+      const left = resolveRoutePath(node.left);
+      const right = resolveRoutePath(node.right);
+      if (left !== null && right !== null) {
+        return left + right;
+      }
+    }
+
+    // Identifier (variable reference)
+    if (node.type === "Identifier" && variables.has(node.name)) {
+      return variables.get(node.name);
+    }
+
+    return null;
+  };
 
   // Second pass: extract route definitions
   traverse(ast, {
@@ -118,7 +171,7 @@ async function parseRouteFile(filePath) {
         )
       ) {
         const method = callee.property.name.toUpperCase();
-        const routePath = args[0]?.value || args[0]?.quasis?.[0]?.value?.raw;
+        const routePath = resolveRoutePath(args[0]);
 
         if (routePath) {
           const routeInfo = {
@@ -142,10 +195,8 @@ async function parseRouteFile(filePath) {
 
           if (closestComment) {
             Object.assign(routeInfo, closestComment);
-            // If the JSDoc has a different path, prefer it
-            if (closestComment.fullPath) {
-              routeInfo.path = closestComment.fullPath;
-            }
+            // Keep the code path, don't override with JSDoc fullPath
+            // The code path is more accurate
           }
 
           // Extract middleware and handler names
@@ -196,17 +247,21 @@ function parseJSDoc(comment) {
       currentSection = "description";
       info.description = line.replace("@description", "").trim();
     } else if (line.startsWith("@param")) {
-      const match = line.match(/@param\s+{([^}]+)}\s+(\[?)([^\]]+)\]?\s*(.*)/);
+      // Match both: @param {type} [name=default] - description
+      //         and: @param {type} name - description
+      const match = line.match(
+        /@param\s+{([^}]+)}\s+(?:\[([^\]=]+)(?:=[^\]]*)?]|(\S+))\s*-?\s*(.*)/,
+      );
       if (match) {
         info.parameters.push({
-          name: match[3],
+          name: match[2] || match[3], // match[2] for optional, match[3] for required
           type: match[1],
-          required: !match[2],
+          required: !match[2], // If match[2] exists, it was in brackets (optional)
           description: match[4],
         });
       }
     } else if (line.startsWith("@response")) {
-      const match = line.match(/@response\s+(\d{3})\s+(.*)/);
+      const match = line.match(/@response\s+(\d{3})\s+-?\s*(.*)/);
       if (match) {
         info.responses[match[1]] = { description: match[2] };
       }

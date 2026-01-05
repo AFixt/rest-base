@@ -58,7 +58,7 @@ const DEFAULT_CONFIG = {
  */
 class HealthChecker {
   constructor(config = {}) {
-    this.config = { ...DEFAULT_CONFIG, ...config };
+    this.config = this.deepMerge(DEFAULT_CONFIG, config);
     this.checks = new Map();
     this.lastResults = new Map();
     this.startTime = Date.now();
@@ -67,6 +67,39 @@ class HealthChecker {
     this.registerCheck("system", this.checkSystem.bind(this));
     this.registerCheck("memory", this.checkMemory.bind(this));
     this.registerCheck("disk", this.checkDisk.bind(this));
+  }
+
+  /**
+   * Deep merge two objects
+   * @param {Object} target - Target object
+   * @param {Object} source - Source object
+   * @returns {Object} Merged object
+   */
+  deepMerge(target, source) {
+    const output = { ...target };
+    if (this.isObject(target) && this.isObject(source)) {
+      Object.keys(source).forEach((key) => {
+        if (this.isObject(source[key])) {
+          if (!(key in target)) {
+            output[key] = source[key];
+          } else {
+            output[key] = this.deepMerge(target[key], source[key]);
+          }
+        } else {
+          output[key] = source[key];
+        }
+      });
+    }
+    return output;
+  }
+
+  /**
+   * Check if value is an object
+   * @param {*} item - Item to check
+   * @returns {boolean} True if object
+   */
+  isObject(item) {
+    return item && typeof item === "object" && !Array.isArray(item);
   }
 
   /**
@@ -416,11 +449,24 @@ class HealthChecker {
               await database.query("SELECT 1");
             }
             break;
+          case "postgres":
+          case "postgresql":
+            // For Sequelize ORM
+            if (database.authenticate) {
+              await database.authenticate();
+            }
+            // For pg connection pool or client
+            else if (database.query) {
+              await database.query("SELECT 1");
+            }
+            break;
           case "redis":
             await database.ping();
             break;
           default:
-            throw new Error(`Unsupported database type: ${type}. Use 'mysql', 'mariadb', or 'redis'`);
+            throw new Error(
+              `Unsupported database type: ${type}. Use 'mysql', 'mariadb', 'postgres', 'postgresql', or 'redis'`,
+            );
         }
 
         const duration = performance.now() - startTime;
