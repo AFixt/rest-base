@@ -1,3 +1,4 @@
 node_modules/
 temp-rest-base/
 templates/*/node_modules/
+CHANGELOG.md
