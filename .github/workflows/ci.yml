@@ -4,7 +4,11 @@ on:
   push:
     branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   NODE_VERSION: '22.11.0'
@@ -13,7 +17,7 @@ jobs:
   lint:
     name: Code Quality & Linting
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -30,8 +34,23 @@ jobs:
       - name: Run ESLint
         run: npm run lint:js
 
+      - name: Check Prettier formatting
+        run: npm run format:check
+
       - name: Run Markdown linting
         run: npm run lint:md
+
+      - name: Check for code duplication (jscpd)
+        run: npm run lint:cpd:ci
+        continue-on-error: true
+
+      - name: Upload duplication report
+        uses: actions/upload-artifact@v4
+        with:
+          name: jscpd-report
+          path: reports/jscpd/
+          retention-days: 30
+        if: always()
 
       - name: Check TypeScript types
         run: npm run typecheck

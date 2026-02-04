@@ -123,3 +123,6 @@ desktop.ini
 
 # Project-specific backups
 .rest-base-backups/
+
+# jscpd reports
+reports/
