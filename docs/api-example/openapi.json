@@ -12,10 +12,7 @@
         "summary": "Get all users",
         "description": "Retrieves a paginated list of all users in the system with optional filtering",
         "operationId": "get_api_users",
-        "tags": [
-          "Users",
-          "Admin"
-        ],
+        "tags": ["Users", "Admin"],
         "parameters": [
           {
             "name": "page=1",
@@ -105,10 +102,7 @@
         "summary": "Create a new user",
         "description": "Creates a new user account with the provided information. Requires admin privileges.",
         "operationId": "post_api_users",
-        "tags": [
-          "Users",
-          "Admin"
-        ],
+        "tags": ["Users", "Admin"],
         "parameters": [
           {
             "name": "email - User email address (must be unique)",
@@ -212,9 +206,7 @@
         "summary": "Get user by ID",
         "description": "Retrieves detailed information about a specific user",
         "operationId": "get_api_users__id",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "parameters": [
           {
             "name": "id - User ID (UUID format)",
@@ -250,9 +242,7 @@
         "summary": "Update user",
         "description": "Updates user information. Users can update their own profile, admins can update anyone.",
         "operationId": "put_api_users__id",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "parameters": [
           {
             "name": "id - User ID",
@@ -339,10 +329,7 @@
         "summary": "Delete user",
         "description": "Permanently deletes a user account. This action cannot be undone.",
         "operationId": "delete_api_users__id",
-        "tags": [
-          "Users",
-          "Admin"
-        ],
+        "tags": ["Users", "Admin"],
         "parameters": [
           {
             "name": "id - User ID",
@@ -380,10 +367,7 @@
         "summary": "Reset user password",
         "description": "Sends a password reset email to the user",
         "operationId": "post_api_users__id_reset-password",
-        "tags": [
-          "Users",
-          "Authentication"
-        ],
+        "tags": ["Users", "Authentication"],
         "parameters": [
           {
             "name": "id - User ID",
@@ -424,10 +408,7 @@
         "summary": "Get user sessions",
         "description": "Retrieves all active sessions for a user",
         "operationId": "get_api_users__id_sessions",
-        "tags": [
-          "Users",
-          "Security"
-        ],
+        "tags": ["Users", "Security"],
         "parameters": [
           {
             "name": "id - User ID",
@@ -465,9 +446,7 @@
         "summary": "Health check",
         "description": "Simple health check endpoint for monitoring",
         "operationId": "get_api_health",
-        "tags": [
-          "System"
-        ],
+        "tags": ["System"],
         "parameters": [],
         "responses": {
           "200": {

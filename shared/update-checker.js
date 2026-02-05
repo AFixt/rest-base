@@ -5,14 +5,14 @@
  * @author Karl Groves
  */
 
-const fs = require("fs").promises;
-const path = require("path");
-const https = require("https");
+const fs = require('fs').promises;
+const path = require('path');
+const https = require('https');
 
 class UpdateChecker {
   constructor() {
-    this.packagePath = path.join(__dirname, "..", "package.json");
-    this.cacheFile = path.join(__dirname, "..", ".update-cache.json");
+    this.packagePath = path.join(__dirname, '..', 'package.json');
+    this.cacheFile = path.join(__dirname, '..', '.update-cache.json');
     this.checkInterval = 24 * 60 * 60 * 1000; // 24 hours
   }
 
@@ -21,7 +21,7 @@ class UpdateChecker {
    */
   async getCurrentVersion() {
     try {
-      const packageContent = await fs.readFile(this.packagePath, "utf8");
+      const packageContent = await fs.readFile(this.packagePath, 'utf8');
       const packageJson = JSON.parse(packageContent);
       return packageJson.version;
     } catch (error) {
@@ -33,24 +33,24 @@ class UpdateChecker {
    * Fetch the latest version from npm registry
    */
   async getLatestVersion() {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const options = {
-        hostname: "registry.npmjs.org",
-        path: "/rest-spec/latest",
-        method: "GET",
+        hostname: 'registry.npmjs.org',
+        path: '/rest-spec/latest',
+        method: 'GET',
         headers: {
-          "User-Agent": "REST-SPEC-CLI",
+          'User-Agent': 'REST-SPEC-CLI',
         },
       };
 
-      const req = https.request(options, (res) => {
-        let data = "";
+      const req = https.request(options, res => {
+        let data = '';
 
-        res.on("data", (chunk) => {
+        res.on('data', chunk => {
           data += chunk;
         });
 
-        res.on("end", () => {
+        res.on('end', () => {
           try {
             if (res.statusCode === 200) {
               const packageInfo = JSON.parse(data);
@@ -64,7 +64,7 @@ class UpdateChecker {
         });
       });
 
-      req.on("error", () => {
+      req.on('error', () => {
         resolve(null);
       });
 
@@ -81,16 +81,14 @@ class UpdateChecker {
    * Compare two semantic versions
    */
   compareVersions(current, latest) {
-    if (!current || !latest) return false;
+    if (!current || !latest) {
+      return false;
+    }
 
-    const currentParts = current.split(".").map((num) => parseInt(num, 10));
-    const latestParts = latest.split(".").map((num) => parseInt(num, 10));
+    const currentParts = current.split('.').map(num => parseInt(num, 10));
+    const latestParts = latest.split('.').map(num => parseInt(num, 10));
 
-    for (
-      let i = 0;
-      i < Math.max(currentParts.length, latestParts.length);
-      i++
-    ) {
+    for (let i = 0; i < Math.max(currentParts.length, latestParts.length); i++) {
       const currentPart = currentParts[i] || 0;
       const latestPart = latestParts[i] || 0;
 
@@ -109,7 +107,7 @@ class UpdateChecker {
    */
   async shouldCheckForUpdates() {
     try {
-      const cacheContent = await fs.readFile(this.cacheFile, "utf8");
+      const cacheContent = await fs.readFile(this.cacheFile, 'utf8');
       const cache = JSON.parse(cacheContent);
       const now = Date.now();
 
@@ -140,22 +138,22 @@ class UpdateChecker {
    */
   formatUpdateMessage(currentVersion, latestVersion) {
     return [
-      "",
-      "========================================================",
-      "UPDATE AVAILABLE: REST-SPEC",
-      "========================================================",
+      '',
+      '========================================================',
+      'UPDATE AVAILABLE: REST-SPEC',
+      '========================================================',
       `Current version: ${currentVersion}`,
       `Latest version: ${latestVersion}`,
-      "",
-      "To update, run one of the following commands:",
-      "  npm install -g rest-spec@latest",
-      "  npm update -g rest-spec",
-      "",
-      "View changelog at:",
-      "  https://github.com/karlgroves/rest-spec/releases",
-      "========================================================",
-      "",
-    ].join("\n");
+      '',
+      'To update, run one of the following commands:',
+      '  npm install -g rest-spec@latest',
+      '  npm update -g rest-spec',
+      '',
+      'View changelog at:',
+      '  https://github.com/karlgroves/rest-spec/releases',
+      '========================================================',
+      '',
+    ].join('\n');
   }
 
   /**
@@ -182,10 +180,7 @@ class UpdateChecker {
       await this.updateCache(latestVersion);
 
       // Check if update is available
-      const updateAvailable = this.compareVersions(
-        currentVersion,
-        latestVersion,
-      );
+      const updateAvailable = this.compareVersions(currentVersion, latestVersion);
 
       if (updateAvailable) {
         console.log(this.formatUpdateMessage(currentVersion, latestVersion));
@@ -203,9 +198,9 @@ class UpdateChecker {
    * Disable update checking by creating a flag file
    */
   async disableUpdateChecking() {
-    const disableFile = path.join(__dirname, "..", ".no-update-check");
+    const disableFile = path.join(__dirname, '..', '.no-update-check');
     try {
-      await fs.writeFile(disableFile, "");
+      await fs.writeFile(disableFile, '');
       return true;
     } catch (error) {
       return false;
@@ -216,7 +211,7 @@ class UpdateChecker {
    * Check if update checking is disabled
    */
   async isUpdateCheckingDisabled() {
-    const disableFile = path.join(__dirname, "..", ".no-update-check");
+    const disableFile = path.join(__dirname, '..', '.no-update-check');
     try {
       await fs.access(disableFile);
       return true;

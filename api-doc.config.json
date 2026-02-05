@@ -42,18 +42,8 @@
       "name": "X-API-Key"
     }
   },
-  "patterns": [
-    "**/routes/**/*.js",
-    "**/api/**/*.js",
-    "**/controllers/**/*.js"
-  ],
-  "ignore": [
-    "**/node_modules/**",
-    "**/test/**",
-    "**/tests/**",
-    "**/*.test.js",
-    "**/*.spec.js"
-  ],
+  "patterns": ["**/routes/**/*.js", "**/api/**/*.js", "**/controllers/**/*.js"],
+  "ignore": ["**/node_modules/**", "**/test/**", "**/tests/**", "**/*.test.js", "**/*.spec.js"],
   "output": {
     "formats": ["openapi", "markdown", "html"],
     "directory": "./docs/api",

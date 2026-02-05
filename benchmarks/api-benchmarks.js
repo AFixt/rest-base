@@ -7,9 +7,9 @@
  * @author Karl Groves
  */
 
-const { suite } = require("./benchmark-runner");
-const http = require("http");
-const express = require("express");
+const { suite } = require('./benchmark-runner');
+const http = require('http');
+const express = require('express');
 
 /**
  * Mock database operations for benchmarking
@@ -33,13 +33,13 @@ class MockDatabase {
   async findById(id) {
     this.queryCount++;
     // Simulate database latency
-    await new Promise((resolve) => setImmediate(resolve));
+    await new Promise(resolve => setImmediate(resolve));
     return this.data.get(`user:${id}`);
   }
 
   async findAll(limit = 10, offset = 0) {
     this.queryCount++;
-    await new Promise((resolve) => setImmediate(resolve));
+    await new Promise(resolve => setImmediate(resolve));
 
     const results = [];
     const keys = Array.from(this.data.keys());
@@ -53,7 +53,7 @@ class MockDatabase {
 
   async create(data) {
     this.queryCount++;
-    await new Promise((resolve) => setImmediate(resolve));
+    await new Promise(resolve => setImmediate(resolve));
 
     const id = this.data.size + 1;
     const record = { id, ...data, createdAt: new Date().toISOString() };
@@ -63,11 +63,11 @@ class MockDatabase {
 
   async update(id, data) {
     this.queryCount++;
-    await new Promise((resolve) => setImmediate(resolve));
+    await new Promise(resolve => setImmediate(resolve));
 
     const key = `user:${id}`;
     if (!this.data.has(key)) {
-      throw new Error("Record not found");
+      throw new Error('Record not found');
     }
 
     const record = {
@@ -98,7 +98,7 @@ function createTestApp() {
   // Request logging middleware
   app.use((req, res, _next) => {
     req.startTime = process.hrtime.bigint();
-    res.on("finish", () => {
+    res.on('finish', () => {
       const duration = Number(process.hrtime.bigint() - req.startTime) / 1e6;
       req.duration = duration;
     });
@@ -106,11 +106,11 @@ function createTestApp() {
   });
 
   // Routes
-  app.get("/api/users", async (req, res) => {
+  app.get('/api/users', async (req, res) => {
     const { limit = 10, offset = 0 } = req.query;
     const users = await db.findAll(parseInt(limit), parseInt(offset));
     res.json({
-      status: "success",
+      status: 'success',
       data: users,
       meta: {
         limit: parseInt(limit),
@@ -120,38 +120,38 @@ function createTestApp() {
     });
   });
 
-  app.get("/api/users/:id", async (req, res) => {
+  app.get('/api/users/:id', async (req, res) => {
     const user = await db.findById(parseInt(req.params.id));
     if (!user) {
       return res.status(404).json({
-        status: "error",
-        message: "User not found",
+        status: 'error',
+        message: 'User not found',
       });
     }
     res.json({
-      status: "success",
+      status: 'success',
       data: user,
     });
   });
 
-  app.post("/api/users", async (req, res) => {
+  app.post('/api/users', async (req, res) => {
     const user = await db.create(req.body);
     res.status(201).json({
-      status: "success",
+      status: 'success',
       data: user,
     });
   });
 
-  app.put("/api/users/:id", async (req, res) => {
+  app.put('/api/users/:id', async (req, res) => {
     try {
       const user = await db.update(parseInt(req.params.id), req.body);
       res.json({
-        status: "success",
+        status: 'success',
         data: user,
       });
     } catch (error) {
       res.status(404).json({
-        status: "error",
+        status: 'error',
         message: error.message,
       });
     }
@@ -160,8 +160,8 @@ function createTestApp() {
   // Error handling
   app.use((err, req, res, _next) => {
     res.status(err.status || 500).json({
-      status: "error",
-      message: err.message || "Internal server error",
+      status: 'error',
+      message: err.message || 'Internal server error',
     });
   });
 
@@ -173,10 +173,10 @@ function createTestApp() {
  */
 function makeRequest(options) {
   return new Promise((resolve, reject) => {
-    const req = http.request(options, (res) => {
-      let data = "";
-      res.on("data", (chunk) => (data += chunk));
-      res.on("end", () => {
+    const req = http.request(options, res => {
+      let data = '';
+      res.on('data', chunk => (data += chunk));
+      res.on('end', () => {
         resolve({
           statusCode: res.statusCode,
           headers: res.headers,
@@ -185,7 +185,7 @@ function makeRequest(options) {
       });
     });
 
-    req.on("error", reject);
+    req.on('error', reject);
 
     if (options.body) {
       req.write(JSON.stringify(options.body));
@@ -198,11 +198,11 @@ function makeRequest(options) {
 /**
  * Routing benchmarks
  */
-const routingBenchmarks = suite("API Routing", {
+const routingBenchmarks = suite('API Routing', {
   warmupRuns: 10,
   iterations: 1000,
   output: {
-    file: "benchmarks/results/api-routing.json",
+    file: 'benchmarks/results/api-routing.json',
   },
 })
   .beforeAll(async function () {
@@ -210,49 +210,49 @@ const routingBenchmarks = suite("API Routing", {
     this.db = db;
     this.server = http.createServer(app);
 
-    await new Promise((resolve) => {
-      this.server.listen(0, "127.0.0.1", resolve);
+    await new Promise(resolve => {
+      this.server.listen(0, '127.0.0.1', resolve);
     });
 
     this.port = this.server.address().port;
     this.baseOptions = {
-      hostname: "127.0.0.1",
+      hostname: '127.0.0.1',
       port: this.port,
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     };
   })
-  .add("GET /api/users - List Users", async function () {
+  .add('GET /api/users - List Users', async function () {
     const response = await makeRequest({
       ...this.baseOptions,
-      method: "GET",
-      path: "/api/users?limit=10",
+      method: 'GET',
+      path: '/api/users?limit=10',
     });
 
     if (response.statusCode !== 200) {
       throw new Error(`Expected 200, got ${response.statusCode}`);
     }
   })
-  .add("GET /api/users/:id - Get Single User", async function () {
+  .add('GET /api/users/:id - Get Single User', async function () {
     const response = await makeRequest({
       ...this.baseOptions,
-      method: "GET",
-      path: "/api/users/1",
+      method: 'GET',
+      path: '/api/users/1',
     });
 
     if (response.statusCode !== 200) {
       throw new Error(`Expected 200, got ${response.statusCode}`);
     }
   })
-  .add("POST /api/users - Create User", async function () {
+  .add('POST /api/users - Create User', async function () {
     const response = await makeRequest({
       ...this.baseOptions,
-      method: "POST",
-      path: "/api/users",
+      method: 'POST',
+      path: '/api/users',
       body: {
-        username: "benchmarkuser",
-        email: "benchmark@example.com",
+        username: 'benchmarkuser',
+        email: 'benchmark@example.com',
       },
     });
 
@@ -260,13 +260,13 @@ const routingBenchmarks = suite("API Routing", {
       throw new Error(`Expected 201, got ${response.statusCode}`);
     }
   })
-  .add("PUT /api/users/:id - Update User", async function () {
+  .add('PUT /api/users/:id - Update User', async function () {
     const response = await makeRequest({
       ...this.baseOptions,
-      method: "PUT",
-      path: "/api/users/1",
+      method: 'PUT',
+      path: '/api/users/1',
       body: {
-        username: "updateduser",
+        username: 'updateduser',
       },
     });
 
@@ -274,11 +274,11 @@ const routingBenchmarks = suite("API Routing", {
       throw new Error(`Expected 200, got ${response.statusCode}`);
     }
   })
-  .add("404 Not Found - Non-existent Route", async function () {
+  .add('404 Not Found - Non-existent Route', async function () {
     const response = await makeRequest({
       ...this.baseOptions,
-      method: "GET",
-      path: "/api/nonexistent",
+      method: 'GET',
+      path: '/api/nonexistent',
     });
 
     if (response.statusCode !== 404) {
@@ -286,7 +286,7 @@ const routingBenchmarks = suite("API Routing", {
     }
   })
   .afterAll(async function () {
-    await new Promise((resolve) => {
+    await new Promise(resolve => {
       this.server.close(resolve);
     });
   });
@@ -294,11 +294,11 @@ const routingBenchmarks = suite("API Routing", {
 /**
  * Middleware benchmarks
  */
-const middlewareBenchmarks = suite("API Middleware", {
+const middlewareBenchmarks = suite('API Middleware', {
   warmupRuns: 5,
   iterations: 500,
   output: {
-    file: "benchmarks/results/api-middleware.json",
+    file: 'benchmarks/results/api-middleware.json',
   },
 })
   .beforeAll(async function () {
@@ -323,15 +323,15 @@ const middlewareBenchmarks = suite("API Middleware", {
     app.use((req, res, next) => {
       middlewares.auth++;
       const token = req.headers.authorization;
-      req.user = token ? { id: 1, role: "user" } : null;
+      req.user = token ? { id: 1, role: 'user' } : null;
       next();
     });
 
     // Validation middleware
     app.use((req, res, next) => {
       middlewares.validation++;
-      if (req.method === "POST" && !req.body) {
-        return res.status(400).json({ error: "Body required" });
+      if (req.method === 'POST' && !req.body) {
+        return res.status(400).json({ error: 'Body required' });
       }
       next();
     });
@@ -344,7 +344,7 @@ const middlewareBenchmarks = suite("API Middleware", {
       const count = requestCounts.get(ip) || 0;
 
       if (count > 100) {
-        return res.status(429).json({ error: "Rate limit exceeded" });
+        return res.status(429).json({ error: 'Rate limit exceeded' });
       }
 
       requestCounts.set(ip, count + 1);
@@ -352,43 +352,43 @@ const middlewareBenchmarks = suite("API Middleware", {
     });
 
     // Test endpoint
-    app.all("/test", (req, res) => {
+    app.all('/test', (req, res) => {
       res.json({
         success: true,
-        middlewares: Object.keys(middlewares).filter((m) => middlewares[m] > 0),
+        middlewares: Object.keys(middlewares).filter(m => middlewares[m] > 0),
       });
     });
 
     this.middlewares = middlewares;
     this.server = http.createServer(app);
 
-    await new Promise((resolve) => {
-      this.server.listen(0, "127.0.0.1", resolve);
+    await new Promise(resolve => {
+      this.server.listen(0, '127.0.0.1', resolve);
     });
 
     this.port = this.server.address().port;
   })
-  .add("Minimal Middleware Stack", async function () {
+  .add('Minimal Middleware Stack', async function () {
     const response = await makeRequest({
-      hostname: "127.0.0.1",
+      hostname: '127.0.0.1',
       port: this.port,
-      method: "GET",
-      path: "/test",
+      method: 'GET',
+      path: '/test',
     });
 
     if (response.statusCode !== 200) {
       throw new Error(`Expected 200, got ${response.statusCode}`);
     }
   })
-  .add("Full Middleware Stack with Auth", async function () {
+  .add('Full Middleware Stack with Auth', async function () {
     const response = await makeRequest({
-      hostname: "127.0.0.1",
+      hostname: '127.0.0.1',
       port: this.port,
-      method: "POST",
-      path: "/test",
+      method: 'POST',
+      path: '/test',
       headers: {
-        Authorization: "Bearer test-token",
-        "Content-Type": "application/json",
+        Authorization: 'Bearer test-token',
+        'Content-Type': 'application/json',
       },
       body: { test: true },
     });
@@ -398,7 +398,7 @@ const middlewareBenchmarks = suite("API Middleware", {
     }
   })
   .afterAll(async function () {
-    await new Promise((resolve) => {
+    await new Promise(resolve => {
       this.server.close(resolve);
     });
   });
@@ -406,65 +406,65 @@ const middlewareBenchmarks = suite("API Middleware", {
 /**
  * Database operation benchmarks
  */
-const databaseBenchmarks = suite("Database Operations", {
+const databaseBenchmarks = suite('Database Operations', {
   warmupRuns: 5,
   iterations: 100,
   output: {
-    file: "benchmarks/results/database-ops.json",
+    file: 'benchmarks/results/database-ops.json',
   },
 })
   .beforeAll(function () {
     this.db = new MockDatabase();
   })
-  .add("Single Record Lookup", async function () {
+  .add('Single Record Lookup', async function () {
     const user = await this.db.findById(Math.floor(Math.random() * 1000) + 1);
     if (!user) {
-      throw new Error("User not found");
+      throw new Error('User not found');
     }
   })
-  .add("Batch Record Lookup (10 records)", async function () {
+  .add('Batch Record Lookup (10 records)', async function () {
     const promises = [];
     for (let i = 0; i < 10; i++) {
       promises.push(this.db.findById(Math.floor(Math.random() * 1000) + 1));
     }
     const results = await Promise.all(promises);
-    if (results.some((r) => !r)) {
-      throw new Error("Some users not found");
+    if (results.some(r => !r)) {
+      throw new Error('Some users not found');
     }
   })
-  .add("List Query with Pagination", async function () {
+  .add('List Query with Pagination', async function () {
     const users = await this.db.findAll(20, 100);
     if (users.length !== 20) {
-      throw new Error("Incorrect number of users returned");
+      throw new Error('Incorrect number of users returned');
     }
   })
-  .add("Create Record", async function () {
+  .add('Create Record', async function () {
     const user = await this.db.create({
       username: `benchmark${Date.now()}`,
       email: `benchmark${Date.now()}@example.com`,
     });
     if (!user.id) {
-      throw new Error("User creation failed");
+      throw new Error('User creation failed');
     }
   })
-  .add("Update Record", async function () {
+  .add('Update Record', async function () {
     const id = Math.floor(Math.random() * 1000) + 1;
     const user = await this.db.update(id, {
       username: `updated${Date.now()}`,
     });
     if (!user.updatedAt) {
-      throw new Error("User update failed");
+      throw new Error('User update failed');
     }
   });
 
 /**
  * Load testing benchmarks
  */
-const loadTestingBenchmarks = suite("Load Testing", {
+const loadTestingBenchmarks = suite('Load Testing', {
   warmupRuns: 2,
   iterations: 10,
   output: {
-    file: "benchmarks/results/load-testing.json",
+    file: 'benchmarks/results/load-testing.json',
   },
 })
   .beforeAll(async function () {
@@ -472,60 +472,60 @@ const loadTestingBenchmarks = suite("Load Testing", {
     this.db = db;
     this.server = http.createServer(app);
 
-    await new Promise((resolve) => {
-      this.server.listen(0, "127.0.0.1", resolve);
+    await new Promise(resolve => {
+      this.server.listen(0, '127.0.0.1', resolve);
     });
 
     this.port = this.server.address().port;
   })
-  .add("Concurrent Requests (10)", async function () {
+  .add('Concurrent Requests (10)', async function () {
     const requests = [];
     for (let i = 0; i < 10; i++) {
       requests.push(
         makeRequest({
-          hostname: "127.0.0.1",
+          hostname: '127.0.0.1',
           port: this.port,
-          method: "GET",
+          method: 'GET',
           path: `/api/users/${i + 1}`,
-        }),
+        })
       );
     }
 
     const results = await Promise.all(requests);
-    if (results.some((r) => r.statusCode !== 200)) {
-      throw new Error("Some requests failed");
+    if (results.some(r => r.statusCode !== 200)) {
+      throw new Error('Some requests failed');
     }
   })
-  .add("Concurrent Requests (50)", async function () {
+  .add('Concurrent Requests (50)', async function () {
     const requests = [];
     for (let i = 0; i < 50; i++) {
       requests.push(
         makeRequest({
-          hostname: "127.0.0.1",
+          hostname: '127.0.0.1',
           port: this.port,
-          method: "GET",
+          method: 'GET',
           path: `/api/users/${(i % 100) + 1}`,
-        }),
+        })
       );
     }
 
     const results = await Promise.all(requests);
-    if (results.some((r) => r.statusCode !== 200)) {
-      throw new Error("Some requests failed");
+    if (results.some(r => r.statusCode !== 200)) {
+      throw new Error('Some requests failed');
     }
   })
-  .add("Mixed Operations (Read/Write)", async function () {
+  .add('Mixed Operations (Read/Write)', async function () {
     const requests = [];
 
     // 70% reads
     for (let i = 0; i < 70; i++) {
       requests.push(
         makeRequest({
-          hostname: "127.0.0.1",
+          hostname: '127.0.0.1',
           port: this.port,
-          method: "GET",
+          method: 'GET',
           path: `/api/users/${(i % 100) + 1}`,
-        }),
+        })
       );
     }
 
@@ -533,16 +533,16 @@ const loadTestingBenchmarks = suite("Load Testing", {
     for (let i = 0; i < 20; i++) {
       requests.push(
         makeRequest({
-          hostname: "127.0.0.1",
+          hostname: '127.0.0.1',
           port: this.port,
-          method: "POST",
-          path: "/api/users",
-          headers: { "Content-Type": "application/json" },
+          method: 'POST',
+          path: '/api/users',
+          headers: { 'Content-Type': 'application/json' },
           body: {
             username: `loadtest${i}`,
             email: `loadtest${i}@example.com`,
           },
-        }),
+        })
       );
     }
 
@@ -550,29 +550,27 @@ const loadTestingBenchmarks = suite("Load Testing", {
     for (let i = 0; i < 10; i++) {
       requests.push(
         makeRequest({
-          hostname: "127.0.0.1",
+          hostname: '127.0.0.1',
           port: this.port,
-          method: "PUT",
+          method: 'PUT',
           path: `/api/users/${i + 1}`,
-          headers: { "Content-Type": "application/json" },
+          headers: { 'Content-Type': 'application/json' },
           body: {
             username: `updated${i}`,
           },
-        }),
+        })
       );
     }
 
     const results = await Promise.all(requests);
-    const successCount = results.filter((r) => r.statusCode < 400).length;
+    const successCount = results.filter(r => r.statusCode < 400).length;
 
     if (successCount < 90) {
-      throw new Error(
-        `Too many failures: ${100 - successCount} requests failed`,
-      );
+      throw new Error(`Too many failures: ${100 - successCount} requests failed`);
     }
   })
   .afterAll(async function () {
-    await new Promise((resolve) => {
+    await new Promise(resolve => {
       this.server.close(resolve);
     });
   });
@@ -581,7 +579,7 @@ const loadTestingBenchmarks = suite("Load Testing", {
  * Run all API benchmarks
  */
 async function runAllBenchmarks() {
-  console.log("Starting REST API Performance Benchmarks...\n");
+  console.log('Starting REST API Performance Benchmarks...\n');
 
   const suites = [
     routingBenchmarks,
@@ -596,13 +594,13 @@ async function runAllBenchmarks() {
     try {
       const result = await benchmarkSuite.run();
       results.push(result);
-      console.log("\n" + "=".repeat(60) + "\n");
+      console.log('\n' + '='.repeat(60) + '\n');
     } catch (error) {
       console.error(`\nBenchmark suite failed: ${error.message}`);
     }
   }
 
-  console.log("\nAll API benchmarks completed!");
+  console.log('\nAll API benchmarks completed!');
 }
 
 // Run benchmarks if executed directly

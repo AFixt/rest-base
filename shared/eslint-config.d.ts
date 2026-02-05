@@ -37,4 +37,6 @@ export declare function getEslintConfigString(): string;
 /**
  * Gets a customized ESLint configuration with additional rules
  */
-export declare function getCustomEslintConfig(customRules?: Record<string, ESLintRule>): ESLintConfiguration;
+export declare function getCustomEslintConfig(
+  customRules?: Record<string, ESLintRule>
+): ESLintConfiguration;

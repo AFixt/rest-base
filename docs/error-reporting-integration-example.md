@@ -23,10 +23,10 @@ async function main() {
 const wrappedMain = errorReporter.createErrorBoundary(main, 'your-command-name');
 
 // Execute
-wrappedMain().catch(async (error) => {
+wrappedMain().catch(async error => {
   await errorReporter.report(error, {
     command: 'your-command-name:fatal',
-    fatal: true
+    fatal: true,
   });
   process.exit(1);
 });
@@ -55,8 +55,8 @@ try {
     context: {
       input: sanitizedInput,
       stage: 'processing',
-      attemptNumber: retryCount
-    }
+      attemptNumber: retryCount,
+    },
   });
   throw error; // Re-throw if operation should fail
 }
@@ -75,12 +75,12 @@ const logger = require('../shared/logger');
 
 async function copyStandardsFiles(targetDir) {
   const files = ['global-rules.md', 'node-standards.md'];
-  
+
   for (const file of files) {
     try {
       const source = path.join(__dirname, '..', file);
       const dest = path.join(targetDir, 'docs', 'standards', file);
-      
+
       await fs.copyFile(source, dest);
       logger.success(`Copied ${file}`);
     } catch (error) {
@@ -90,7 +90,7 @@ async function copyStandardsFiles(targetDir) {
       } else if (error.code === 'EACCES') {
         error.category = ErrorCategory.PERMISSION_ERROR;
       }
-      
+
       // Report with context
       await errorReporter.report(error, {
         command: 'setup-standards:copy',
@@ -98,10 +98,10 @@ async function copyStandardsFiles(targetDir) {
           file,
           source: path.join(__dirname, '..', file),
           destination: dest,
-          targetDir
-        }
+          targetDir,
+        },
       });
-      
+
       // User-friendly message
       logger.error(`Failed to copy ${file}: ${error.message}`);
       throw error;
@@ -111,28 +111,28 @@ async function copyStandardsFiles(targetDir) {
 
 async function main() {
   const args = process.argv.slice(2);
-  
+
   if (args.length === 0) {
     const error = new Error('Please provide a target directory');
     error.category = ErrorCategory.USER_ERROR;
     throw error;
   }
-  
+
   const targetDir = path.resolve(args[0]);
-  
+
   logger.heading('Setting up REST-SPEC standards');
-  
+
   try {
     // Verify target directory
     await fs.access(targetDir);
-    
+
     // Create standards directory
     const docsDir = path.join(targetDir, 'docs', 'standards');
     await fs.mkdir(docsDir, { recursive: true });
-    
+
     // Copy files
     await copyStandardsFiles(targetDir);
-    
+
     logger.success('Standards setup complete!');
   } catch (error) {
     // Error already reported in copyStandardsFiles
@@ -179,6 +179,6 @@ rest-spec-errors analyze --verbose
 
 ## Environment Variables
 
-* `REST_SPEC_ERROR_REPORTING=false` - Disable error reporting
-* `NODE_ENV=development` - Enable detailed error information
-* `VERBOSE=true` - Show verbose error details
+- `REST_SPEC_ERROR_REPORTING=false` - Disable error reporting
+- `NODE_ENV=development` - Enable detailed error information
+- `VERBOSE=true` - Show verbose error details

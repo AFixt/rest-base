@@ -51,7 +51,7 @@ export async function connectRedis() {
       isConnected = true;
     });
 
-    redisClient.on('error', (error) => {
+    redisClient.on('error', error => {
       logger.error('Redis client error:', error);
       isConnected = false;
     });
@@ -128,35 +128,35 @@ export const RedisKeys = {
    * @param {string} identifier - Rate limit identifier
    * @returns {string} Redis key
    */
-  rateLimit: (identifier) => `rate_limit:${identifier}`,
+  rateLimit: identifier => `rate_limit:${identifier}`,
 
   /**
    * Generate session key
    * @param {string} sessionId - Session identifier
    * @returns {string} Redis key
    */
-  session: (sessionId) => `session:${sessionId}`,
+  session: sessionId => `session:${sessionId}`,
 
   /**
    * Generate cache key
    * @param {string} resource - Resource identifier
    * @returns {string} Redis key
    */
-  cache: (resource) => `cache:${resource}`,
+  cache: resource => `cache:${resource}`,
 
   /**
    * Generate lock key
    * @param {string} lockId - Lock identifier
    * @returns {string} Redis key
    */
-  lock: (lockId) => `lock:${lockId}`,
+  lock: lockId => `lock:${lockId}`,
 
   /**
    * Generate service health key
    * @param {string} serviceName - Service name
    * @returns {string} Redis key
    */
-  serviceHealth: (serviceName) => `health:${serviceName}`,
+  serviceHealth: serviceName => `health:${serviceName}`,
 };
 
 /**
@@ -174,7 +174,9 @@ export const RedisCache = {
   async set(key, value, ttl = 3600) {
     try {
       const client = getRedisClient();
-      if (!client) return false;
+      if (!client) {
+        return false;
+      }
 
       const serializedValue = JSON.stringify(value);
       await client.setEx(key, ttl, serializedValue);
@@ -194,7 +196,9 @@ export const RedisCache = {
   async get(key) {
     try {
       const client = getRedisClient();
-      if (!client) return null;
+      if (!client) {
+        return null;
+      }
 
       const value = await client.get(key);
       return value ? JSON.parse(value) : null;
@@ -213,7 +217,9 @@ export const RedisCache = {
   async del(key) {
     try {
       const client = getRedisClient();
-      if (!client) return false;
+      if (!client) {
+        return false;
+      }
 
       await client.del(key);
       return true;
@@ -232,7 +238,9 @@ export const RedisCache = {
   async exists(key) {
     try {
       const client = getRedisClient();
-      if (!client) return false;
+      if (!client) {
+        return false;
+      }
 
       const result = await client.exists(key);
       return result === 1;
@@ -252,10 +260,12 @@ export const RedisCache = {
   async mset(keyValuePairs, ttl = 3600) {
     try {
       const client = getRedisClient();
-      if (!client) return false;
+      if (!client) {
+        return false;
+      }
 
       const pipeline = client.multi();
-      
+
       Object.entries(keyValuePairs).forEach(([key, value]) => {
         const serializedValue = JSON.stringify(value);
         pipeline.setEx(key, ttl, serializedValue);
@@ -284,7 +294,9 @@ export const RedisPubSub = {
   async publish(channel, message) {
     try {
       const client = getRedisClient();
-      if (!client) return false;
+      if (!client) {
+        return false;
+      }
 
       const serializedMessage = JSON.stringify(message);
       await client.publish(channel, serializedMessage);
@@ -305,9 +317,11 @@ export const RedisPubSub = {
   async subscribe(channel, callback) {
     try {
       const client = getRedisClient();
-      if (!client) return false;
+      if (!client) {
+        return false;
+      }
 
-      await client.subscribe(channel, (message) => {
+      await client.subscribe(channel, message => {
         try {
           const parsedMessage = JSON.parse(message);
           callback(parsedMessage);
@@ -316,7 +330,7 @@ export const RedisPubSub = {
           callback(message);
         }
       });
-      
+
       return true;
     } catch (error) {
       logger.error('Redis subscribe error:', error);

@@ -5,7 +5,7 @@
  * @module shared/mysql-monitor
  */
 
-const logger = require("./logger");
+const logger = require('./logger');
 
 /**
  * MySQL Monitor class for tracking deprecation warnings and collation issues
@@ -31,10 +31,10 @@ class MySQLMonitor {
    */
   async checkWarnings(connection, queryText, executionTime) {
     try {
-      const [warnings] = await connection.query("SHOW WARNINGS");
+      const [warnings] = await connection.query('SHOW WARNINGS');
 
       if (warnings && warnings.length > 0) {
-        warnings.forEach((warning) => {
+        warnings.forEach(warning => {
           const warningData = {
             timestamp: new Date().toISOString(),
             level: warning.Level,
@@ -49,16 +49,13 @@ class MySQLMonitor {
           if (this.isDeprecationWarning(warning)) {
             this.deprecationWarnings.push(warningData);
             if (this.options.logWarnings) {
-              logger.warn("MySQL Deprecation Warning", warningData);
+              logger.warn('MySQL Deprecation Warning', warningData);
             }
           }
         });
       }
 
-      if (
-        this.options.trackSlowQueries &&
-        executionTime > this.options.slowQueryThreshold
-      ) {
+      if (this.options.trackSlowQueries && executionTime > this.options.slowQueryThreshold) {
         this.slowQueries.push({
           timestamp: new Date().toISOString(),
           query: queryText,
@@ -66,7 +63,7 @@ class MySQLMonitor {
         });
 
         if (this.options.logWarnings) {
-          logger.warn("Slow Query Detected", {
+          logger.warn('Slow Query Detected', {
             query: queryText,
             executionTime,
             threshold: this.options.slowQueryThreshold,
@@ -75,7 +72,7 @@ class MySQLMonitor {
       }
     } catch (error) {
       if (this.options.logWarnings) {
-        logger.error("Error checking MySQL warnings", error);
+        logger.error('Error checking MySQL warnings', error);
       }
     }
   }
@@ -87,15 +84,15 @@ class MySQLMonitor {
    */
   isDeprecationWarning(warning) {
     const deprecationKeywords = [
-      "deprecated",
-      "will be removed",
-      "is obsolete",
-      "no longer supported",
-      "authentication_string",
+      'deprecated',
+      'will be removed',
+      'is obsolete',
+      'no longer supported',
+      'authentication_string',
     ];
 
     const message = warning.Message.toLowerCase();
-    return deprecationKeywords.some((keyword) => message.includes(keyword));
+    return deprecationKeywords.some(keyword => message.includes(keyword));
   }
 
   /**
@@ -125,7 +122,7 @@ class MySQLMonitor {
             table: tableName,
             column,
             rowsAffected: rows.length,
-            rows: rows.map((row) => ({
+            rows: rows.map(row => ({
               id: row.id,
               value: row[column],
               charLength: row.char_length,
@@ -135,7 +132,7 @@ class MySQLMonitor {
           });
 
           if (this.options.logWarnings) {
-            logger.warn("Trailing spaces detected", {
+            logger.warn('Trailing spaces detected', {
               table: tableName,
               column,
               count: rows.length,
@@ -144,10 +141,7 @@ class MySQLMonitor {
         }
       } catch (error) {
         if (this.options.logWarnings) {
-          logger.error(
-            `Error scanning column ${column} in table ${tableName}`,
-            error,
-          );
+          logger.error(`Error scanning column ${column} in table ${tableName}`, error);
         }
       }
     }
@@ -182,8 +176,7 @@ class MySQLMonitor {
       slowQueries: this.slowQueries.length,
       avgSlowQueryTime:
         this.slowQueries.length > 0
-          ? this.slowQueries.reduce((sum, q) => sum + q.executionTime, 0) /
-            this.slowQueries.length
+          ? this.slowQueries.reduce((sum, q) => sum + q.executionTime, 0) / this.slowQueries.length
           : 0,
     };
   }
@@ -211,7 +204,7 @@ class MySQLMonitor {
         slowQueries: this.slowQueries,
       },
       null,
-      2,
+      2
     );
   }
 }
@@ -228,26 +221,18 @@ function createMonitoringMiddleware(monitor) {
 
       req.db.connection.query = async function monitoredQuery(...args) {
         const startTime = Date.now();
-        const queryText = typeof args[0] === "string" ? args[0] : args[0].sql;
+        const queryText = typeof args[0] === 'string' ? args[0] : args[0].sql;
 
         try {
           const result = await originalQuery(...args);
           const executionTime = Date.now() - startTime;
 
-          await monitor.checkWarnings(
-            req.db.connection,
-            queryText,
-            executionTime,
-          );
+          await monitor.checkWarnings(req.db.connection, queryText, executionTime);
 
           return result;
         } catch (error) {
           const executionTime = Date.now() - startTime;
-          await monitor.checkWarnings(
-            req.db.connection,
-            queryText,
-            executionTime,
-          );
+          await monitor.checkWarnings(req.db.connection, queryText, executionTime);
           throw error;
         }
       };

@@ -144,7 +144,7 @@ db.query(query);
 
 ```javascript
 // DO THIS INSTEAD
-const query = "SELECT * FROM users WHERE id = ?";
+const query = 'SELECT * FROM users WHERE id = ?';
 db.query(query, [req.params.id]);
 ```
 
@@ -176,8 +176,8 @@ try {
   const user = await db.query(query, [userId]);
   // Process results
 } catch (error) {
-  console.error("Query error:", error);
-  console.log("Failed query:", query); // Helpful for debugging
+  console.error('Query error:', error);
+  console.log('Failed query:', query); // Helpful for debugging
 }
 ```
 
@@ -419,9 +419,7 @@ Example with MySQL2 driver:
 
 ```javascript
 // Safely querying with parameterized query
-const [rows] = await connection.execute("SELECT * FROM users WHERE id = ?", [
-  userId,
-]);
+const [rows] = await connection.execute('SELECT * FROM users WHERE id = ?', [userId]);
 ```
 
 ### Avoid Reserved Words
@@ -480,7 +478,7 @@ We use Sequelize as our primary ORM. Models should follow the same naming conven
 ```javascript
 // User model for 'users' table
 const User = sequelize.define(
-  "User",
+  'User',
   {
     id: {
       type: DataTypes.INTEGER.UNSIGNED,
@@ -500,11 +498,11 @@ const User = sequelize.define(
     // Additional fields...
   },
   {
-    tableName: "users",
+    tableName: 'users',
     timestamps: true,
-    createdAt: "created",
-    updatedAt: "updated",
-  },
+    createdAt: 'created',
+    updatedAt: 'updated',
+  }
 );
 ```
 
@@ -519,10 +517,10 @@ try {
   // Create a team
   const team = await Team.create(
     {
-      name: "New Team",
+      name: 'New Team',
       teamId: uuidv4(),
     },
-    { transaction },
+    { transaction }
   );
 
   // Add a member to the team
@@ -530,9 +528,9 @@ try {
     {
       teamId: team.teamId,
       userId: currentUser.userId,
-      role: "teamAdmin",
+      role: 'teamAdmin',
     },
-    { transaction },
+    { transaction }
   );
 
   await transaction.commit();

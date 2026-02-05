@@ -9,20 +9,20 @@
  * @author REST-SPEC
  */
 
-const fs = require("fs").promises;
-const path = require("path");
-const { performance } = require("perf_hooks");
-const { program } = require("commander");
+const fs = require('fs').promises;
+const path = require('path');
+const { performance } = require('perf_hooks');
+const { program } = require('commander');
 
 // Simple color functions for output
 const color = {
-  green: (text) => `\x1b[32m${text}\x1b[0m`,
-  red: (text) => `\x1b[31m${text}\x1b[0m`,
-  cyan: (text) => `\x1b[36m${text}\x1b[0m`,
-  yellow: (text) => `\x1b[33m${text}\x1b[0m`,
-  gray: (text) => `\x1b[90m${text}\x1b[0m`,
-  bold: (text) => `\x1b[1m${text}\x1b[0m`,
-  dim: (text) => `\x1b[2m${text}\x1b[0m`,
+  green: text => `\x1b[32m${text}\x1b[0m`,
+  red: text => `\x1b[31m${text}\x1b[0m`,
+  cyan: text => `\x1b[36m${text}\x1b[0m`,
+  yellow: text => `\x1b[33m${text}\x1b[0m`,
+  gray: text => `\x1b[90m${text}\x1b[0m`,
+  bold: text => `\x1b[1m${text}\x1b[0m`,
+  dim: text => `\x1b[2m${text}\x1b[0m`,
 };
 
 /**
@@ -49,7 +49,9 @@ class PerformanceMonitor {
    * Start monitoring performance
    */
   start() {
-    if (this.isMonitoring) return;
+    if (this.isMonitoring) {
+      return;
+    }
 
     this.isMonitoring = true;
     this.startTime = performance.now();
@@ -59,14 +61,16 @@ class PerformanceMonitor {
       this.recordMemorySnapshot();
     }, this.options.sampleInterval);
 
-    console.log(color.green("✓ Performance monitoring started"));
+    console.log(color.green('✓ Performance monitoring started'));
   }
 
   /**
    * Stop monitoring performance
    */
   stop() {
-    if (!this.isMonitoring) return;
+    if (!this.isMonitoring) {
+      return;
+    }
 
     this.isMonitoring = false;
     if (this.intervalId) {
@@ -75,7 +79,7 @@ class PerformanceMonitor {
     }
 
     this.endTime = performance.now();
-    console.log(color.green("✓ Performance monitoring stopped"));
+    console.log(color.green('✓ Performance monitoring stopped'));
   }
 
   /**
@@ -168,7 +172,9 @@ class PerformanceMonitor {
    * Calculate average memory usage
    */
   calculateAverageMemory() {
-    if (this.memorySnapshots.length === 0) return null;
+    if (this.memorySnapshots.length === 0) {
+      return null;
+    }
 
     const total = this.memorySnapshots.reduce(
       (acc, snapshot) => ({
@@ -177,7 +183,7 @@ class PerformanceMonitor {
         heapTotal: acc.heapTotal + snapshot.memory.heapTotal,
         external: acc.external + snapshot.memory.external,
       }),
-      { rss: 0, heapUsed: 0, heapTotal: 0, external: 0 },
+      { rss: 0, heapUsed: 0, heapTotal: 0, external: 0 }
     );
 
     const count = this.memorySnapshots.length;
@@ -193,7 +199,9 @@ class PerformanceMonitor {
    * Calculate peak memory usage
    */
   calculatePeakMemory() {
-    if (this.memorySnapshots.length === 0) return null;
+    if (this.memorySnapshots.length === 0) {
+      return null;
+    }
 
     return this.memorySnapshots.reduce(
       (peak, snapshot) => ({
@@ -202,7 +210,7 @@ class PerformanceMonitor {
         heapTotal: Math.max(peak.heapTotal, snapshot.memory.heapTotal),
         external: Math.max(peak.external, snapshot.memory.external),
       }),
-      { rss: 0, heapUsed: 0, heapTotal: 0, external: 0 },
+      { rss: 0, heapUsed: 0, heapTotal: 0, external: 0 }
     );
   }
 
@@ -241,18 +249,15 @@ function createPerformanceMiddleware(options = {}) {
       const metrics = monitor.endTimer(requestId);
 
       // Add request-specific metrics
-      res.set("X-Response-Time", `${metrics.duration.toFixed(2)}ms`);
-      res.set(
-        "X-Memory-Usage",
-        `${(metrics.memory.end.heapUsed / 1024 / 1024).toFixed(2)}MB`,
-      );
+      res.set('X-Response-Time', `${metrics.duration.toFixed(2)}ms`);
+      res.set('X-Memory-Usage', `${(metrics.memory.end.heapUsed / 1024 / 1024).toFixed(2)}MB`);
 
       // Log slow requests
       if (metrics.duration > (options.slowRequestThreshold || 1000)) {
         console.warn(
           color.yellow(
-            `Slow request detected: ${req.method} ${req.path} - ${metrics.duration.toFixed(2)}ms`,
-          ),
+            `Slow request detected: ${req.method} ${req.path} - ${metrics.duration.toFixed(2)}ms`
+          )
         );
       }
 
@@ -275,7 +280,7 @@ class CPUProfiler {
 
   start(duration = 10000, interval = 100) {
     if (this.isActive) {
-      console.warn(color.yellow("CPU profiler is already active"));
+      console.warn(color.yellow('CPU profiler is already active'));
       return;
     }
 
@@ -303,7 +308,9 @@ class CPUProfiler {
   }
 
   stop() {
-    if (!this.isActive) return;
+    if (!this.isActive) {
+      return;
+    }
 
     this.isActive = false;
     if (this.intervalId) {
@@ -311,14 +318,12 @@ class CPUProfiler {
       this.intervalId = null;
     }
 
-    console.log(
-      color.green(`✓ CPU profiling completed (${this.samples.length} samples)`),
-    );
+    console.log(color.green(`✓ CPU profiling completed (${this.samples.length} samples)`));
   }
 
   getReport() {
     if (this.samples.length === 0) {
-      return { error: "No samples collected" };
+      return { error: 'No samples collected' };
     }
 
     const totalCPU = this.samples.reduce(
@@ -326,7 +331,7 @@ class CPUProfiler {
         user: acc.user + sample.cpuUsage.user,
         system: acc.system + sample.cpuUsage.system,
       }),
-      { user: 0, system: 0 },
+      { user: 0, system: 0 }
     );
 
     const avgCPU = {
@@ -341,7 +346,7 @@ class CPUProfiler {
         avgCPU,
         peakMemory: this.samples.reduce(
           (peak, sample) => Math.max(peak, sample.memoryUsage.heapUsed),
-          0,
+          0
         ),
       },
     };
@@ -365,12 +370,14 @@ class MemoryLeakDetector {
   }
 
   start() {
-    if (this.isActive) return;
+    if (this.isActive) {
+      return;
+    }
 
     this.isActive = true;
     this.snapshots = [];
 
-    console.log(color.cyan("Starting memory leak detection..."));
+    console.log(color.cyan('Starting memory leak detection...'));
 
     this.intervalId = setInterval(() => {
       this.takeSnapshot();
@@ -378,7 +385,9 @@ class MemoryLeakDetector {
   }
 
   stop() {
-    if (!this.isActive) return;
+    if (!this.isActive) {
+      return;
+    }
 
     this.isActive = false;
     if (this.intervalId) {
@@ -386,7 +395,7 @@ class MemoryLeakDetector {
       this.intervalId = null;
     }
 
-    console.log(color.green("✓ Memory leak detection stopped"));
+    console.log(color.green('✓ Memory leak detection stopped'));
   }
 
   takeSnapshot() {
@@ -412,24 +421,25 @@ class MemoryLeakDetector {
   }
 
   checkForLeaks(currentSnapshot) {
-    if (this.snapshots.length < 5) return; // Need some history
+    if (this.snapshots.length < 5) {
+      return;
+    } // Need some history
 
     const recentSnapshots = this.snapshots.slice(-5);
-    const memoryGrowth =
-      currentSnapshot.memory.heapUsed - recentSnapshots[0].memory.heapUsed;
+    const memoryGrowth = currentSnapshot.memory.heapUsed - recentSnapshots[0].memory.heapUsed;
 
     if (memoryGrowth > this.options.threshold) {
       console.warn(
         color.red(
-          `⚠️  Potential memory leak detected: ${(memoryGrowth / 1024 / 1024).toFixed(2)}MB increase`,
-        ),
+          `⚠️  Potential memory leak detected: ${(memoryGrowth / 1024 / 1024).toFixed(2)}MB increase`
+        )
       );
     }
   }
 
   getReport() {
     if (this.snapshots.length === 0) {
-      return { error: "No snapshots available" };
+      return { error: 'No snapshots available' };
     }
 
     const first = this.snapshots[0];
@@ -471,16 +481,18 @@ class RequestAnalyzer {
   start() {
     this.isActive = true;
     this.requests = [];
-    console.log(color.cyan("Request performance analyzer started"));
+    console.log(color.cyan('Request performance analyzer started'));
   }
 
   stop() {
     this.isActive = false;
-    console.log(color.green("✓ Request performance analyzer stopped"));
+    console.log(color.green('✓ Request performance analyzer stopped'));
   }
 
   recordRequest(req, res, duration, memoryUsage) {
-    if (!this.isActive) return;
+    if (!this.isActive) {
+      return;
+    }
 
     const request = {
       method: req.method,
@@ -489,9 +501,9 @@ class RequestAnalyzer {
       duration,
       memoryUsage,
       timestamp: new Date().toISOString(),
-      userAgent: req.get("User-Agent"),
+      userAgent: req.get('User-Agent'),
       ip: req.ip || req.connection.remoteAddress,
-      contentLength: res.get("Content-Length"),
+      contentLength: res.get('Content-Length'),
     };
 
     this.requests.push(request);
@@ -499,15 +511,12 @@ class RequestAnalyzer {
 
   getReport() {
     if (this.requests.length === 0) {
-      return { error: "No requests recorded" };
+      return { error: 'No requests recorded' };
     }
 
-    const sortedByDuration = [...this.requests].sort(
-      (a, b) => b.duration - a.duration,
-    );
+    const sortedByDuration = [...this.requests].sort((a, b) => b.duration - a.duration);
     const avgDuration =
-      this.requests.reduce((sum, req) => sum + req.duration, 0) /
-      this.requests.length;
+      this.requests.reduce((sum, req) => sum + req.duration, 0) / this.requests.length;
 
     const statusCodes = this.requests.reduce((acc, req) => {
       acc[req.statusCode] = (acc[req.statusCode] || 0) + 1;
@@ -537,62 +546,62 @@ class RequestAnalyzer {
  */
 class ReportGenerator {
   static formatBytes(bytes) {
-    if (bytes === 0) return "0 B";
+    if (bytes === 0) {
+      return '0 B';
+    }
     const k = 1024;
-    const sizes = ["B", "KB", "MB", "GB"];
+    const sizes = ['B', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
   static formatDuration(ms) {
-    if (ms < 1000) return `${ms.toFixed(2)}ms`;
-    if (ms < 60000) return `${(ms / 1000).toFixed(2)}s`;
+    if (ms < 1000) {
+      return `${ms.toFixed(2)}ms`;
+    }
+    if (ms < 60000) {
+      return `${(ms / 1000).toFixed(2)}s`;
+    }
     return `${(ms / 60000).toFixed(2)}m`;
   }
 
   static generateConsoleReport(data) {
-    console.log("\n" + color.bold("=".repeat(60)));
-    console.log(color.bold("PERFORMANCE REPORT"));
-    console.log(color.bold("=".repeat(60)));
+    console.log('\n' + color.bold('='.repeat(60)));
+    console.log(color.bold('PERFORMANCE REPORT'));
+    console.log(color.bold('='.repeat(60)));
 
     if (data.summary) {
-      console.log("\n" + color.cyan("Summary:"));
+      console.log('\n' + color.cyan('Summary:'));
       console.log(
-        `  Total Duration: ${color.yellow(this.formatDuration(data.summary.totalDuration))}`,
+        `  Total Duration: ${color.yellow(this.formatDuration(data.summary.totalDuration))}`
       );
-      console.log(
-        `  Total Samples: ${color.yellow(data.summary.totalSamples)}`,
-      );
-      console.log(
-        `  Metrics Count: ${color.yellow(data.summary.metricsCount)}`,
-      );
+      console.log(`  Total Samples: ${color.yellow(data.summary.totalSamples)}`);
+      console.log(`  Metrics Count: ${color.yellow(data.summary.metricsCount)}`);
 
       if (data.summary.avgMemory) {
         console.log(
-          `  Avg Memory: ${color.yellow(this.formatBytes(data.summary.avgMemory.heapUsed))}`,
+          `  Avg Memory: ${color.yellow(this.formatBytes(data.summary.avgMemory.heapUsed))}`
         );
       }
 
       if (data.summary.peakMemory) {
         console.log(
-          `  Peak Memory: ${color.yellow(this.formatBytes(data.summary.peakMemory.heapUsed))}`,
+          `  Peak Memory: ${color.yellow(this.formatBytes(data.summary.peakMemory.heapUsed))}`
         );
       }
     }
 
     if (data.metrics && data.metrics.length > 0) {
-      console.log("\n" + color.cyan("Slowest Operations:"));
-      const sorted = data.metrics
-        .sort((a, b) => b.duration - a.duration)
-        .slice(0, 5);
+      console.log('\n' + color.cyan('Slowest Operations:'));
+      const sorted = data.metrics.sort((a, b) => b.duration - a.duration).slice(0, 5);
       sorted.forEach((metric, i) => {
         console.log(
-          `  ${i + 1}. ${color.yellow(metric.name)}: ${this.formatDuration(metric.duration)}`,
+          `  ${i + 1}. ${color.yellow(metric.name)}: ${this.formatDuration(metric.duration)}`
         );
       });
     }
 
-    console.log("\n" + color.bold("=".repeat(60)) + "\n");
+    console.log('\n' + color.bold('='.repeat(60)) + '\n');
   }
 }
 
@@ -611,8 +620,8 @@ async function monitorCommand(options) {
   monitor.start();
 
   // Handle graceful shutdown
-  process.on("SIGINT", async () => {
-    console.log("\n" + color.yellow("Stopping performance monitoring..."));
+  process.on('SIGINT', async () => {
+    console.log('\n' + color.yellow('Stopping performance monitoring...'));
     monitor.stop();
 
     const report = monitor.getReport();
@@ -661,13 +670,8 @@ async function profileCommand(target, options) {
     ReportGenerator.generateConsoleReport(performanceReport);
 
     if (options.output) {
-      await fs.writeFile(
-        options.output,
-        JSON.stringify(combinedReport, null, 2),
-      );
-      console.log(
-        color.green(`✓ Full profile report saved to: ${options.output}`),
-      );
+      await fs.writeFile(options.output, JSON.stringify(combinedReport, null, 2));
+      console.log(color.green(`✓ Full profile report saved to: ${options.output}`));
     }
   }, options.duration);
 }
@@ -675,7 +679,7 @@ async function profileCommand(target, options) {
 // Analyze command
 async function analyzeCommand(logFile, _options) {
   try {
-    const data = await fs.readFile(logFile, "utf8");
+    const data = await fs.readFile(logFile, 'utf8');
     const report = JSON.parse(data);
 
     console.log(color.cyan(`Analyzing performance report: ${logFile}`));
@@ -685,15 +689,11 @@ async function analyzeCommand(logFile, _options) {
     if (report.memorySnapshots) {
       const memoryTrend = report.memorySnapshots.slice(-10);
       const isIncreasing = memoryTrend.every(
-        (snapshot, i) =>
-          i === 0 ||
-          snapshot.memory.heapUsed >= memoryTrend[i - 1].memory.heapUsed,
+        (snapshot, i) => i === 0 || snapshot.memory.heapUsed >= memoryTrend[i - 1].memory.heapUsed
       );
 
       if (isIncreasing) {
-        console.log(
-          color.red("⚠️  Memory usage appears to be consistently increasing"),
-        );
+        console.log(color.red('⚠️  Memory usage appears to be consistently increasing'));
       }
     }
   } catch (error) {
@@ -704,7 +704,7 @@ async function analyzeCommand(logFile, _options) {
 
 // Benchmark command
 async function benchmarkCommand(options) {
-  console.log(color.cyan("Running performance benchmark..."));
+  console.log(color.cyan('Running performance benchmark...'));
 
   const results = {
     sync: [],
@@ -713,7 +713,7 @@ async function benchmarkCommand(options) {
   };
 
   // Synchronous operations benchmark
-  console.log("Testing synchronous operations...");
+  console.log('Testing synchronous operations...');
   for (let i = 0; i < options.iterations; i++) {
     const start = performance.now();
 
@@ -723,24 +723,28 @@ async function benchmarkCommand(options) {
       sum += Math.random();
     }
     // Use sum to prevent optimization
-    if (sum < 0) console.log(sum);
+    if (sum < 0) {
+      console.log(sum);
+    }
 
     results.sync.push(performance.now() - start);
   }
 
   // Asynchronous operations benchmark
-  console.log("Testing asynchronous operations...");
+  console.log('Testing asynchronous operations...');
   for (let i = 0; i < options.iterations; i++) {
     const start = performance.now();
 
-    await new Promise((resolve) => {
+    await new Promise(resolve => {
       setImmediate(() => {
         let sum = 0;
         for (let j = 0; j < 100000; j++) {
           sum += Math.random();
         }
         // Use sum to prevent optimization
-        if (sum < 0) console.log(sum);
+        if (sum < 0) {
+          console.log(sum);
+        }
         resolve();
       });
     });
@@ -749,7 +753,7 @@ async function benchmarkCommand(options) {
   }
 
   // Memory allocation benchmark
-  console.log("Testing memory allocation...");
+  console.log('Testing memory allocation...');
   for (let i = 0; i < options.iterations; i++) {
     const before = process.memoryUsage();
 
@@ -758,12 +762,14 @@ async function benchmarkCommand(options) {
 
     const after = process.memoryUsage();
     // Use arr to prevent optimization
-    if (arr.length < 0) console.log(arr.length);
+    if (arr.length < 0) {
+      console.log(arr.length);
+    }
     results.memory.push(after.heapUsed - before.heapUsed);
   }
 
   // Calculate statistics
-  const calculateStats = (arr) => ({
+  const calculateStats = arr => ({
     min: Math.min(...arr),
     max: Math.max(...arr),
     avg: arr.reduce((a, b) => a + b, 0) / arr.length,
@@ -779,16 +785,16 @@ async function benchmarkCommand(options) {
   };
 
   // Display results
-  console.log("\n" + color.bold("BENCHMARK RESULTS"));
-  console.log(color.bold("=".repeat(40)));
+  console.log('\n' + color.bold('BENCHMARK RESULTS'));
+  console.log(color.bold('='.repeat(40)));
   console.log(
-    `${color.cyan("Synchronous Operations:")} ${ReportGenerator.formatDuration(report.sync.avg)} avg`,
+    `${color.cyan('Synchronous Operations:')} ${ReportGenerator.formatDuration(report.sync.avg)} avg`
   );
   console.log(
-    `${color.cyan("Asynchronous Operations:")} ${ReportGenerator.formatDuration(report.async.avg)} avg`,
+    `${color.cyan('Asynchronous Operations:')} ${ReportGenerator.formatDuration(report.async.avg)} avg`
   );
   console.log(
-    `${color.cyan("Memory Allocation:")} ${ReportGenerator.formatBytes(report.memory.avg)} avg`,
+    `${color.cyan('Memory Allocation:')} ${ReportGenerator.formatBytes(report.memory.avg)} avg`
   );
 
   if (options.output) {
@@ -802,37 +808,37 @@ async function benchmarkCommand(options) {
  */
 async function main() {
   program
-    .name("performance-profiler")
-    .description("Performance profiling and monitoring tools")
-    .version("1.0.0");
+    .name('performance-profiler')
+    .description('Performance profiling and monitoring tools')
+    .version('1.0.0');
 
   program
-    .command("monitor")
-    .description("Start real-time performance monitoring")
-    .option("-i, --interval <ms>", "Sample interval in milliseconds", "1000")
-    .option("-o, --output <file>", "Output file for report")
-    .option("--gc", "Enable garbage collection monitoring")
+    .command('monitor')
+    .description('Start real-time performance monitoring')
+    .option('-i, --interval <ms>', 'Sample interval in milliseconds', '1000')
+    .option('-o, --output <file>', 'Output file for report')
+    .option('--gc', 'Enable garbage collection monitoring')
     .action(monitorCommand);
 
   program
-    .command("profile <target>")
-    .description("Profile a specific process or operation")
-    .option("-d, --duration <ms>", "Profile duration in milliseconds", "10000")
-    .option("-i, --interval <ms>", "Sample interval in milliseconds", "100")
-    .option("-o, --output <file>", "Output file for report")
+    .command('profile <target>')
+    .description('Profile a specific process or operation')
+    .option('-d, --duration <ms>', 'Profile duration in milliseconds', '10000')
+    .option('-i, --interval <ms>', 'Sample interval in milliseconds', '100')
+    .option('-o, --output <file>', 'Output file for report')
     .action(profileCommand);
 
   program
-    .command("analyze <file>")
-    .description("Analyze a performance report file")
-    .option("-f, --format <type>", "Output format (console, html)", "console")
+    .command('analyze <file>')
+    .description('Analyze a performance report file')
+    .option('-f, --format <type>', 'Output format (console, html)', 'console')
     .action(analyzeCommand);
 
   program
-    .command("benchmark")
-    .description("Run performance benchmarks")
-    .option("-n, --iterations <count>", "Number of iterations", "100")
-    .option("-o, --output <file>", "Output file for results")
+    .command('benchmark')
+    .description('Run performance benchmarks')
+    .option('-n, --iterations <count>', 'Number of iterations', '100')
+    .option('-o, --output <file>', 'Output file for results')
     .action(benchmarkCommand);
 
   await program.parseAsync(process.argv);
@@ -850,8 +856,8 @@ module.exports = {
 
 // Run if called directly
 if (require.main === module) {
-  main().catch((error) => {
-    console.error(color.red("Error:"), error.message);
+  main().catch(error => {
+    console.error(color.red('Error:'), error.message);
     process.exit(1);
   });
 }

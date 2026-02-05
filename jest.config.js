@@ -10,10 +10,7 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
 
   // Test patterns
-  testMatch: [
-    '<rootDir>/tests/**/*.test.js',
-    '<rootDir>/tests/**/*.spec.js'
-  ],
+  testMatch: ['<rootDir>/tests/**/*.test.js', '<rootDir>/tests/**/*.spec.js'],
 
   // Coverage configuration
   collectCoverage: false, // Enable with npm run test:coverage
@@ -22,21 +19,17 @@ module.exports = {
     'shared/**/*.js',
     '!scripts/**/*.test.js',
     '!shared/**/*.test.js',
-    '!**/node_modules/**'
+    '!**/node_modules/**',
   ],
   coverageDirectory: 'coverage',
-  coverageReporters: [
-    'text',
-    'lcov',
-    'html'
-  ],
+  coverageReporters: ['text', 'lcov', 'html'],
   coverageThreshold: {
     global: {
       branches: 70,
       functions: 70,
       lines: 70,
-      statements: 70
-    }
+      statements: 70,
+    },
   },
 
   // Module paths
@@ -45,12 +38,9 @@ module.exports = {
 
   // Transform files
   transform: {},
-  
+
   // Ignore patterns
-  testPathIgnorePatterns: [
-    '/node_modules/',
-    '/coverage/'
-  ],
+  testPathIgnorePatterns: ['/node_modules/', '/coverage/'],
 
   // Clear mocks between tests
   clearMocks: true,
@@ -60,5 +50,5 @@ module.exports = {
 
   // Error handling
   bail: false,
-  maxWorkers: '50%'
+  maxWorkers: '50%',
 };

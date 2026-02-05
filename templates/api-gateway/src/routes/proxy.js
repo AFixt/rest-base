@@ -11,10 +11,10 @@
 
 import { Router } from 'express';
 import { jwtAuth, optionalJwtAuth, requireRoles, requirePermissions } from '../middleware/auth.js';
-import { 
-  createServiceProxy, 
-  dynamicServiceProxy, 
-  getRegisteredServices 
+import {
+  createServiceProxy,
+  dynamicServiceProxy,
+  getRegisteredServices,
 } from '../middleware/proxy.js';
 import { createCustomRateLimit } from '../middleware/rateLimiter.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
@@ -28,7 +28,7 @@ const router = Router();
  */
 router.get('/', (req, res) => {
   const registeredServices = getRegisteredServices();
-  
+
   res.json({
     name: '{{projectName}} API Gateway',
     version: '1.0.0',
@@ -64,26 +64,34 @@ v1Router.use('/public/*', optionalJwtAuth);
 /**
  * Authentication endpoints (special rate limiting)
  */
-v1Router.use('/auth/*', asyncHandler(async (req, res, next) => {
-  // Forward to auth service
-  const authProxy = createServiceProxy('auth');
-  return authProxy(req, res, next);
-}));
+v1Router.use(
+  '/auth/*',
+  asyncHandler(async (req, res, next) => {
+    // Forward to auth service
+    const authProxy = createServiceProxy('auth');
+    return authProxy(req, res, next);
+  })
+);
 
 /**
  * Protected endpoints requiring authentication
  */
-v1Router.use('/users/*', jwtAuth, asyncHandler(async (req, res, next) => {
-  // Forward to users service
-  const usersProxy = createServiceProxy('users');
-  return usersProxy(req, res, next);
-}));
+v1Router.use(
+  '/users/*',
+  jwtAuth,
+  asyncHandler(async (req, res, next) => {
+    // Forward to users service
+    const usersProxy = createServiceProxy('users');
+    return usersProxy(req, res, next);
+  })
+);
 
 /**
  * Admin endpoints requiring admin role
  */
-v1Router.use('/admin/*', 
-  jwtAuth, 
+v1Router.use(
+  '/admin/*',
+  jwtAuth,
   requireRoles(['admin']),
   createCustomRateLimit(50, 15 * 60 * 1000, 'admin'), // 50 requests per 15 minutes
   asyncHandler(async (req, res, next) => {
@@ -96,26 +104,35 @@ v1Router.use('/admin/*',
 /**
  * Products endpoints with optional authentication
  */
-v1Router.use('/products/*', optionalJwtAuth, asyncHandler(async (req, res, next) => {
-  // Forward to products service
-  const productsProxy = createServiceProxy('products');
-  return productsProxy(req, res, next);
-}));
+v1Router.use(
+  '/products/*',
+  optionalJwtAuth,
+  asyncHandler(async (req, res, next) => {
+    // Forward to products service
+    const productsProxy = createServiceProxy('products');
+    return productsProxy(req, res, next);
+  })
+);
 
 /**
  * Orders endpoints requiring authentication
  */
-v1Router.use('/orders/*', jwtAuth, asyncHandler(async (req, res, next) => {
-  // Forward to orders service
-  const ordersProxy = createServiceProxy('orders');
-  return ordersProxy(req, res, next);
-}));
+v1Router.use(
+  '/orders/*',
+  jwtAuth,
+  asyncHandler(async (req, res, next) => {
+    // Forward to orders service
+    const ordersProxy = createServiceProxy('orders');
+    return ordersProxy(req, res, next);
+  })
+);
 
 /**
  * Payment endpoints requiring authentication and special permissions
  */
-v1Router.use('/payments/*', 
-  jwtAuth, 
+v1Router.use(
+  '/payments/*',
+  jwtAuth,
   requirePermissions(['payment:process']),
   createCustomRateLimit(10, 15 * 60 * 1000, 'payment'), // 10 requests per 15 minutes
   asyncHandler(async (req, res, next) => {
@@ -128,8 +145,9 @@ v1Router.use('/payments/*',
 /**
  * Analytics endpoints requiring specific role
  */
-v1Router.use('/analytics/*', 
-  jwtAuth, 
+v1Router.use(
+  '/analytics/*',
+  jwtAuth,
   requireRoles(['admin', 'analyst']),
   asyncHandler(async (req, res, next) => {
     // Forward to analytics service
@@ -141,7 +159,8 @@ v1Router.use('/analytics/*',
 /**
  * File upload endpoints with special rate limiting
  */
-v1Router.use('/files/*', 
+v1Router.use(
+  '/files/*',
   jwtAuth,
   createCustomRateLimit(20, 15 * 60 * 1000, 'files'), // 20 requests per 15 minutes
   asyncHandler(async (req, res, next) => {
@@ -154,16 +173,21 @@ v1Router.use('/files/*',
 /**
  * Notifications endpoints
  */
-v1Router.use('/notifications/*', jwtAuth, asyncHandler(async (req, res, next) => {
-  // Forward to notifications service
-  const notificationsProxy = createServiceProxy('notifications');
-  return notificationsProxy(req, res, next);
-}));
+v1Router.use(
+  '/notifications/*',
+  jwtAuth,
+  asyncHandler(async (req, res, next) => {
+    // Forward to notifications service
+    const notificationsProxy = createServiceProxy('notifications');
+    return notificationsProxy(req, res, next);
+  })
+);
 
 /**
  * Search endpoints with higher rate limit
  */
-v1Router.use('/search/*', 
+v1Router.use(
+  '/search/*',
   optionalJwtAuth,
   createCustomRateLimit(200, 15 * 60 * 1000, 'search'), // 200 requests per 15 minutes
   asyncHandler(async (req, res, next) => {
@@ -177,26 +201,26 @@ v1Router.use('/search/*',
  * Dynamic service proxy for any registered service
  * This is a catch-all for services not explicitly defined above
  */
-v1Router.use('/*', jwtAuth, asyncHandler(async (req, res, next) => {
-  logger.info(`Dynamic proxy request: ${req.method} ${req.path}`);
-  return dynamicServiceProxy(req, res, next);
-}));
+v1Router.use(
+  '/*',
+  jwtAuth,
+  asyncHandler(async (req, res, next) => {
+    logger.info(`Dynamic proxy request: ${req.method} ${req.path}`);
+    return dynamicServiceProxy(req, res, next);
+  })
+);
 
 /**
  * Service registry endpoint for development/debugging
  */
-v1Router.get('/registry', 
-  jwtAuth, 
-  requireRoles(['admin', 'developer']),
-  (req, res) => {
-    const registeredServices = getRegisteredServices();
-    res.json({
-      services: registeredServices,
-      total: registeredServices.length,
-      timestamp: new Date().toISOString(),
-    });
-  }
-);
+v1Router.get('/registry', jwtAuth, requireRoles(['admin', 'developer']), (req, res) => {
+  const registeredServices = getRegisteredServices();
+  res.json({
+    services: registeredServices,
+    total: registeredServices.length,
+    timestamp: new Date().toISOString(),
+  });
+});
 
 // Mount v1 routes
 router.use('/v1', v1Router);
@@ -204,7 +228,7 @@ router.use('/v1', v1Router);
 /**
  * Default version redirect
  */
-router.use('/*', (req, res, next) => {
+router.use('/*', (req, res, _next) => {
   // Redirect to v1 by default
   const originalUrl = req.originalUrl.replace('/api', '/api/v1');
   res.redirect(301, originalUrl);

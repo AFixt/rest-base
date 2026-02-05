@@ -7,30 +7,30 @@
  * @author Karl Groves
  */
 
-const UpdateChecker = require("../shared/update-checker");
-const logger = require("../shared/logger");
-const { formatSection } = require("../shared/cli-utils");
+const UpdateChecker = require('../shared/update-checker');
+const logger = require('../shared/logger');
+const { formatSection } = require('../shared/cli-utils');
 
 function showHelp() {
-  console.log(formatSection("REST-SPEC Update Manager"));
-  console.log("\nUsage: rest-spec-update [command]\n");
-  console.log("Commands:");
-  console.log("  check           Check for updates now");
-  console.log("  disable         Disable automatic update checking");
-  console.log("  enable          Enable automatic update checking");
-  console.log("  status          Show update checking status");
-  console.log("  help            Show this help message");
-  console.log("\nExamples:");
-  console.log("  rest-spec-update check          # Check for updates now");
-  console.log("  rest-spec-update disable        # Disable auto-updates");
-  console.log("  rest-spec-update status         # Show current status");
+  console.log(formatSection('REST-SPEC Update Manager'));
+  console.log('\nUsage: rest-spec-update [command]\n');
+  console.log('Commands:');
+  console.log('  check           Check for updates now');
+  console.log('  disable         Disable automatic update checking');
+  console.log('  enable          Enable automatic update checking');
+  console.log('  status          Show update checking status');
+  console.log('  help            Show this help message');
+  console.log('\nExamples:');
+  console.log('  rest-spec-update check          # Check for updates now');
+  console.log('  rest-spec-update disable        # Disable auto-updates');
+  console.log('  rest-spec-update status         # Show current status');
   console.log();
 }
 
 async function checkUpdates() {
   const updateChecker = new UpdateChecker();
 
-  logger.info("Checking for updates...");
+  logger.info('Checking for updates...');
 
   const updateAvailable = await updateChecker.checkForUpdates(true);
 
@@ -46,27 +46,27 @@ async function disableUpdates() {
   const success = await updateChecker.disableUpdateChecking();
 
   if (success) {
-    logger.success("Automatic update checking has been disabled");
-    logger.info("You can re-enable it with: rest-spec-update enable");
+    logger.success('Automatic update checking has been disabled');
+    logger.info('You can re-enable it with: rest-spec-update enable');
   } else {
-    logger.error("Failed to disable update checking");
+    logger.error('Failed to disable update checking');
   }
 }
 
 async function enableUpdates() {
-  const fs = require("fs").promises;
-  const path = require("path");
+  const fs = require('fs').promises;
+  const path = require('path');
 
-  const disableFile = path.join(__dirname, "..", ".no-update-check");
+  const disableFile = path.join(__dirname, '..', '.no-update-check');
 
   try {
     await fs.unlink(disableFile);
-    logger.success("Automatic update checking has been enabled");
+    logger.success('Automatic update checking has been enabled');
   } catch (error) {
-    if (error.code === "ENOENT") {
-      logger.info("Automatic update checking is already enabled");
+    if (error.code === 'ENOENT') {
+      logger.info('Automatic update checking is already enabled');
     } else {
-      logger.error("Failed to enable update checking", error);
+      logger.error('Failed to enable update checking', error);
     }
   }
 }
@@ -77,23 +77,16 @@ async function showStatus() {
   const disabled = await updateChecker.isUpdateCheckingDisabled();
   const currentVersion = await updateChecker.getCurrentVersion();
 
-  console.log(formatSection("REST-SPEC Update Status"));
-  logger.labelValue("Current version", currentVersion);
-  logger.labelValue(
-    "Automatic update checking",
-    disabled ? "Disabled" : "Enabled",
-  );
+  console.log(formatSection('REST-SPEC Update Status'));
+  logger.labelValue('Current version', currentVersion);
+  logger.labelValue('Automatic update checking', disabled ? 'Disabled' : 'Enabled');
 
   if (disabled) {
     console.log();
-    logger.highlight(
-      "Tip: Enable automatic updates with: rest-spec-update enable",
-    );
+    logger.highlight('Tip: Enable automatic updates with: rest-spec-update enable');
   } else {
     console.log();
-    logger.muted(
-      "Tip: Disable automatic updates with: rest-spec-update disable",
-    );
+    logger.muted('Tip: Disable automatic updates with: rest-spec-update disable');
   }
 }
 
@@ -102,31 +95,31 @@ async function main() {
   const command = args[0];
 
   switch (command) {
-    case "check":
+    case 'check':
       await checkUpdates();
       break;
 
-    case "disable":
+    case 'disable':
       await disableUpdates();
       break;
 
-    case "enable":
+    case 'enable':
       await enableUpdates();
       break;
 
-    case "status":
+    case 'status':
       await showStatus();
       break;
 
-    case "help":
-    case "--help":
-    case "-h":
+    case 'help':
+    case '--help':
+    case '-h':
       showHelp();
       break;
 
-    case "theme": {
+    case 'theme': {
       // Hidden command to show theme info for debugging
-      const { printThemeInfo } = require("../shared/cli-utils");
+      const { printThemeInfo } = require('../shared/cli-utils');
       printThemeInfo();
       break;
     }
@@ -141,7 +134,7 @@ async function main() {
 }
 
 if (require.main === module) {
-  main().catch((error) => {
+  main().catch(error => {
     logger.error(`${error.message}`, error);
     process.exit(1);
   });

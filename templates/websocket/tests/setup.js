@@ -28,12 +28,12 @@ global.testUtils = {
     leave: jest.fn(),
     emit: jest.fn(),
     to: jest.fn(() => ({
-      emit: jest.fn()
+      emit: jest.fn(),
     })),
     broadcast: {
-      emit: jest.fn()
+      emit: jest.fn(),
     },
-    ...overrides
+    ...overrides,
   }),
 
   // Helper to create test message data
@@ -41,7 +41,7 @@ global.testUtils = {
     roomId: 'test-room-123',
     message: 'Test message',
     type: 'text',
-    ...overrides
+    ...overrides,
   }),
 
   // Helper to create test room data
@@ -50,7 +50,7 @@ global.testUtils = {
     description: 'Test room description',
     maxParticipants: 10,
     isPrivate: false,
-    ...overrides
+    ...overrides,
   }),
 
   // Helper to create test notification data
@@ -59,19 +59,21 @@ global.testUtils = {
     message: 'Test notification message',
     priority: 'normal',
     data: {},
-    ...overrides
+    ...overrides,
   }),
 
   // Helper to generate random string
   randomString: (length = 10) => {
-    return Math.random().toString(36).substring(2, length + 2);
+    return Math.random()
+      .toString(36)
+      .substring(2, length + 2);
   },
 
   // Helper to wait for async operations
   sleep: (ms = 100) => new Promise(resolve => setTimeout(resolve, ms)),
 
   // Helper to create mock callback
-  createMockCallback: () => jest.fn()
+  createMockCallback: () => jest.fn(),
 };
 
 // Setup/teardown hooks
@@ -103,7 +105,7 @@ global.console = {
   info: jest.fn(),
   warn: jest.fn(),
   error: jest.fn(),
-  debug: jest.fn()
+  debug: jest.fn(),
 };
 
 // Restore console for specific tests if needed
@@ -118,7 +120,7 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 // Handle uncaught exceptions in tests
-process.on('uncaughtException', (error) => {
+process.on('uncaughtException', error => {
   console.error('Uncaught Exception:', error);
   // Don't exit in tests, just log
 });
@@ -130,12 +132,12 @@ expect.extend({
     if (pass) {
       return {
         message: () => `expected ${received} not to be a valid timestamp`,
-        pass: true
+        pass: true,
       };
     } else {
       return {
         message: () => `expected ${received} to be a valid timestamp`,
-        pass: false
+        pass: false,
       };
     }
   },
@@ -145,12 +147,12 @@ expect.extend({
     if (pass) {
       return {
         message: () => `expected ${received} not to be a valid socket ID`,
-        pass: true
+        pass: true,
       };
     } else {
       return {
         message: () => `expected ${received} to be a valid socket ID`,
-        pass: false
+        pass: false,
       };
     }
   },
@@ -160,32 +162,32 @@ expect.extend({
     if (pass) {
       return {
         message: () => `expected ${received} not to be a valid room ID`,
-        pass: true
+        pass: true,
       };
     } else {
       return {
         message: () => `expected ${received} to be a valid room ID`,
-        pass: false
+        pass: false,
       };
     }
   },
 
   toHaveSocketEventHandlers(received, expectedEvents) {
-    const pass = Array.isArray(expectedEvents) && 
-                 expectedEvents.every(event => 
-                   received.emit && typeof received.emit.mock === 'object'
-                 );
-    
+    const pass =
+      Array.isArray(expectedEvents) &&
+      expectedEvents.every(_event => received.emit && typeof received.emit.mock === 'object');
+
     if (pass) {
       return {
-        message: () => `expected socket not to have event handlers for ${expectedEvents.join(', ')}`,
-        pass: true
+        message: () =>
+          `expected socket not to have event handlers for ${expectedEvents.join(', ')}`,
+        pass: true,
       };
     } else {
       return {
         message: () => `expected socket to have event handlers for ${expectedEvents.join(', ')}`,
-        pass: false
+        pass: false,
       };
     }
-  }
+  },
 });

@@ -13,16 +13,14 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
 
   // Test file patterns
-  testMatch: [
-    '<rootDir>/tests/**/*.test.js'
-  ],
+  testMatch: ['<rootDir>/tests/**/*.test.js'],
 
   // Coverage collection
   collectCoverageFrom: [
     'src/**/*.js',
     '!src/server.js', // Exclude main server file from coverage
     '!src/**/*.config.js',
-    '!**/node_modules/**'
+    '!**/node_modules/**',
   ],
 
   // Coverage thresholds
@@ -31,16 +29,12 @@ module.exports = {
       branches: 70,
       functions: 75,
       lines: 75,
-      statements: 75
-    }
+      statements: 75,
+    },
   },
 
   // Coverage reporters
-  coverageReporters: [
-    'text',
-    'lcov',
-    'html'
-  ],
+  coverageReporters: ['text', 'lcov', 'html'],
 
   // Coverage directory
   coverageDirectory: 'coverage',
@@ -59,14 +53,11 @@ module.exports = {
 
   // Handle ES modules
   transform: {
-    '^.+\\.js$': 'babel-jest'
+    '^.+\\.js$': 'babel-jest',
   },
 
   // Module paths
-  moduleDirectories: [
-    'node_modules',
-    'src'
-  ],
+  moduleDirectories: ['node_modules', 'src'],
 
   // Global setup/teardown
   globalSetup: undefined,
@@ -79,5 +70,5 @@ module.exports = {
   detectOpenHandles: true,
 
   // Force exit after tests complete
-  forceExit: true
+  forceExit: true,
 };

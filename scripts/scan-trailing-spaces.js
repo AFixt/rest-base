@@ -6,19 +6,19 @@
  * that could cause issues with MySQL 9.0's NO PAD collation behavior
  */
 
-const mysql = require("mysql2/promise");
-const chalk = require("chalk");
-const ora = require("ora");
+const mysql = require('mysql2/promise');
+const chalk = require('chalk');
+const ora = require('ora');
 
 /**
  * Database configuration
  */
 const dbConfig = {
-  host: process.env.DB_HOST || "localhost",
+  host: process.env.DB_HOST || 'localhost',
   port: process.env.DB_PORT || 3306,
-  user: process.env.DB_USER || "root",
-  password: process.env.DB_PASSWORD || "",
-  database: process.env.DB_NAME || "",
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || '',
 };
 
 /**
@@ -36,11 +36,8 @@ async function getStringColumns(connection, tableName) {
       AND DATA_TYPE IN ('varchar', 'char', 'text', 'tinytext', 'mediumtext', 'longtext')
   `;
 
-  const [columns] = await connection.query(query, [
-    dbConfig.database,
-    tableName,
-  ]);
-  return columns.map((col) => col.COLUMN_NAME);
+  const [columns] = await connection.query(query, [dbConfig.database, tableName]);
+  return columns.map(col => col.COLUMN_NAME);
 }
 
 /**
@@ -57,7 +54,7 @@ async function getAllTables(connection) {
   `;
 
   const [tables] = await connection.query(query, [dbConfig.database]);
-  return tables.map((t) => t.TABLE_NAME);
+  return tables.map(t => t.TABLE_NAME);
 }
 
 /**
@@ -114,24 +111,22 @@ async function getSampleRows(connection, tableName, columnName, limit = 5) {
  */
 async function scanDatabase() {
   if (!dbConfig.database) {
-    console.error(chalk.red("Error: DB_NAME environment variable is required"));
-    console.log(chalk.yellow("\nUsage:"));
-    console.log(
-      "  DB_NAME=mydb DB_USER=user DB_PASSWORD=pass node scan-trailing-spaces.js",
-    );
+    console.error(chalk.red('Error: DB_NAME environment variable is required'));
+    console.log(chalk.yellow('\nUsage:'));
+    console.log('  DB_NAME=mydb DB_USER=user DB_PASSWORD=pass node scan-trailing-spaces.js');
     process.exit(1);
   }
 
-  console.log(chalk.bold.cyan("\n=== MySQL Trailing Space Scanner ===\n"));
+  console.log(chalk.bold.cyan('\n=== MySQL Trailing Space Scanner ===\n'));
   console.log(chalk.gray(`Database: ${dbConfig.database}`));
   console.log(chalk.gray(`Host: ${dbConfig.host}:${dbConfig.port}\n`));
 
   let connection;
-  const spinner = ora("Connecting to database...").start();
+  const spinner = ora('Connecting to database...').start();
 
   try {
     connection = await mysql.createConnection(dbConfig);
-    spinner.succeed("Connected to database");
+    spinner.succeed('Connected to database');
 
     const tables = await getAllTables(connection);
     console.log(chalk.green(`\nFound ${tables.length} tables to scan\n`));
@@ -152,18 +147,16 @@ async function scanDatabase() {
 
           spinner.warn(
             chalk.yellow(
-              `${table}.${column}: ${result.trailingSpaceCount} / ${result.totalRows} rows have trailing spaces`,
-            ),
+              `${table}.${column}: ${result.trailingSpaceCount} / ${result.totalRows} rows have trailing spaces`
+            )
           );
 
           const samples = await getSampleRows(connection, table, column);
           if (samples.length > 0) {
-            console.log(chalk.gray("  Sample values:"));
-            samples.forEach((sample) => {
+            console.log(chalk.gray('  Sample values:'));
+            samples.forEach(sample => {
               console.log(
-                chalk.gray(
-                  `    ID ${sample.id}: "${sample.value}" (length: ${sample.char_length})`,
-                ),
+                chalk.gray(`    ID ${sample.id}: "${sample.value}" (length: ${sample.char_length})`)
               );
             });
           }
@@ -173,52 +166,38 @@ async function scanDatabase() {
       spinner.succeed(`Completed: ${table}`);
     }
 
-    console.log(chalk.bold.cyan("\n=== Scan Summary ===\n"));
+    console.log(chalk.bold.cyan('\n=== Scan Summary ===\n'));
 
     if (totalIssues > 0) {
       console.log(
         chalk.yellow(
-          `⚠️  Found ${totalIssues} rows with trailing spaces across ${results.length} columns\n`,
-        ),
+          `⚠️  Found ${totalIssues} rows with trailing spaces across ${results.length} columns\n`
+        )
       );
-      console.log(chalk.bold("Affected columns:"));
-      results.forEach((r) => {
-        console.log(
-          chalk.yellow(
-            `  • ${r.table}.${r.column}: ${r.trailingSpaceCount} rows`,
-          ),
-        );
+      console.log(chalk.bold('Affected columns:'));
+      results.forEach(r => {
+        console.log(chalk.yellow(`  • ${r.table}.${r.column}: ${r.trailingSpaceCount} rows`));
       });
 
-      console.log(chalk.bold.yellow("\n⚠️  Action Required:"));
+      console.log(chalk.bold.yellow('\n⚠️  Action Required:'));
       console.log(
-        chalk.gray(
-          "These trailing spaces may cause issues with MySQL 9.0 NO PAD collation.",
-        ),
+        chalk.gray('These trailing spaces may cause issues with MySQL 9.0 NO PAD collation.')
       );
-      console.log(
-        chalk.gray("Consider running UPDATE queries to trim these values:\n"),
-      );
-      results.forEach((r) => {
+      console.log(chalk.gray('Consider running UPDATE queries to trim these values:\n'));
+      results.forEach(r => {
         console.log(
-          chalk.cyan(
-            `  UPDATE \`${r.table}\` SET \`${r.column}\` = TRIM(\`${r.column}\`);`,
-          ),
+          chalk.cyan(`  UPDATE \`${r.table}\` SET \`${r.column}\` = TRIM(\`${r.column}\`);`)
         );
       });
     } else {
-      console.log(
-        chalk.green("✓ No trailing spaces detected in any string columns"),
-      );
-      console.log(
-        chalk.green("✓ Database is ready for MySQL 9.0 NO PAD collation"),
-      );
+      console.log(chalk.green('✓ No trailing spaces detected in any string columns'));
+      console.log(chalk.green('✓ Database is ready for MySQL 9.0 NO PAD collation'));
     }
 
-    console.log("");
+    console.log('');
   } catch (error) {
-    spinner.fail("Error during scan");
-    console.error(chalk.red("\nError details:"));
+    spinner.fail('Error during scan');
+    console.error(chalk.red('\nError details:'));
     console.error(chalk.red(error.message));
     console.error(chalk.gray(error.stack));
     process.exit(1);
@@ -231,8 +210,8 @@ async function scanDatabase() {
 
 // Run the scanner
 if (require.main === module) {
-  scanDatabase().catch((error) => {
-    console.error(chalk.red("Fatal error:"), error);
+  scanDatabase().catch(error => {
+    console.error(chalk.red('Fatal error:'), error);
     process.exit(1);
   });
 }

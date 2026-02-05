@@ -9,7 +9,7 @@
  * @author REST-Base Team
  */
 
-const { EnhancedCLI } = require("./cli-enhancements");
+const { EnhancedCLI } = require('./cli-enhancements');
 
 // Create enhanced CLI instance
 const cli = new EnhancedCLI();
@@ -22,48 +22,45 @@ async function enhancedCreateProject(context) {
   let projectName = args[0];
 
   if (!projectName && interactive) {
-    projectName = await interactive.prompt("Enter project name:");
+    projectName = await interactive.prompt('Enter project name:');
   }
 
   if (!projectName) {
-    console.error("Please provide a project name");
-    console.log("Usage: rest-base-create <project-name> [options]");
+    console.error('Please provide a project name');
+    console.log('Usage: rest-base-create <project-name> [options]');
     process.exit(1);
   }
 
   // Select template if interactive mode
-  let selectedTemplate = options.template || "default";
+  let selectedTemplate = options.template || 'default';
 
   if (interactive && !options.template) {
     const templates = await template.listTemplates();
-    const choices = templates.map((t) => ({
+    const choices = templates.map(t => ({
       name: `${t.name} - ${t.description}`,
       value: t.name,
     }));
 
-    selectedTemplate = await interactive.select(
-      "Select project template:",
-      choices,
-    );
+    selectedTemplate = await interactive.select('Select project template:', choices);
   }
 
   // Prepare enhanced arguments for original create-project
   const enhancedArgs = [projectName];
 
   // Add template to args if not default
-  if (selectedTemplate !== "default") {
-    enhancedArgs.push("--template", selectedTemplate);
+  if (selectedTemplate !== 'default') {
+    enhancedArgs.push('--template', selectedTemplate);
   }
 
   // Run original create-project with enhancements
-  process.argv = ["node", "create-project.js", ...enhancedArgs];
+  process.argv = ['node', 'create-project.js', ...enhancedArgs];
 
   // If dry-run mode, intercept file operations
   if (dryRun) {
     await simulateProjectCreation(context, projectName, selectedTemplate);
   } else {
     // Run actual project creation
-    await require("./create-project");
+    await require('./create-project');
   }
 }
 
@@ -74,41 +71,35 @@ async function simulateProjectCreation(context, projectName, templateName) {
   const { dryRun } = context;
 
   // Record operations that would be performed
-  dryRun.recordOperation("create", `Create project directory: ${projectName}`);
-  dryRun.recordOperation("create", "Create directory structure", {
+  dryRun.recordOperation('create', `Create project directory: ${projectName}`);
+  dryRun.recordOperation('create', 'Create directory structure', {
     directories: [
-      "src/controllers",
-      "src/models",
-      "src/routes",
-      "src/middlewares",
-      "src/services",
-      "src/utils",
-      "src/config",
-      "tests/unit",
-      "tests/integration",
-      "tests/fixtures",
-      "docs/api",
-      "docs/standards",
-      "public/uploads",
-      "scripts",
-      "logs",
+      'src/controllers',
+      'src/models',
+      'src/routes',
+      'src/middlewares',
+      'src/services',
+      'src/utils',
+      'src/config',
+      'tests/unit',
+      'tests/integration',
+      'tests/fixtures',
+      'docs/api',
+      'docs/standards',
+      'public/uploads',
+      'scripts',
+      'logs',
     ],
   });
 
-  dryRun.recordOperation("copy", "Copy REST-Base standards documentation");
-  dryRun.recordOperation("create", "Generate package.json with dependencies");
-  dryRun.recordOperation(
-    "create",
-    "Create application files (app.js, routes, etc.)",
-  );
-  dryRun.recordOperation(
-    "create",
-    "Generate configuration files (.env.example, .gitignore, etc.)",
-  );
-  dryRun.recordOperation("execute", "Initialize git repository");
+  dryRun.recordOperation('copy', 'Copy REST-Base standards documentation');
+  dryRun.recordOperation('create', 'Generate package.json with dependencies');
+  dryRun.recordOperation('create', 'Create application files (app.js, routes, etc.)');
+  dryRun.recordOperation('create', 'Generate configuration files (.env.example, .gitignore, etc.)');
+  dryRun.recordOperation('execute', 'Initialize git repository');
 
-  if (templateName !== "default") {
-    dryRun.recordOperation("copy", `Apply template: ${templateName}`);
+  if (templateName !== 'default') {
+    dryRun.recordOperation('copy', `Apply template: ${templateName}`);
   }
 }
 

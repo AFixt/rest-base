@@ -160,7 +160,7 @@
   ],
   "socketEvents": [
     "chat:join - Join chat room",
-    "chat:leave - Leave chat room", 
+    "chat:leave - Leave chat room",
     "chat:message - Send chat message",
     "chat:typing - Typing indicator",
     "chat:history - Get chat history",

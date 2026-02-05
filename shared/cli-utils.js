@@ -1,6 +1,6 @@
 /**
  * CLI utilities with high contrast support
- * 
+ *
  * @module shared/cli-utils
  * @author Karl Groves
  */
@@ -10,17 +10,16 @@ const { getColorTheme, style, separator, getThemeInfo } = require('./color-theme
 
 /**
  * Creates a spinner with theme-aware styling
- * 
+ *
  * @param {string} text - Initial spinner text
  * @param {Object} options - Spinner options
  * @returns {Object} Ora spinner instance
  */
 function createSpinner(text, options = {}) {
-  const theme = getColorTheme();
   const spinnerOptions = {
     text,
     color: 'blue',
-    ...options
+    ...options,
   };
 
   // Adjust spinner for high contrast mode
@@ -39,7 +38,7 @@ function createSpinner(text, options = {}) {
 
 /**
  * Formats a list item with theme-aware styling
- * 
+ *
  * @param {string} text - Item text
  * @param {string} prefix - Item prefix (e.g., '•', '-', number)
  * @returns {string} Formatted list item
@@ -51,7 +50,7 @@ function formatListItem(text, prefix = '•') {
 
 /**
  * Creates a formatted section header
- * 
+ *
  * @param {string} title - Section title
  * @param {boolean} underline - Whether to add underline
  * @returns {string} Formatted section header
@@ -59,32 +58,33 @@ function formatListItem(text, prefix = '•') {
 function formatSection(title, underline = true) {
   const theme = getColorTheme();
   let output = '\n' + theme.heading(title) + '\n';
-  
+
   if (underline) {
     output += separator(title.length, '=') + '\n';
   }
-  
+
   return output;
 }
 
 /**
  * Formats a table row with consistent spacing
- * 
+ *
  * @param {Array} columns - Column values
  * @param {Array} widths - Column widths
  * @returns {string} Formatted table row
  */
 function formatTableRow(columns, widths) {
-  const theme = getColorTheme();
-  return columns.map((col, i) => {
-    const width = widths[i] || 20;
-    return col.toString().padEnd(width);
-  }).join(' ');
+  return columns
+    .map((col, i) => {
+      const width = widths[i] || 20;
+      return col.toString().padEnd(width);
+    })
+    .join(' ');
 }
 
 /**
  * Creates a progress indicator for long-running tasks
- * 
+ *
  * @param {string} label - Progress label
  * @param {number} current - Current value
  * @param {number} total - Total value
@@ -95,9 +95,9 @@ function formatProgress(label, current, total) {
   const percentage = Math.round((current / total) * 100);
   const barLength = 30;
   const filledLength = Math.round((percentage / 100) * barLength);
-  
+
   let bar = '[';
-  
+
   if (process.env.NO_COLOR) {
     // Use ASCII characters for no-color environments
     bar += '='.repeat(filledLength);
@@ -107,15 +107,15 @@ function formatProgress(label, current, total) {
     bar += theme.success('█'.repeat(filledLength));
     bar += theme.muted('░'.repeat(barLength - filledLength));
   }
-  
+
   bar += ']';
-  
+
   return `${theme.label(label)} ${bar} ${theme.value(percentage + '%')} (${current}/${total})`;
 }
 
 /**
  * Formats a status indicator
- * 
+ *
  * @param {string} status - Status type ('success', 'error', 'warning', 'info')
  * @param {string} message - Status message
  * @returns {string} Formatted status
@@ -126,25 +126,25 @@ function formatStatus(status, message) {
     success: process.env.NO_COLOR ? '[OK]' : '✓',
     error: process.env.NO_COLOR ? '[ERROR]' : '✗',
     warning: process.env.NO_COLOR ? '[WARN]' : '⚠',
-    info: process.env.NO_COLOR ? '[INFO]' : 'ℹ'
+    info: process.env.NO_COLOR ? '[INFO]' : 'ℹ',
   };
-  
+
   const styles = {
     success: theme.success,
     error: theme.error,
     warning: theme.warning,
-    info: theme.info
+    info: theme.info,
   };
-  
+
   const icon = icons[status] || icons.info;
   const style = styles[status] || theme.info;
-  
+
   return `${style(icon)} ${message}`;
 }
 
 /**
  * Creates a box around content for emphasis
- * 
+ *
  * @param {string} content - Content to box
  * @param {Object} options - Box options
  * @returns {string} Boxed content
@@ -152,11 +152,11 @@ function formatStatus(status, message) {
 function createBox(content, options = {}) {
   const theme = getColorTheme();
   const { padding = 1, borderStyle = 'single' } = options;
-  
+
   const lines = content.split('\n');
   const maxLength = Math.max(...lines.map(l => l.length));
-  const paddedWidth = maxLength + (padding * 2);
-  
+  const paddedWidth = maxLength + padding * 2;
+
   const borders = {
     single: {
       top: '─',
@@ -166,7 +166,7 @@ function createBox(content, options = {}) {
       topLeft: '┌',
       topRight: '┐',
       bottomLeft: '└',
-      bottomRight: '┘'
+      bottomRight: '┘',
     },
     double: {
       top: '═',
@@ -176,7 +176,7 @@ function createBox(content, options = {}) {
       topLeft: '╔',
       topRight: '╗',
       bottomLeft: '╚',
-      bottomRight: '╝'
+      bottomRight: '╝',
     },
     ascii: {
       top: '-',
@@ -186,27 +186,33 @@ function createBox(content, options = {}) {
       topLeft: '+',
       topRight: '+',
       bottomLeft: '+',
-      bottomRight: '+'
-    }
+      bottomRight: '+',
+    },
   };
-  
+
   // Use ASCII borders for no-color environments
-  const border = process.env.NO_COLOR ? borders.ascii : (borders[borderStyle] || borders.single);
-  
+  const border = process.env.NO_COLOR ? borders.ascii : borders[borderStyle] || borders.single;
+
   let box = '';
-  
+
   // Top border
   box += theme.muted(border.topLeft + border.top.repeat(paddedWidth) + border.topRight) + '\n';
-  
+
   // Content with padding
   lines.forEach(line => {
     const paddedLine = line.padEnd(maxLength);
-    box += theme.muted(border.left) + ' '.repeat(padding) + paddedLine + ' '.repeat(padding) + theme.muted(border.right) + '\n';
+    box +=
+      theme.muted(border.left) +
+      ' '.repeat(padding) +
+      paddedLine +
+      ' '.repeat(padding) +
+      theme.muted(border.right) +
+      '\n';
   });
-  
+
   // Bottom border
   box += theme.muted(border.bottomLeft + border.bottom.repeat(paddedWidth) + border.bottomRight);
-  
+
   return box;
 }
 
@@ -216,16 +222,18 @@ function createBox(content, options = {}) {
 function printThemeInfo() {
   const info = getThemeInfo();
   const theme = getColorTheme();
-  
+
   console.log(theme.heading('Color Theme Information'));
   console.log(separator(30));
   console.log(formatStatus('info', `Color Support: ${info.colorSupport ? 'Yes' : 'No'}`));
   console.log(formatStatus('info', `Color Level: ${info.colorLevel}`));
-  console.log(formatStatus('info', `High Contrast: ${info.highContrastEnabled ? 'Enabled' : 'Disabled'}`));
+  console.log(
+    formatStatus('info', `High Contrast: ${info.highContrastEnabled ? 'Enabled' : 'Disabled'}`)
+  );
   console.log(formatStatus('info', `Current Theme: ${info.currentTheme}`));
   console.log(formatStatus('info', `Terminal: ${info.term}`));
   console.log(formatStatus('info', `Platform: ${info.platform}`));
-  
+
   console.log('\n' + theme.heading('Environment Variables'));
   console.log(separator(30));
   Object.entries(info.env).forEach(([key, value]) => {
@@ -247,5 +255,5 @@ module.exports = {
   // Re-export commonly used functions from color-themes
   style,
   separator,
-  getThemeInfo
+  getThemeInfo,
 };

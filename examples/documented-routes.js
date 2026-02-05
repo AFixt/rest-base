@@ -1,6 +1,6 @@
 /**
  * Example Routes with API Documentation
- * 
+ *
  * This file demonstrates how to document Express routes
  * for automatic API documentation generation
  */
@@ -32,26 +32,22 @@ const { userSchema, updateUserSchema } = require('../schemas/user');
  * @response 403 - Insufficient permissions
  * @security bearerAuth
  */
-router.get('/users', 
-  authenticate, 
-  authorize('admin'), 
-  async (req, res, next) => {
-    try {
-      // Implementation would go here
-      res.json({
-        users: [],
-        pagination: {
-          page: 1,
-          limit: 10,
-          total: 0,
-          pages: 0
-        }
-      });
-    } catch (error) {
-      next(error);
-    }
+router.get('/users', authenticate, authorize('admin'), async (req, res, next) => {
+  try {
+    // Implementation would go here
+    res.json({
+      users: [],
+      pagination: {
+        page: 1,
+        limit: 10,
+        total: 0,
+        pages: 0,
+      },
+    });
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 /**
  * @route POST /api/users
@@ -74,7 +70,8 @@ router.get('/users',
  * @response 409 - Email already exists
  * @security bearerAuth
  */
-router.post('/users',
+router.post(
+  '/users',
   authenticate,
   authorize('admin'),
   validate(userSchema),
@@ -88,8 +85,8 @@ router.post('/users',
           name: req.body.name,
           role: req.body.role || 'user',
           active: req.body.active !== false,
-          createdAt: new Date().toISOString()
-        }
+          createdAt: new Date().toISOString(),
+        },
       });
     } catch (error) {
       next(error);
@@ -109,34 +106,31 @@ router.post('/users',
  * @response 404 - User not found
  * @security bearerAuth
  */
-router.get('/users/:id',
-  authenticate,
-  async (req, res, next) => {
-    try {
-      // Check if user can access this profile
-      const canAccess = req.user.id === req.params.id || req.user.role === 'admin';
-      
-      if (!canAccess) {
-        return res.status(403).json({ error: 'Forbidden' });
-      }
+router.get('/users/:id', authenticate, async (req, res, next) => {
+  try {
+    // Check if user can access this profile
+    const canAccess = req.user.id === req.params.id || req.user.role === 'admin';
 
-      // Implementation would go here
-      res.json({
-        user: {
-          id: req.params.id,
-          email: 'user@example.com',
-          name: 'John Doe',
-          role: 'user',
-          active: true,
-          createdAt: '2024-01-01T00:00:00Z',
-          updatedAt: '2024-01-01T00:00:00Z'
-        }
-      });
-    } catch (error) {
-      next(error);
+    if (!canAccess) {
+      return res.status(403).json({ error: 'Forbidden' });
     }
+
+    // Implementation would go here
+    res.json({
+      user: {
+        id: req.params.id,
+        email: 'user@example.com',
+        name: 'John Doe',
+        role: 'user',
+        active: true,
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+      },
+    });
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 /**
  * @route PUT /api/users/:id
@@ -157,39 +151,35 @@ router.get('/users/:id',
  * @response 409 - Email already in use
  * @security bearerAuth
  */
-router.put('/users/:id',
-  authenticate,
-  validate(updateUserSchema),
-  async (req, res, next) => {
-    try {
-      // Check permissions
-      const isOwnProfile = req.user.id === req.params.id;
-      const isAdmin = req.user.role === 'admin';
-      
-      if (!isOwnProfile && !isAdmin) {
-        return res.status(403).json({ error: 'Forbidden' });
-      }
+router.put('/users/:id', authenticate, validate(updateUserSchema), async (req, res, next) => {
+  try {
+    // Check permissions
+    const isOwnProfile = req.user.id === req.params.id;
+    const isAdmin = req.user.role === 'admin';
 
-      // Prevent non-admins from changing role/active status
-      if (!isAdmin && (req.body.role || req.body.active !== undefined)) {
-        return res.status(403).json({ 
-          error: 'Only admins can change role or active status' 
-        });
-      }
-
-      // Implementation would go here
-      res.json({
-        user: {
-          id: req.params.id,
-          ...req.body,
-          updatedAt: new Date().toISOString()
-        }
-      });
-    } catch (error) {
-      next(error);
+    if (!isOwnProfile && !isAdmin) {
+      return res.status(403).json({ error: 'Forbidden' });
     }
+
+    // Prevent non-admins from changing role/active status
+    if (!isAdmin && (req.body.role || req.body.active !== undefined)) {
+      return res.status(403).json({
+        error: 'Only admins can change role or active status',
+      });
+    }
+
+    // Implementation would go here
+    res.json({
+      user: {
+        id: req.params.id,
+        ...req.body,
+        updatedAt: new Date().toISOString(),
+      },
+    });
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 /**
  * @route DELETE /api/users/:id
@@ -204,25 +194,21 @@ router.put('/users/:id',
  * @response 404 - User not found
  * @security bearerAuth
  */
-router.delete('/users/:id',
-  authenticate,
-  authorize('admin'),
-  async (req, res, next) => {
-    try {
-      // Prevent self-deletion
-      if (req.user.id === req.params.id) {
-        return res.status(400).json({ 
-          error: 'Cannot delete your own account' 
-        });
-      }
-
-      // Implementation would go here
-      res.status(204).send();
-    } catch (error) {
-      next(error);
+router.delete('/users/:id', authenticate, authorize('admin'), async (req, res, next) => {
+  try {
+    // Prevent self-deletion
+    if (req.user.id === req.params.id) {
+      return res.status(400).json({
+        error: 'Cannot delete your own account',
+      });
     }
+
+    // Implementation would go here
+    res.status(204).send();
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 /**
  * @route POST /api/users/:id/reset-password
@@ -238,27 +224,24 @@ router.delete('/users/:id',
  * @response 429 - Too many requests (rate limited)
  * @security bearerAuth
  */
-router.post('/users/:id/reset-password',
-  authenticate,
-  async (req, res, next) => {
-    try {
-      // Check permissions
-      const canReset = req.user.id === req.params.id || req.user.role === 'admin';
-      
-      if (!canReset) {
-        return res.status(403).json({ error: 'Forbidden' });
-      }
+router.post('/users/:id/reset-password', authenticate, async (req, res, next) => {
+  try {
+    // Check permissions
+    const canReset = req.user.id === req.params.id || req.user.role === 'admin';
 
-      // Implementation would go here
-      res.json({
-        message: 'Password reset email sent',
-        expiresIn: '1 hour'
-      });
-    } catch (error) {
-      next(error);
+    if (!canReset) {
+      return res.status(403).json({ error: 'Forbidden' });
     }
+
+    // Implementation would go here
+    res.json({
+      message: 'Password reset email sent',
+      expiresIn: '1 hour',
+    });
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 /**
  * @route GET /api/users/:id/sessions
@@ -273,34 +256,31 @@ router.post('/users/:id/reset-password',
  * @response 404 - User not found
  * @security bearerAuth
  */
-router.get('/users/:id/sessions',
-  authenticate,
-  async (req, res, next) => {
-    try {
-      // Check permissions
-      const canView = req.user.id === req.params.id || req.user.role === 'admin';
-      
-      if (!canView) {
-        return res.status(403).json({ error: 'Forbidden' });
-      }
+router.get('/users/:id/sessions', authenticate, async (req, res, next) => {
+  try {
+    // Check permissions
+    const canView = req.user.id === req.params.id || req.user.role === 'admin';
 
-      // Implementation would go here
-      res.json({
-        sessions: [
-          {
-            id: 'session-1',
-            deviceInfo: 'Chrome on Windows',
-            ipAddress: '192.168.1.1',
-            lastActive: new Date().toISOString(),
-            current: true
-          }
-        ]
-      });
-    } catch (error) {
-      next(error);
+    if (!canView) {
+      return res.status(403).json({ error: 'Forbidden' });
     }
+
+    // Implementation would go here
+    res.json({
+      sessions: [
+        {
+          id: 'session-1',
+          deviceInfo: 'Chrome on Windows',
+          ipAddress: '192.168.1.1',
+          lastActive: new Date().toISOString(),
+          current: true,
+        },
+      ],
+    });
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 /**
  * Health check endpoint (no authentication required)
@@ -314,7 +294,7 @@ router.get('/health', (req, res) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    uptime: process.uptime(),
   });
 });
 

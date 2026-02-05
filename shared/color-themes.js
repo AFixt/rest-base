@@ -1,6 +1,6 @@
 /**
  * Color themes for CLI output with high contrast support
- * 
+ *
  * @module shared/color-themes
  * @author Karl Groves
  */
@@ -22,7 +22,7 @@ const standardTheme = {
   value: chalk.white,
   heading: chalk.bold.blue,
   subheading: chalk.bold.white,
-  reset: chalk.reset
+  reset: chalk.reset,
 };
 
 /**
@@ -41,7 +41,7 @@ const highContrastTheme = {
   value: chalk.bold.whiteBright,
   heading: chalk.bold.underline.blueBright,
   subheading: chalk.bold.underline.whiteBright,
-  reset: chalk.reset
+  reset: chalk.reset,
 };
 
 /**
@@ -60,12 +60,12 @@ const monochromeTheme = {
   value: chalk.bold,
   heading: chalk.bold.underline,
   subheading: chalk.bold,
-  reset: chalk.reset
+  reset: chalk.reset,
 };
 
 /**
  * Detects if high contrast mode should be enabled
- * 
+ *
  * @returns {boolean} True if high contrast mode is needed
  */
 function shouldUseHighContrast() {
@@ -73,45 +73,41 @@ function shouldUseHighContrast() {
   if (process.env.HIGH_CONTRAST === 'true' || process.env.HIGH_CONTRAST === '1') {
     return true;
   }
-  
+
   // Check for forced high contrast mode
   if (process.env.FORCE_HIGH_CONTRAST === 'true') {
     return true;
   }
-  
+
   // Check terminal color depth
   const colorDepth = chalk.level;
   if (colorDepth === 0) {
     return true; // No color support, use monochrome
   }
-  
+
   // Check for common high contrast terminal indicators
   const term = process.env.TERM || '';
-  const colorterm = process.env.COLORTERM || '';
-  
   // Common high contrast terminal types
-  const highContrastTerminals = [
-    'xterm-mono',
-    'linux-m',
-    'dumb',
-    'cons25-m'
-  ];
-  
+  const highContrastTerminals = ['xterm-mono', 'linux-m', 'dumb', 'cons25-m'];
+
   if (highContrastTerminals.some(t => term.includes(t))) {
     return true;
   }
-  
+
   // Check accessibility preferences on macOS
-  if (process.platform === 'darwin' && process.env.ACCESSIBILITY_DISPLAY_SHOULD_INCREASE_CONTRAST === '1') {
+  if (
+    process.platform === 'darwin' &&
+    process.env.ACCESSIBILITY_DISPLAY_SHOULD_INCREASE_CONTRAST === '1'
+  ) {
     return true;
   }
-  
+
   return false;
 }
 
 /**
  * Gets the appropriate color theme based on environment
- * 
+ *
  * @returns {Object} Color theme object
  */
 function getColorTheme() {
@@ -119,19 +115,19 @@ function getColorTheme() {
   if (process.env.NO_COLOR || !chalk.supportsColor) {
     return monochromeTheme;
   }
-  
+
   // Check for high contrast mode
   if (shouldUseHighContrast()) {
     return highContrastTheme;
   }
-  
+
   // Default to standard theme
   return standardTheme;
 }
 
 /**
  * Creates a styled text formatter with current theme
- * 
+ *
  * @param {string} style - The style name from the theme
  * @returns {Function} Chalk styling function
  */
@@ -142,7 +138,7 @@ function style(styleName) {
 
 /**
  * Formats a label-value pair with appropriate styling
- * 
+ *
  * @param {string} label - The label text
  * @param {string} value - The value text
  * @returns {string} Formatted string
@@ -154,7 +150,7 @@ function formatLabelValue(label, value) {
 
 /**
  * Creates a visual separator line
- * 
+ *
  * @param {number} length - Length of the separator
  * @param {string} char - Character to use for separator
  * @returns {string} Formatted separator
@@ -166,7 +162,7 @@ function separator(length = 50, char = '-') {
 
 /**
  * Gets theme information for debugging
- * 
+ *
  * @returns {Object} Theme information
  */
 function getThemeInfo() {
@@ -181,8 +177,8 @@ function getThemeInfo() {
       HIGH_CONTRAST: process.env.HIGH_CONTRAST,
       FORCE_HIGH_CONTRAST: process.env.FORCE_HIGH_CONTRAST,
       NO_COLOR: process.env.NO_COLOR,
-      COLORTERM: process.env.COLORTERM
-    }
+      COLORTERM: process.env.COLORTERM,
+    },
   };
 }
 
@@ -195,5 +191,5 @@ module.exports = {
   style,
   formatLabelValue,
   separator,
-  getThemeInfo
+  getThemeInfo,
 };

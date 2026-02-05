@@ -7,21 +7,21 @@
  * @author Karl Groves
  */
 
-const { performance } = require("perf_hooks");
-const v8 = require("v8");
-const fs = require("fs").promises;
-const path = require("path");
-const os = require("os");
+const { performance } = require('perf_hooks');
+const v8 = require('v8');
+const fs = require('fs').promises;
+const path = require('path');
+const os = require('os');
 
 /**
  * Performance metric types
  */
 const MetricType = {
-  EXECUTION_TIME: "execution_time",
-  MEMORY_USAGE: "memory_usage",
-  FILE_IO: "file_io",
-  CPU_USAGE: "cpu_usage",
-  HEAP_USAGE: "heap_usage",
+  EXECUTION_TIME: 'execution_time',
+  MEMORY_USAGE: 'memory_usage',
+  FILE_IO: 'file_io',
+  CPU_USAGE: 'cpu_usage',
+  HEAP_USAGE: 'heap_usage',
 };
 
 /**
@@ -85,8 +85,7 @@ class PerformanceMonitor {
         heapTotal: endMemory.heapTotal - markData.startMemory.heapTotal,
         heapUsed: endMemory.heapUsed - markData.startMemory.heapUsed,
         external: endMemory.external - markData.startMemory.external,
-        arrayBuffers:
-          endMemory.arrayBuffers - markData.startMemory.arrayBuffers,
+        arrayBuffers: endMemory.arrayBuffers - markData.startMemory.arrayBuffers,
       },
       cpu: {
         user: (endCpu.user - markData.startCpu.user) / 1000, // Convert to milliseconds
@@ -188,11 +187,13 @@ class PerformanceMonitor {
    */
   getAggregatedMetrics(name) {
     const metrics = this.getMetrics(name);
-    if (metrics.length === 0) return null;
+    if (metrics.length === 0) {
+      return null;
+    }
 
-    const executionTimes = metrics.map((m) => m.executionTime);
-    const memoryUsages = metrics.map((m) => m.memory.heapUsed);
-    const cpuUsages = metrics.map((m) => m.cpu.user + m.cpu.system);
+    const executionTimes = metrics.map(m => m.executionTime);
+    const memoryUsages = metrics.map(m => m.memory.heapUsed);
+    const cpuUsages = metrics.map(m => m.cpu.user + m.cpu.system);
 
     return {
       name,
@@ -226,9 +227,7 @@ class PerformanceMonitor {
   calculateMedian(values) {
     const sorted = [...values].sort((a, b) => a - b);
     const mid = Math.floor(sorted.length / 2);
-    return sorted.length % 2 === 0
-      ? (sorted[mid - 1] + sorted[mid]) / 2
-      : sorted[mid];
+    return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
   }
 
   /**
@@ -316,7 +315,7 @@ function getGlobalMonitor() {
  * @returns {string} Formatted string
  */
 function formatBytes(bytes) {
-  const units = ["B", "KB", "MB", "GB"];
+  const units = ['B', 'KB', 'MB', 'GB'];
   let size = Math.abs(bytes);
   let unitIndex = 0;
 
@@ -326,9 +325,7 @@ function formatBytes(bytes) {
   }
 
   const formatted = size.toFixed(2);
-  return bytes < 0
-    ? `-${formatted} ${units[unitIndex]}`
-    : `${formatted} ${units[unitIndex]}`;
+  return bytes < 0 ? `-${formatted} ${units[unitIndex]}` : `${formatted} ${units[unitIndex]}`;
 }
 
 /**
@@ -337,9 +334,15 @@ function formatBytes(bytes) {
  * @returns {string} Formatted string
  */
 function formatDuration(ms) {
-  if (ms < 1) return `${(ms * 1000).toFixed(2)}μs`;
-  if (ms < 1000) return `${ms.toFixed(2)}ms`;
-  if (ms < 60000) return `${(ms / 1000).toFixed(2)}s`;
+  if (ms < 1) {
+    return `${(ms * 1000).toFixed(2)}μs`;
+  }
+  if (ms < 1000) {
+    return `${ms.toFixed(2)}ms`;
+  }
+  if (ms < 60000) {
+    return `${(ms / 1000).toFixed(2)}s`;
+  }
   return `${(ms / 60000).toFixed(2)}m`;
 }
 

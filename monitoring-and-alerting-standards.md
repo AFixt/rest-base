@@ -5,21 +5,21 @@ ensuring proper observability, performance tracking, and incident response.
 
 ## Table of Contents
 
-* [Overview](#overview)
-* [Monitoring Philosophy](#monitoring-philosophy)
-* [Key Performance Indicators (KPIs)](#key-performance-indicators-kpis)
-* [Application Metrics](#application-metrics)
-* [Infrastructure Metrics](#infrastructure-metrics)
-* [Log Management](#log-management)
-* [Alerting Rules](#alerting-rules)
-* [Dashboards](#dashboards)
-* [Error Tracking](#error-tracking)
-* [Performance Monitoring](#performance-monitoring)
-* [Security Monitoring](#security-monitoring)
-* [Health Checks](#health-checks)
-* [Implementation Examples](#implementation-examples)
-* [Tools and Technologies](#tools-and-technologies)
-* [Incident Response](#incident-response)
+- [Overview](#overview)
+- [Monitoring Philosophy](#monitoring-philosophy)
+- [Key Performance Indicators (KPIs)](#key-performance-indicators-kpis)
+- [Application Metrics](#application-metrics)
+- [Infrastructure Metrics](#infrastructure-metrics)
+- [Log Management](#log-management)
+- [Alerting Rules](#alerting-rules)
+- [Dashboards](#dashboards)
+- [Error Tracking](#error-tracking)
+- [Performance Monitoring](#performance-monitoring)
+- [Security Monitoring](#security-monitoring)
+- [Health Checks](#health-checks)
+- [Implementation Examples](#implementation-examples)
+- [Tools and Technologies](#tools-and-technologies)
+- [Incident Response](#incident-response)
 
 ## Overview
 
@@ -63,65 +63,65 @@ ensuring proper observability, performance tracking, and incident response.
 
 #### Service Level Indicators (SLIs)
 
-* Specific metrics that measure service performance
-* Must be measurable and meaningful to users
+- Specific metrics that measure service performance
+- Must be measurable and meaningful to users
 
 #### Service Level Objectives (SLOs)
 
-* Target values or ranges for SLIs
-* Internal goals for service reliability
+- Target values or ranges for SLIs
+- Internal goals for service reliability
 
 #### Service Level Agreements (SLAs)
 
-* External commitments to customers
-* Often based on SLOs with stricter requirements
+- External commitments to customers
+- Often based on SLOs with stricter requirements
 
 ```yaml
 # Example SLI/SLO definitions
 slis:
   availability:
-    description: "Percentage of successful HTTP requests"
+    description: 'Percentage of successful HTTP requests'
     measurement: "count(http_requests{status!~'5..'})/count(http_requests)"
-  
+
   latency:
-    description: "95th percentile response time"
-    measurement: "histogram_quantile(0.95, http_request_duration_seconds)"
+    description: '95th percentile response time'
+    measurement: 'histogram_quantile(0.95, http_request_duration_seconds)'
 
 slos:
-  availability: 99.9%  # 43.8 minutes downtime per month
-  latency: 200ms       # 95th percentile under 200ms
-  error_rate: 0.1%     # Less than 0.1% error rate
+  availability: 99.9% # 43.8 minutes downtime per month
+  latency: 200ms # 95th percentile under 200ms
+  error_rate: 0.1% # Less than 0.1% error rate
 ```
 
 ## Key Performance Indicators (KPIs)
 
 ### Application Performance KPIs
 
-| Metric | Target | Critical Threshold | Alert Level |
-|--------|--------|--------------------|-------------|
-| Response Time (p95) | < 200ms | > 500ms | Warning |
-| Response Time (p99) | < 500ms | > 1000ms | Critical |
-| Error Rate | < 0.1% | > 1% | Critical |
-| Availability | > 99.9% | < 99% | Critical |
-| Throughput | Baseline ±20% | > 50% deviation | Warning |
+| Metric              | Target        | Critical Threshold | Alert Level |
+| ------------------- | ------------- | ------------------ | ----------- |
+| Response Time (p95) | < 200ms       | > 500ms            | Warning     |
+| Response Time (p99) | < 500ms       | > 1000ms           | Critical    |
+| Error Rate          | < 0.1%        | > 1%               | Critical    |
+| Availability        | > 99.9%       | < 99%              | Critical    |
+| Throughput          | Baseline ±20% | > 50% deviation    | Warning     |
 
 ### Business KPIs
 
-| Metric | Target | Critical Threshold | Alert Level |
-|--------|--------|--------------------|-------------|
-| Daily Active Users | Baseline ±10% | > 25% decrease | Warning |
-| Conversion Rate | Baseline ±5% | > 15% decrease | Critical |
-| Revenue per Hour | Baseline ±15% | > 30% decrease | Critical |
-| User Session Duration | > 5 minutes | < 2 minutes | Warning |
+| Metric                | Target        | Critical Threshold | Alert Level |
+| --------------------- | ------------- | ------------------ | ----------- |
+| Daily Active Users    | Baseline ±10% | > 25% decrease     | Warning     |
+| Conversion Rate       | Baseline ±5%  | > 15% decrease     | Critical    |
+| Revenue per Hour      | Baseline ±15% | > 30% decrease     | Critical    |
+| User Session Duration | > 5 minutes   | < 2 minutes        | Warning     |
 
 ### Infrastructure KPIs
 
-| Metric | Target | Critical Threshold | Alert Level |
-|--------|--------|--------------------|-------------|
-| CPU Utilization | < 70% | > 90% | Critical |
-| Memory Usage | < 80% | > 95% | Critical |
-| Disk Usage | < 85% | > 95% | Critical |
-| Network I/O | Baseline ±30% | > 80% capacity | Warning |
+| Metric          | Target        | Critical Threshold | Alert Level |
+| --------------- | ------------- | ------------------ | ----------- |
+| CPU Utilization | < 70%         | > 90%              | Critical    |
+| Memory Usage    | < 80%         | > 95%              | Critical    |
+| Disk Usage      | < 85%         | > 95%              | Critical    |
+| Network I/O     | Baseline ±30% | > 80% capacity     | Warning     |
 
 ## Application Metrics
 
@@ -135,32 +135,32 @@ const httpRequestDuration = new prometheus.Histogram({
   name: 'http_request_duration_seconds',
   help: 'Duration of HTTP requests in seconds',
   labelNames: ['method', 'route', 'status_code'],
-  buckets: [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 7, 10]
+  buckets: [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 7, 10],
 });
 
 const httpRequestTotal = new prometheus.Counter({
   name: 'http_requests_total',
   help: 'Total number of HTTP requests',
-  labelNames: ['method', 'route', 'status_code']
+  labelNames: ['method', 'route', 'status_code'],
 });
 
 const httpRequestSizeBytes = new prometheus.Histogram({
   name: 'http_request_size_bytes',
   help: 'Size of HTTP requests in bytes',
-  labelNames: ['method', 'route']
+  labelNames: ['method', 'route'],
 });
 
 const httpResponseSizeBytes = new prometheus.Histogram({
   name: 'http_response_size_bytes',
   help: 'Size of HTTP responses in bytes',
-  labelNames: ['method', 'route', 'status_code']
+  labelNames: ['method', 'route', 'status_code'],
 });
 
 module.exports = {
   httpRequestDuration,
   httpRequestTotal,
   httpRequestSizeBytes,
-  httpResponseSizeBytes
+  httpResponseSizeBytes,
 };
 ```
 
@@ -172,32 +172,32 @@ const prometheus = require('prom-client');
 
 const dbConnectionPoolSize = new prometheus.Gauge({
   name: 'db_connection_pool_size',
-  help: 'Current size of database connection pool'
+  help: 'Current size of database connection pool',
 });
 
 const dbConnectionPoolUsed = new prometheus.Gauge({
   name: 'db_connection_pool_used',
-  help: 'Number of used database connections'
+  help: 'Number of used database connections',
 });
 
 const dbQueryDuration = new prometheus.Histogram({
   name: 'db_query_duration_seconds',
   help: 'Duration of database queries in seconds',
   labelNames: ['operation', 'table'],
-  buckets: [0.01, 0.05, 0.1, 0.5, 1, 2, 5]
+  buckets: [0.01, 0.05, 0.1, 0.5, 1, 2, 5],
 });
 
 const dbQueryTotal = new prometheus.Counter({
   name: 'db_queries_total',
   help: 'Total number of database queries',
-  labelNames: ['operation', 'table', 'status']
+  labelNames: ['operation', 'table', 'status'],
 });
 
 module.exports = {
   dbConnectionPoolSize,
   dbConnectionPoolUsed,
   dbQueryDuration,
-  dbQueryTotal
+  dbQueryTotal,
 };
 ```
 
@@ -210,32 +210,32 @@ const prometheus = require('prom-client');
 const userRegistrations = new prometheus.Counter({
   name: 'user_registrations_total',
   help: 'Total number of user registrations',
-  labelNames: ['source', 'plan']
+  labelNames: ['source', 'plan'],
 });
 
 const userLogins = new prometheus.Counter({
   name: 'user_logins_total',
   help: 'Total number of user logins',
-  labelNames: ['method', 'status']
+  labelNames: ['method', 'status'],
 });
 
 const orderValue = new prometheus.Histogram({
   name: 'order_value_dollars',
   help: 'Order value in dollars',
   labelNames: ['category', 'payment_method'],
-  buckets: [10, 25, 50, 100, 250, 500, 1000]
+  buckets: [10, 25, 50, 100, 250, 500, 1000],
 });
 
 const activeUsers = new prometheus.Gauge({
   name: 'active_users',
-  help: 'Number of currently active users'
+  help: 'Number of currently active users',
 });
 
 module.exports = {
   userRegistrations,
   userLogins,
   orderValue,
-  activeUsers
+  activeUsers,
 };
 ```
 
@@ -327,8 +327,8 @@ const path = require('path');
 const streams = [
   {
     level: 'info',
-    stream: process.stdout
-  }
+    stream: process.stdout,
+  },
 ];
 
 // Add file streams for production
@@ -338,15 +338,15 @@ if (process.env.NODE_ENV === 'production') {
     path: path.join('logs', 'error.log'),
     type: 'rotating-file',
     period: '1d',
-    count: 5
+    count: 5,
   });
-  
+
   streams.push({
     level: 'info',
     path: path.join('logs', 'combined.log'),
     type: 'rotating-file',
     period: '1d',
-    count: 5
+    count: 5,
   });
 }
 
@@ -358,7 +358,7 @@ const logger = bunyan.createLogger({
   src: process.env.NODE_ENV !== 'production', // Include source file info in dev
   service: process.env.SERVICE_NAME || 'rest-api',
   version: process.env.npm_package_version || '1.0.0',
-  environment: process.env.NODE_ENV || 'development'
+  environment: process.env.NODE_ENV || 'development',
 });
 
 module.exports = logger;
@@ -366,12 +366,12 @@ module.exports = logger;
 
 ### Log Levels and Usage
 
-| Level | When to Use | Example |
-|-------|-------------|---------|
-| ERROR | Application errors, exceptions | `logger.error('Database connection failed', { error: err.message })` |
-| WARN | Potentially harmful situations | `logger.warn('High memory usage detected', { usage: '85%' })` |
-| INFO | General information about application flow | `logger.info('User logged in', { userId: 123, ip: req.ip })` |
-| DEBUG | Detailed information for debugging | `logger.debug('Cache hit', { key: 'user:123', ttl: 300 })` |
+| Level | When to Use                                | Example                                                              |
+| ----- | ------------------------------------------ | -------------------------------------------------------------------- |
+| ERROR | Application errors, exceptions             | `logger.error('Database connection failed', { error: err.message })` |
+| WARN  | Potentially harmful situations             | `logger.warn('High memory usage detected', { usage: '85%' })`        |
+| INFO  | General information about application flow | `logger.info('User logged in', { userId: 123, ip: req.ip })`         |
+| DEBUG | Detailed information for debugging         | `logger.debug('Cache hit', { key: 'user:123', ttl: 300 })`           |
 
 ### Security Event Logging
 
@@ -386,37 +386,37 @@ function logSecurityEvent(req, res, next) {
       ip: req.ip,
       userAgent: req.get('User-Agent'),
       email: req.body.email,
-      success: res.statusCode === 200
+      success: res.statusCode === 200,
     });
   }
-  
+
   // Log failed authorization
   if (res.statusCode === 403) {
     logger.warn('Authorization failed', {
       ip: req.ip,
       path: req.path,
       method: req.method,
-      userId: req.user?.id
+      userId: req.user?.id,
     });
   }
-  
+
   // Log suspicious activities
   const suspiciousPatterns = [
-    /\.\./,  // Path traversal
-    /<script/i,  // XSS attempts
-    /union.*select/i  // SQL injection
+    /\.\./, // Path traversal
+    /<script/i, // XSS attempts
+    /union.*select/i, // SQL injection
   ];
-  
+
   const queryString = req.url;
   if (suspiciousPatterns.some(pattern => pattern.test(queryString))) {
     logger.error('Suspicious request detected', {
       ip: req.ip,
       path: req.path,
       query: req.query,
-      userAgent: req.get('User-Agent')
+      userAgent: req.get('User-Agent'),
     });
   }
-  
+
   next();
 }
 
@@ -502,11 +502,11 @@ groups:
 
 ### Alert Severity Levels
 
-| Severity | Response Time | Escalation | Examples |
-|----------|---------------|------------|----------|
-| Critical | Immediate (< 5 min) | On-call engineer | Service down, data corruption |
-| Warning | 30 minutes | Team lead | High latency, resource usage |
-| Info | Next business day | Team notification | Deployment success, capacity alerts |
+| Severity | Response Time       | Escalation        | Examples                            |
+| -------- | ------------------- | ----------------- | ----------------------------------- |
+| Critical | Immediate (< 5 min) | On-call engineer  | Service down, data corruption       |
+| Warning  | 30 minutes          | Team lead         | High latency, resource usage        |
+| Info     | Next business day   | Team notification | Deployment success, capacity alerts |
 
 ## Dashboards
 
@@ -616,8 +616,8 @@ Sentry.init({
   tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
   integrations: [
     new Sentry.Integrations.Http({ tracing: true }),
-    new Sentry.Integrations.Express({ app: require('../app') })
-  ]
+    new Sentry.Integrations.Express({ app: require('../app') }),
+  ],
 });
 
 function captureError(error, context = {}) {
@@ -625,11 +625,11 @@ function captureError(error, context = {}) {
   logger.error('Application error', {
     error: error.message,
     stack: error.stack,
-    context
+    context,
   });
-  
+
   // Send to Sentry
-  Sentry.withScope((scope) => {
+  Sentry.withScope(scope => {
     Object.keys(context).forEach(key => {
       scope.setTag(key, context[key]);
     });
@@ -639,8 +639,8 @@ function captureError(error, context = {}) {
 
 function captureMessage(message, level = 'info', context = {}) {
   logger[level](message, context);
-  
-  Sentry.withScope((scope) => {
+
+  Sentry.withScope(scope => {
     Object.keys(context).forEach(key => {
       scope.setTag(key, context[key]);
     });
@@ -651,18 +651,18 @@ function captureMessage(message, level = 'info', context = {}) {
 module.exports = {
   Sentry,
   captureError,
-  captureMessage
+  captureMessage,
 };
 ```
 
 ### Error Classification
 
-| Category | Severity | Auto-Resolution | Examples |
-|----------|----------|-----------------|----------|
-| Critical | High | No | Database unavailable, payment processing failure |
-| Business | Medium | No | Validation errors, authentication failures |
-| Technical | Low | Yes | Temporary network issues, cache misses |
-| User | Info | Yes | Invalid input, permission denied |
+| Category  | Severity | Auto-Resolution | Examples                                         |
+| --------- | -------- | --------------- | ------------------------------------------------ |
+| Critical  | High     | No              | Database unavailable, payment processing failure |
+| Business  | Medium   | No              | Validation errors, authentication failures       |
+| Technical | Low      | Yes             | Temporary network issues, cache misses           |
+| User      | Info     | Yes             | Invalid input, permission denied                 |
 
 ## Performance Monitoring
 
@@ -679,13 +679,13 @@ const apm = elastic.start({
   environment: process.env.NODE_ENV,
   captureBody: 'errors',
   captureHeaders: true,
-  logLevel: 'info'
+  logLevel: 'info',
 });
 
 // Custom transaction tracking
 function trackTransaction(name, type, callback) {
   const transaction = apm.startTransaction(name, type);
-  
+
   return new Promise((resolve, reject) => {
     callback()
       .then(result => {
@@ -708,16 +708,16 @@ function trackDatabaseQuery(query, params) {
   const span = apm.startSpan('db.query', 'db', 'postgresql', 'query');
   span.setDbContext({
     statement: query,
-    type: 'sql'
+    type: 'sql',
   });
-  
+
   return span;
 }
 
 module.exports = {
   apm,
   trackTransaction,
-  trackDatabaseQuery
+  trackDatabaseQuery,
 };
 ```
 
@@ -731,13 +731,13 @@ const app = require('../../app');
 async function runPerformanceTests() {
   const server = app.listen(0);
   const port = server.address().port;
-  
+
   const tests = [
     {
       name: 'GET /health',
       url: `http://localhost:${port}/health`,
       duration: 30,
-      connections: 10
+      connections: 10,
     },
     {
       name: 'GET /api/users',
@@ -745,23 +745,23 @@ async function runPerformanceTests() {
       duration: 30,
       connections: 10,
       headers: {
-        'Authorization': 'Bearer test-token'
-      }
-    }
+        Authorization: 'Bearer test-token',
+      },
+    },
   ];
-  
+
   for (const test of tests) {
     console.log(`Running test: ${test.name}`);
     const result = await autocannon(test);
-    
+
     // Assert performance requirements
     expect(result.latency.p95).toBeLessThan(500); // 95th percentile under 500ms
     expect(result.requests.average).toBeGreaterThan(100); // Average RPS over 100
     expect(result.errors).toBe(0); // No errors
-    
+
     console.log(`Results: ${result.requests.average} req/sec, ${result.latency.p95}ms p95`);
   }
-  
+
   server.close();
 }
 
@@ -789,9 +789,9 @@ const createRateLimiter = (windowMs, max, skipSuccessfulRequests = false) => {
         userAgent: req.get('User-Agent'),
         path: req.path,
         limit: options.max,
-        window: options.windowMs
+        window: options.windowMs,
       });
-    }
+    },
   });
 };
 
@@ -806,23 +806,23 @@ function detectCSRF(req, res, next) {
   const origin = req.get('Origin');
   const referer = req.get('Referer');
   const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'];
-  
+
   if (req.method !== 'GET' && !allowedOrigins.includes(origin)) {
     captureMessage('Potential CSRF attack detected', 'warning', {
       ip: req.ip,
       origin,
       referer,
-      path: req.path
+      path: req.path,
     });
   }
-  
+
   next();
 }
 
 module.exports = {
   loginLimiter,
   apiLimiter,
-  detectCSRF
+  detectCSRF,
 };
 ```
 
@@ -835,25 +835,25 @@ const prometheus = require('prom-client');
 const securityEvents = new prometheus.Counter({
   name: 'security_events_total',
   help: 'Total number of security events',
-  labelNames: ['type', 'severity', 'ip']
+  labelNames: ['type', 'severity', 'ip'],
 });
 
 const authenticationAttempts = new prometheus.Counter({
   name: 'authentication_attempts_total',
   help: 'Total number of authentication attempts',
-  labelNames: ['method', 'result', 'ip']
+  labelNames: ['method', 'result', 'ip'],
 });
 
 const rateLimitHits = new prometheus.Counter({
   name: 'rate_limit_hits_total',
   help: 'Total number of rate limit hits',
-  labelNames: ['endpoint', 'ip']
+  labelNames: ['endpoint', 'ip'],
 });
 
 module.exports = {
   securityEvents,
   authenticationAttempts,
-  rateLimitHits
+  rateLimitHits,
 };
 ```
 
@@ -875,20 +875,20 @@ router.get('/health', (req, res) => {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     version,
-    uptime: process.uptime()
+    uptime: process.uptime(),
   });
 });
 
 // Detailed health check
 router.get('/health/detailed', async (req, res) => {
   const startTime = Date.now();
-  
+
   const checks = await Promise.allSettled([
     checkDatabase(),
     checkRedis(),
     checkDiskSpace(),
     checkMemoryUsage(),
-    checkExternalServices()
+    checkExternalServices(),
   ]);
 
   const results = {
@@ -902,8 +902,8 @@ router.get('/health/detailed', async (req, res) => {
       redis: formatCheckResult(checks[1]),
       disk_space: formatCheckResult(checks[2]),
       memory: formatCheckResult(checks[3]),
-      external_services: formatCheckResult(checks[4])
-    }
+      external_services: formatCheckResult(checks[4]),
+    },
   };
 
   const isHealthy = Object.values(results.checks).every(check => check.status === 'healthy');
@@ -934,7 +934,7 @@ async function checkDatabase() {
   return {
     status: 'healthy',
     response_time: Date.now() - start,
-    details: 'Database connection successful'
+    details: 'Database connection successful',
   };
 }
 
@@ -944,7 +944,7 @@ async function checkRedis() {
   return {
     status: 'healthy',
     response_time: Date.now() - start,
-    details: 'Redis connection successful'
+    details: 'Redis connection successful',
   };
 }
 
@@ -954,7 +954,7 @@ function formatCheckResult(result) {
   } else {
     return {
       status: 'unhealthy',
-      error: result.reason.message
+      error: result.reason.message,
     };
   }
 }
@@ -983,20 +983,16 @@ app.use(Sentry.Handlers.tracingHandler());
 // Prometheus metrics middleware
 app.use((req, res, next) => {
   const start = Date.now();
-  
+
   res.on('finish', () => {
     const duration = (Date.now() - start) / 1000;
     const route = req.route?.path || req.path;
-    
-    httpRequestDuration
-      .labels(req.method, route, res.statusCode)
-      .observe(duration);
-      
-    httpRequestTotal
-      .labels(req.method, route, res.statusCode)
-      .inc();
+
+    httpRequestDuration.labels(req.method, route, res.statusCode).observe(duration);
+
+    httpRequestTotal.labels(req.method, route, res.statusCode).inc();
   });
-  
+
   next();
 });
 
@@ -1019,45 +1015,45 @@ module.exports = app;
 
 ### Recommended Monitoring Stack
 
-| Component | Tool | Purpose |
-|-----------|------|---------|
-| Metrics Collection | Prometheus | Time-series metrics storage |
-| Visualization | Grafana | Dashboards and alerting |
-| Log Aggregation | ELK Stack (Elasticsearch, Logstash, Kibana) | Log collection and analysis |
-| APM | Elastic APM / New Relic | Application performance monitoring |
-| Error Tracking | Sentry | Error tracking and alerting |
-| Uptime Monitoring | Pingdom / UptimeRobot | External service monitoring |
+| Component          | Tool                                        | Purpose                            |
+| ------------------ | ------------------------------------------- | ---------------------------------- |
+| Metrics Collection | Prometheus                                  | Time-series metrics storage        |
+| Visualization      | Grafana                                     | Dashboards and alerting            |
+| Log Aggregation    | ELK Stack (Elasticsearch, Logstash, Kibana) | Log collection and analysis        |
+| APM                | Elastic APM / New Relic                     | Application performance monitoring |
+| Error Tracking     | Sentry                                      | Error tracking and alerting        |
+| Uptime Monitoring  | Pingdom / UptimeRobot                       | External service monitoring        |
 
 ### Cloud Provider Solutions
 
 **AWS**
 
-* CloudWatch for metrics and logs
-* X-Ray for distributed tracing
-* CloudTrail for audit logs
+- CloudWatch for metrics and logs
+- X-Ray for distributed tracing
+- CloudTrail for audit logs
 
 **Google Cloud Platform**
 
-* Cloud Monitoring (Stackdriver)
-* Cloud Logging
-* Cloud Trace
+- Cloud Monitoring (Stackdriver)
+- Cloud Logging
+- Cloud Trace
 
 **Azure**
 
-* Azure Monitor
-* Application Insights
-* Log Analytics
+- Azure Monitor
+- Application Insights
+- Log Analytics
 
 ## Incident Response
 
 ### Incident Severity Classification
 
-| Level | Impact | Response Time | Escalation |
-|-------|--------|---------------|------------|
-| P0 - Critical | Service completely down | 5 minutes | Immediate on-call |
-| P1 - High | Major functionality impaired | 30 minutes | Senior engineer |
-| P2 - Medium | Some functionality impaired | 2 hours | Team lead |
-| P3 - Low | Minor issues | Next business day | Regular team |
+| Level         | Impact                       | Response Time     | Escalation        |
+| ------------- | ---------------------------- | ----------------- | ----------------- |
+| P0 - Critical | Service completely down      | 5 minutes         | Immediate on-call |
+| P1 - High     | Major functionality impaired | 30 minutes        | Senior engineer   |
+| P2 - Medium   | Some functionality impaired  | 2 hours           | Team lead         |
+| P3 - Low      | Minor issues                 | Next business day | Regular team      |
 
 ### Incident Response Procedures
 
@@ -1074,25 +1070,29 @@ module.exports = app;
 # High Error Rate Runbook
 
 ## Symptoms
-* Error rate > 1% for more than 2 minutes
-* 5xx HTTP status codes increasing
+
+- Error rate > 1% for more than 2 minutes
+- 5xx HTTP status codes increasing
 
 ## Investigation Steps
+
 1. Check application logs for error patterns
 2. Verify database connectivity
 3. Check third-party service status
 4. Review recent deployments
 
 ## Mitigation Steps
+
 1. If deployment-related: rollback to previous version
 2. If database issue: restart database connections
 3. If traffic spike: scale application instances
 4. If third-party issue: enable circuit breaker
 
 ## Communication
-* Update status page
-* Notify affected customers
-* Post in #incidents Slack channel
+
+- Update status page
+- Notify affected customers
+- Post in #incidents Slack channel
 ```
 
 This comprehensive monitoring and alerting standards document provides the foundation for maintaining

@@ -2,19 +2,19 @@
  * Integration tests for create-project.js workflow
  */
 
-const fs = require("fs");
-const path = require("path");
-const os = require("os");
-const { spawn } = require("child_process");
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+const { spawn } = require('child_process');
 
-describe("Create Project Integration", () => {
+describe('Create Project Integration', () => {
   let tempDir;
   let scriptsDir;
 
   beforeEach(() => {
     // Create a temporary directory for testing
-    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "rest-spec-create-test-"));
-    scriptsDir = path.join(__dirname, "..", "..", "scripts");
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rest-spec-create-test-'));
+    scriptsDir = path.join(__dirname, '..', '..', 'scripts');
   });
 
   afterEach(() => {
@@ -24,25 +24,25 @@ describe("Create Project Integration", () => {
     }
   });
 
-  describe("Project Creation Workflow", () => {
-    it("should create a complete project structure", (done) => {
-      const projectName = "test-api-project";
+  describe('Project Creation Workflow', () => {
+    it('should create a complete project structure', done => {
+      const projectName = 'test-api-project';
       const projectPath = path.join(tempDir, projectName);
-      const createScript = path.join(scriptsDir, "create-project.js");
+      const createScript = path.join(scriptsDir, 'create-project.js');
 
-      const child = spawn("node", [createScript, projectName], {
-        stdio: "pipe",
+      const child = spawn('node', [createScript, projectName], {
+        stdio: 'pipe',
         cwd: tempDir,
-        env: { ...process.env, NODE_ENV: "test" },
+        env: { ...process.env, NODE_ENV: 'test' },
       });
 
-      let stdout = "";
+      let stdout = '';
 
-      child.stdout.on("data", (data) => {
+      child.stdout.on('data', data => {
         stdout += data.toString();
       });
 
-      child.on("close", (code) => {
+      child.on('close', code => {
         try {
           // Should exit successfully
           expect(code).toBe(0);
@@ -51,77 +51,45 @@ describe("Create Project Integration", () => {
           expect(fs.existsSync(projectPath)).toBe(true);
 
           // Check main directories
-          expect(fs.existsSync(path.join(projectPath, "src"))).toBe(true);
-          expect(fs.existsSync(path.join(projectPath, "tests"))).toBe(true);
-          expect(fs.existsSync(path.join(projectPath, "docs"))).toBe(true);
+          expect(fs.existsSync(path.join(projectPath, 'src'))).toBe(true);
+          expect(fs.existsSync(path.join(projectPath, 'tests'))).toBe(true);
+          expect(fs.existsSync(path.join(projectPath, 'docs'))).toBe(true);
 
           // Check src subdirectories
-          expect(
-            fs.existsSync(path.join(projectPath, "src", "controllers")),
-          ).toBe(true);
-          expect(fs.existsSync(path.join(projectPath, "src", "models"))).toBe(
-            true,
-          );
-          expect(fs.existsSync(path.join(projectPath, "src", "routes"))).toBe(
-            true,
-          );
-          expect(
-            fs.existsSync(path.join(projectPath, "src", "middlewares")),
-          ).toBe(true);
-          expect(fs.existsSync(path.join(projectPath, "src", "utils"))).toBe(
-            true,
-          );
-          expect(fs.existsSync(path.join(projectPath, "src", "config"))).toBe(
-            true,
-          );
+          expect(fs.existsSync(path.join(projectPath, 'src', 'controllers'))).toBe(true);
+          expect(fs.existsSync(path.join(projectPath, 'src', 'models'))).toBe(true);
+          expect(fs.existsSync(path.join(projectPath, 'src', 'routes'))).toBe(true);
+          expect(fs.existsSync(path.join(projectPath, 'src', 'middlewares'))).toBe(true);
+          expect(fs.existsSync(path.join(projectPath, 'src', 'utils'))).toBe(true);
+          expect(fs.existsSync(path.join(projectPath, 'src', 'config'))).toBe(true);
 
           // Check test subdirectories
-          expect(fs.existsSync(path.join(projectPath, "tests", "unit"))).toBe(
-            true,
-          );
-          expect(
-            fs.existsSync(path.join(projectPath, "tests", "integration")),
-          ).toBe(true);
+          expect(fs.existsSync(path.join(projectPath, 'tests', 'unit'))).toBe(true);
+          expect(fs.existsSync(path.join(projectPath, 'tests', 'integration'))).toBe(true);
 
           // Check configuration files
-          expect(fs.existsSync(path.join(projectPath, "package.json"))).toBe(
-            true,
-          );
-          expect(fs.existsSync(path.join(projectPath, ".eslintrc.js"))).toBe(
-            true,
-          );
-          expect(fs.existsSync(path.join(projectPath, ".env.example"))).toBe(
-            true,
-          );
-          expect(fs.existsSync(path.join(projectPath, "README.md"))).toBe(true);
+          expect(fs.existsSync(path.join(projectPath, 'package.json'))).toBe(true);
+          expect(fs.existsSync(path.join(projectPath, '.eslintrc.js'))).toBe(true);
+          expect(fs.existsSync(path.join(projectPath, '.env.example'))).toBe(true);
+          expect(fs.existsSync(path.join(projectPath, 'README.md'))).toBe(true);
 
           // Check application files
-          expect(fs.existsSync(path.join(projectPath, "src", "app.js"))).toBe(
-            true,
-          );
+          expect(fs.existsSync(path.join(projectPath, 'src', 'app.js'))).toBe(true);
+          expect(fs.existsSync(path.join(projectPath, 'src', 'utils', 'logger.js'))).toBe(true);
           expect(
-            fs.existsSync(path.join(projectPath, "src", "utils", "logger.js")),
+            fs.existsSync(path.join(projectPath, 'src', 'middlewares', 'errorHandler.js'))
           ).toBe(true);
-          expect(
-            fs.existsSync(
-              path.join(projectPath, "src", "middlewares", "errorHandler.js"),
-            ),
-          ).toBe(true);
-          expect(
-            fs.existsSync(path.join(projectPath, "src", "routes", "index.js")),
-          ).toBe(true);
+          expect(fs.existsSync(path.join(projectPath, 'src', 'routes', 'index.js'))).toBe(true);
 
           // Check standards documentation directory exists
-          expect(
-            fs.existsSync(path.join(projectPath, "docs", "standards")),
-          ).toBe(true);
+          expect(fs.existsSync(path.join(projectPath, 'docs', 'standards'))).toBe(true);
 
           // Check progress output
-          expect(stdout).toContain("Creating new project");
-          expect(stdout).toContain("Phase 1/3");
-          expect(stdout).toContain("Phase 2/3");
-          expect(stdout).toContain("Phase 3/3");
-          expect(stdout).toContain("Project creation complete");
+          expect(stdout).toContain('Creating new project');
+          expect(stdout).toContain('Phase 1/3');
+          expect(stdout).toContain('Phase 2/3');
+          expect(stdout).toContain('Phase 3/3');
+          expect(stdout).toContain('Project creation complete');
 
           done();
         } catch (error) {
@@ -129,34 +97,34 @@ describe("Create Project Integration", () => {
         }
       });
 
-      child.on("error", (error) => {
+      child.on('error', error => {
         done(new Error(`Failed to spawn process: ${error.message}`));
       });
     }, 20000);
 
-    it("should validate package.json content", (done) => {
-      const projectName = "test-package-validation";
+    it('should validate package.json content', done => {
+      const projectName = 'test-package-validation';
       const projectPath = path.join(tempDir, projectName);
-      const createScript = path.join(scriptsDir, "create-project.js");
+      const createScript = path.join(scriptsDir, 'create-project.js');
 
-      const child = spawn("node", [createScript, projectName], {
-        stdio: "pipe",
+      const child = spawn('node', [createScript, projectName], {
+        stdio: 'pipe',
         cwd: tempDir,
-        env: { ...process.env, NODE_ENV: "test" },
+        env: { ...process.env, NODE_ENV: 'test' },
       });
 
-      child.on("close", (code) => {
+      child.on('close', code => {
         try {
           expect(code).toBe(0);
 
           // Validate package.json
           const packageJson = JSON.parse(
-            fs.readFileSync(path.join(projectPath, "package.json"), "utf8"),
+            fs.readFileSync(path.join(projectPath, 'package.json'), 'utf8')
           );
 
           expect(packageJson.name).toBe(projectName);
-          expect(packageJson.version).toBe("1.0.0");
-          expect(packageJson.main).toBe("src/app.js");
+          expect(packageJson.version).toBe('1.0.0');
+          expect(packageJson.main).toBe('src/app.js');
           expect(packageJson.scripts).toBeDefined();
           expect(packageJson.dependencies).toBeDefined();
           expect(packageJson.devDependencies).toBeDefined();
@@ -170,64 +138,59 @@ describe("Create Project Integration", () => {
       });
     }, 20000);
 
-    it("should create valid application files", (done) => {
-      const projectName = "test-app-files";
+    it('should create valid application files', done => {
+      const projectName = 'test-app-files';
       const projectPath = path.join(tempDir, projectName);
-      const createScript = path.join(scriptsDir, "create-project.js");
+      const createScript = path.join(scriptsDir, 'create-project.js');
 
-      const child = spawn("node", [createScript, projectName], {
-        stdio: "pipe",
+      const child = spawn('node', [createScript, projectName], {
+        stdio: 'pipe',
         cwd: tempDir,
-        env: { ...process.env, NODE_ENV: "test" },
+        env: { ...process.env, NODE_ENV: 'test' },
       });
 
-      child.on("close", (code) => {
+      child.on('close', code => {
         try {
           expect(code).toBe(0);
 
           // Validate app.js
-          const appJs = fs.readFileSync(
-            path.join(projectPath, "src", "app.js"),
-            "utf8",
-          );
-          expect(appJs).toContain("express");
-          expect(appJs).toContain("helmet");
-          expect(appJs).toContain("cors");
-          expect(appJs).toContain("errorHandler");
-          expect(appJs).toContain("module.exports");
+          const appJs = fs.readFileSync(path.join(projectPath, 'src', 'app.js'), 'utf8');
+          expect(appJs).toContain('express');
+          expect(appJs).toContain('helmet');
+          expect(appJs).toContain('cors');
+          expect(appJs).toContain('errorHandler');
+          expect(appJs).toContain('module.exports');
 
           // Validate logger.js
           const loggerJs = fs.readFileSync(
-            path.join(projectPath, "src", "utils", "logger.js"),
-            "utf8",
+            path.join(projectPath, 'src', 'utils', 'logger.js'),
+            'utf8'
           );
-          expect(loggerJs).toContain("bunyan");
-          expect(loggerJs).toContain("createLogger");
-          expect(loggerJs).toContain("module.exports");
+          expect(loggerJs).toContain('bunyan');
+          expect(loggerJs).toContain('createLogger');
+          expect(loggerJs).toContain('module.exports');
 
           // Validate errorHandler.js
           const errorHandlerJs = fs.readFileSync(
-            path.join(projectPath, "src", "middlewares", "errorHandler.js"),
-            "utf8",
+            path.join(projectPath, 'src', 'middlewares', 'errorHandler.js'),
+            'utf8'
           );
-          expect(errorHandlerJs).toContain("errorHandler");
-          expect(errorHandlerJs).toContain("logger");
-          expect(errorHandlerJs).toContain("module.exports");
+          expect(errorHandlerJs).toContain('errorHandler');
+          expect(errorHandlerJs).toContain('logger');
+          expect(errorHandlerJs).toContain('module.exports');
 
           // Validate routes/index.js
           const routesJs = fs.readFileSync(
-            path.join(projectPath, "src", "routes", "index.js"),
-            "utf8",
+            path.join(projectPath, 'src', 'routes', 'index.js'),
+            'utf8'
           );
-          expect(routesJs).toContain("express");
-          expect(routesJs).toContain("router");
-          expect(routesJs).toContain("/health");
-          expect(routesJs).toContain("module.exports");
+          expect(routesJs).toContain('express');
+          expect(routesJs).toContain('router');
+          expect(routesJs).toContain('/health');
+          expect(routesJs).toContain('module.exports');
 
           // Validate .env.example exists
-          expect(fs.existsSync(path.join(projectPath, ".env.example"))).toBe(
-            true,
-          );
+          expect(fs.existsSync(path.join(projectPath, '.env.example'))).toBe(true);
 
           done();
         } catch (error) {
@@ -237,37 +200,37 @@ describe("Create Project Integration", () => {
     }, 20000);
   });
 
-  describe("Input Validation", () => {
-    it("should reject invalid project names", (done) => {
-      const invalidName = "test|invalid<name>";
-      const createScript = path.join(scriptsDir, "create-project.js");
+  describe('Input Validation', () => {
+    it('should reject invalid project names', done => {
+      const invalidName = 'test|invalid<name>';
+      const createScript = path.join(scriptsDir, 'create-project.js');
 
-      const child = spawn("node", [createScript, invalidName], {
-        stdio: "pipe",
+      const child = spawn('node', [createScript, invalidName], {
+        stdio: 'pipe',
         cwd: tempDir,
-        env: { ...process.env, NODE_ENV: "test" },
+        env: { ...process.env, NODE_ENV: 'test' },
       });
 
-      let stdout = "";
-      let stderr = "";
+      let stdout = '';
+      let stderr = '';
 
-      child.stdout.on("data", (data) => {
+      child.stdout.on('data', data => {
         stdout += data.toString();
       });
 
-      child.stderr.on("data", (data) => {
+      child.stderr.on('data', data => {
         stderr += data.toString();
       });
 
-      child.on("close", (code) => {
+      child.on('close', code => {
         try {
           // Should exit with error
           expect(code).toBe(1);
 
           // Should show validation error
           const output = stdout + stderr;
-          expect(output).toContain("ERROR");
-          expect(output).toContain("invalid characters");
+          expect(output).toContain('ERROR');
+          expect(output).toContain('invalid characters');
 
           // Should not create any directory
           expect(fs.existsSync(path.join(tempDir, invalidName))).toBe(false);
@@ -279,35 +242,35 @@ describe("Create Project Integration", () => {
       });
     }, 10000);
 
-    it("should handle empty project name", (done) => {
-      const createScript = path.join(scriptsDir, "create-project.js");
+    it('should handle empty project name', done => {
+      const createScript = path.join(scriptsDir, 'create-project.js');
 
-      const child = spawn("node", [createScript], {
-        stdio: "pipe",
+      const child = spawn('node', [createScript], {
+        stdio: 'pipe',
         cwd: tempDir,
-        env: { ...process.env, NODE_ENV: "test" },
+        env: { ...process.env, NODE_ENV: 'test' },
       });
 
-      let stdout = "";
-      let stderr = "";
+      let stdout = '';
+      let stderr = '';
 
-      child.stdout.on("data", (data) => {
+      child.stdout.on('data', data => {
         stdout += data.toString();
       });
 
-      child.stderr.on("data", (data) => {
+      child.stderr.on('data', data => {
         stderr += data.toString();
       });
 
-      child.on("close", (code) => {
+      child.on('close', code => {
         try {
           // Should exit with error
           expect(code).toBe(1);
 
           // Should show usage error
           const output = stdout + stderr;
-          expect(output).toContain("Please provide a project name");
-          expect(output).toContain("USAGE:");
+          expect(output).toContain('Please provide a project name');
+          expect(output).toContain('USAGE:');
 
           done();
         } catch (error) {
@@ -316,40 +279,40 @@ describe("Create Project Integration", () => {
       });
     }, 10000);
 
-    it("should handle existing directory", (done) => {
-      const projectName = "existing-project";
+    it('should handle existing directory', done => {
+      const projectName = 'existing-project';
       const projectPath = path.join(tempDir, projectName);
 
       // Create the directory first
       fs.mkdirSync(projectPath);
 
-      const createScript = path.join(scriptsDir, "create-project.js");
+      const createScript = path.join(scriptsDir, 'create-project.js');
 
-      const child = spawn("node", [createScript, projectName], {
-        stdio: "pipe",
+      const child = spawn('node', [createScript, projectName], {
+        stdio: 'pipe',
         cwd: tempDir,
-        env: { ...process.env, NODE_ENV: "test" },
+        env: { ...process.env, NODE_ENV: 'test' },
       });
 
-      let stdout = "";
-      let stderr = "";
+      let stdout = '';
+      let stderr = '';
 
-      child.stdout.on("data", (data) => {
+      child.stdout.on('data', data => {
         stdout += data.toString();
       });
 
-      child.stderr.on("data", (data) => {
+      child.stderr.on('data', data => {
         stderr += data.toString();
       });
 
-      child.on("close", (code) => {
+      child.on('close', code => {
         try {
           // Should exit with error
           expect(code).toBe(1);
 
           // Should show directory exists error
           const output = stdout + stderr;
-          expect(output).toContain("already exists");
+          expect(output).toContain('already exists');
 
           done();
         } catch (error) {
@@ -359,32 +322,31 @@ describe("Create Project Integration", () => {
     }, 10000);
   });
 
-  describe("Error Handling and Rollback", () => {
-    it("should perform rollback on creation failure", (done) => {
-      const projectName = "test-rollback";
+  describe('Error Handling and Rollback', () => {
+    it('should perform rollback on creation failure', done => {
+      const projectName = 'test-rollback';
 
       // Create a scenario that might cause failure by making temp directory read-only
       // (This test might be platform-specific)
 
-      const createScript = path.join(scriptsDir, "create-project.js");
+      const createScript = path.join(scriptsDir, 'create-project.js');
 
-      const child = spawn("node", [createScript, projectName], {
-        stdio: "pipe",
+      const child = spawn('node', [createScript, projectName], {
+        stdio: 'pipe',
         cwd: tempDir,
-        env: { ...process.env, NODE_ENV: "test" },
+        env: { ...process.env, NODE_ENV: 'test' },
       });
 
-      const stdout = "";
+      const stdout = '';
 
-      child.on("close", (code) => {
+      child.on('close', code => {
         try {
           // Even if creation fails, rollback should clean up
           // (In this case, it should succeed, but we're testing the rollback mechanism exists)
 
           if (code !== 0) {
             // Should show rollback information if there was an error
-            expect(stdout).toContain("rollback") ||
-              expect(stdout).toContain("Error");
+            expect(stdout).toContain('rollback') || expect(stdout).toContain('Error');
           }
 
           done();

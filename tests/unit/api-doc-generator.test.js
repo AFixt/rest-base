@@ -9,7 +9,7 @@ const {
   findRouteFiles,
   generateOpenAPI,
   generateMarkdown,
-  generateHTML
+  generateHTML,
 } = require('../../scripts/api-doc-generator');
 
 // Mock data
@@ -88,19 +88,19 @@ describe('API Documentation Generator', () => {
         path: '/users',
         summary: 'Get all users',
         description: 'Retrieves a paginated list of all users',
-        tags: ['Users']
+        tags: ['Users'],
       });
       expect(routes[1]).toMatchObject({
         method: 'POST',
         path: '/users',
         summary: 'Create a new user',
-        tags: ['Users']
+        tags: ['Users'],
       });
       expect(routes[2]).toMatchObject({
         method: 'GET',
         path: '/users/:id',
         summary: 'Get user by ID',
-        tags: ['Users']
+        tags: ['Users'],
       });
     });
 
@@ -116,7 +116,7 @@ describe('API Documentation Generator', () => {
         name: 'page',
         type: 'number',
         required: false,
-        description: 'Page number'
+        description: 'Page number',
       });
     });
 
@@ -128,8 +128,8 @@ describe('API Documentation Generator', () => {
       const getRoute = routes[0];
 
       expect(getRoute.responses).toMatchObject({
-        '200': { description: 'Successful response' },
-        '401': { description: 'Unauthorized' }
+        200: { description: 'Successful response' },
+        401: { description: 'Unauthorized' },
       });
     });
 
@@ -160,7 +160,10 @@ describe('API Documentation Generator', () => {
 
     test('should ignore node_modules and test directories', async () => {
       await fs.mkdir(path.join(tempDir, 'node_modules', 'routes'), { recursive: true });
-      await fs.writeFile(path.join(tempDir, 'node_modules', 'routes', 'index.js'), mockRouteContent);
+      await fs.writeFile(
+        path.join(tempDir, 'node_modules', 'routes', 'index.js'),
+        mockRouteContent
+      );
       await fs.mkdir(path.join(tempDir, 'test', 'routes'), { recursive: true });
       await fs.writeFile(path.join(tempDir, 'test', 'routes', 'test.js'), mockRouteContent);
       await fs.writeFile(path.join(tempDir, 'routes', 'users.js'), mockRouteContent);
@@ -182,7 +185,7 @@ describe('API Documentation Generator', () => {
         title: 'Test API',
         version: '1.0.0',
         description: 'Test API Description',
-        servers: [{ url: 'http://localhost:3000' }]
+        servers: [{ url: 'http://localhost:3000' }],
       };
 
       const openapi = generateOpenAPI(routes, config);
@@ -192,9 +195,9 @@ describe('API Documentation Generator', () => {
         info: {
           title: 'Test API',
           version: '1.0.0',
-          description: 'Test API Description'
+          description: 'Test API Description',
         },
-        servers: [{ url: 'http://localhost:3000' }]
+        servers: [{ url: 'http://localhost:3000' }],
       });
 
       expect(openapi.paths).toHaveProperty('/users');
@@ -215,7 +218,7 @@ describe('API Documentation Generator', () => {
         summary: 'Get all users',
         description: 'Retrieves a paginated list of all users',
         tags: ['Users'],
-        security: [{ bearerAuth: [] }]
+        security: [{ bearerAuth: [] }],
       });
 
       expect(getOperation.parameters).toHaveLength(2);
@@ -233,7 +236,7 @@ describe('API Documentation Generator', () => {
       const config = {
         title: 'Test API',
         version: '1.0.0',
-        description: 'Test API Description'
+        description: 'Test API Description',
       };
 
       const markdown = generateMarkdown(routes, config);
@@ -284,7 +287,7 @@ describe('API Documentation Generator', () => {
 
       const config = {
         title: 'Test API',
-        version: '1.0.0'
+        version: '1.0.0',
       };
 
       const html = generateHTML(routes, config);
@@ -327,7 +330,7 @@ describe('API Documentation Generator', () => {
       expect(routes).toHaveLength(2);
       expect(routes[0]).toMatchObject({
         method: 'GET',
-        path: '/simple'
+        path: '/simple',
       });
       expect(routes[0].summary).toBeFalsy();
     });

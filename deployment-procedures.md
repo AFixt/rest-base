@@ -113,9 +113,9 @@ const config = {
   development: {
     port: 3000,
     database: {
-      host: "localhost",
+      host: 'localhost',
       port: 3306,
-      name: "myapp_dev",
+      name: 'myapp_dev',
     },
   },
   staging: {
@@ -140,7 +140,7 @@ const config = {
   },
 };
 
-module.exports = config[process.env.NODE_ENV || "development"];
+module.exports = config[process.env.NODE_ENV || 'development'];
 ```
 
 ## Deployment Strategies
@@ -479,7 +479,7 @@ spec:
 // migrations/001_initial_schema.js
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("users", {
+    await queryInterface.createTable('users', {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -506,7 +506,7 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("users");
+    await queryInterface.dropTable('users');
   },
 };
 ```
@@ -546,40 +546,39 @@ echo "Migration completed successfully"
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     // Use transaction for multiple operations
-    await queryInterface.sequelize.transaction(async (t) => {
+    await queryInterface.sequelize.transaction(async t => {
       // Add column with default value first
       await queryInterface.addColumn(
-        "users",
-        "status",
+        'users',
+        'status',
         {
           type: Sequelize.STRING,
-          defaultValue: "active",
+          defaultValue: 'active',
         },
-        { transaction: t },
+        { transaction: t }
       );
 
       // Populate new column
-      await queryInterface.sequelize.query(
-        "UPDATE users SET status = 'active'",
-        { transaction: t },
-      );
+      await queryInterface.sequelize.query("UPDATE users SET status = 'active'", {
+        transaction: t,
+      });
 
       // Make column non-nullable
       await queryInterface.changeColumn(
-        "users",
-        "status",
+        'users',
+        'status',
         {
           type: Sequelize.STRING,
           allowNull: false,
-          defaultValue: "active",
+          defaultValue: 'active',
         },
-        { transaction: t },
+        { transaction: t }
       );
     });
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.removeColumn("users", "status");
+    await queryInterface.removeColumn('users', 'status');
   },
 };
 ```
@@ -590,49 +589,43 @@ module.exports = {
 
 ```javascript
 // routes/health.js
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const db = require("../db");
-const redis = require("../redis");
+const db = require('../db');
+const redis = require('../redis');
 
 // Basic health check
-router.get("/health", (req, res) => {
+router.get('/health', (req, res) => {
   res.json({
-    status: "healthy",
+    status: 'healthy',
     timestamp: new Date().toISOString(),
     version: process.env.npm_package_version,
   });
 });
 
 // Detailed health check
-router.get("/health/detailed", async (req, res) => {
-  const checks = await Promise.allSettled([
-    checkDatabase(),
-    checkRedis(),
-    checkExternalServices(),
-  ]);
+router.get('/health/detailed', async (req, res) => {
+  const checks = await Promise.allSettled([checkDatabase(), checkRedis(), checkExternalServices()]);
 
   const results = {
-    status: "healthy",
+    status: 'healthy',
     timestamp: new Date().toISOString(),
     version: process.env.npm_package_version,
     checks: {
-      database: checks[0].status === "fulfilled" ? "healthy" : "unhealthy",
-      redis: checks[1].status === "fulfilled" ? "healthy" : "unhealthy",
-      external: checks[2].status === "fulfilled" ? "healthy" : "unhealthy",
+      database: checks[0].status === 'fulfilled' ? 'healthy' : 'unhealthy',
+      redis: checks[1].status === 'fulfilled' ? 'healthy' : 'unhealthy',
+      external: checks[2].status === 'fulfilled' ? 'healthy' : 'unhealthy',
     },
   };
 
-  const isHealthy = Object.values(results.checks).every(
-    (status) => status === "healthy",
-  );
-  results.status = isHealthy ? "healthy" : "unhealthy";
+  const isHealthy = Object.values(results.checks).every(status => status === 'healthy');
+  results.status = isHealthy ? 'healthy' : 'unhealthy';
 
   res.status(isHealthy ? 200 : 503).json(results);
 });
 
 async function checkDatabase() {
-  const result = await db.query("SELECT 1 as result");
+  const result = await db.query('SELECT 1 as result');
   return result[0][0].result === 1;
 }
 
@@ -643,7 +636,7 @@ async function checkRedis() {
 
 async function checkExternalServices() {
   // Check external API dependencies
-  const response = await fetch("https://api.external.com/health");
+  const response = await fetch('https://api.external.com/health');
   return response.ok;
 }
 
@@ -654,27 +647,27 @@ module.exports = router;
 
 ```javascript
 // monitoring/metrics.js
-const prometheus = require("prom-client");
+const prometheus = require('prom-client');
 
 // Default metrics
 prometheus.collectDefaultMetrics();
 
 // Custom metrics
 const httpRequestDuration = new prometheus.Histogram({
-  name: "http_request_duration_seconds",
-  help: "Duration of HTTP requests in seconds",
-  labelNames: ["method", "route", "status_code"],
+  name: 'http_request_duration_seconds',
+  help: 'Duration of HTTP requests in seconds',
+  labelNames: ['method', 'route', 'status_code'],
 });
 
 const httpRequestTotal = new prometheus.Counter({
-  name: "http_requests_total",
-  help: "Total number of HTTP requests",
-  labelNames: ["method", "route", "status_code"],
+  name: 'http_requests_total',
+  help: 'Total number of HTTP requests',
+  labelNames: ['method', 'route', 'status_code'],
 });
 
 const activeConnections = new prometheus.Gauge({
-  name: "active_connections",
-  help: "Number of active connections",
+  name: 'active_connections',
+  help: 'Number of active connections',
 });
 
 module.exports = {
@@ -803,7 +796,7 @@ server {
 
 ```javascript
 // app.js production configuration
-if (process.env.NODE_ENV === "production") {
+if (process.env.NODE_ENV === 'production') {
   // Enable compression
   app.use(compression());
 
@@ -811,7 +804,7 @@ if (process.env.NODE_ENV === "production") {
   app.use(helmet());
 
   // Enable trust proxy
-  app.set("trust proxy", 1);
+  app.set('trust proxy', 1);
 
   // Configure session for production
   app.use(
@@ -824,7 +817,7 @@ if (process.env.NODE_ENV === "production") {
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000, // 24 hours
       },
-    }),
+    })
   );
 }
 ```

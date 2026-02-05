@@ -17,22 +17,27 @@ const topicSubscribers = new Map(); // topic -> Set of userIds
  */
 const subscribe = async (socket, data, callback) => {
   const { topics } = data || {};
-  
+
   if (!Array.isArray(topics) || topics.length === 0) {
-    if (callback) callback({ error: 'Topics array is required' });
+    if (callback) {
+      callback({ error: 'Topics array is required' });
+    }
     return;
   }
 
   // Validate topics
-  const validTopics = topics.filter(topic => 
-    typeof topic === 'string' && 
-    topic.length > 0 && 
-    topic.length <= 100 &&
-    /^[a-zA-Z0-9._-]+$/.test(topic)
+  const validTopics = topics.filter(
+    topic =>
+      typeof topic === 'string' &&
+      topic.length > 0 &&
+      topic.length <= 100 &&
+      /^[a-zA-Z0-9._-]+$/.test(topic)
   );
 
   if (validTopics.length === 0) {
-    if (callback) callback({ error: 'No valid topics provided' });
+    if (callback) {
+      callback({ error: 'No valid topics provided' });
+    }
     return;
   }
 
@@ -61,21 +66,24 @@ const subscribe = async (socket, data, callback) => {
     }
   }
 
-  logger.info({
-    component: 'notification',
-    event: 'subscribe',
-    socketId: socket.id,
-    userId: socket.userId,
-    topics: newSubscriptions,
-    totalSubscriptions: userSubs.size
-  }, 'User subscribed to notification topics');
+  logger.info(
+    {
+      component: 'notification',
+      event: 'subscribe',
+      socketId: socket.id,
+      userId: socket.userId,
+      topics: newSubscriptions,
+      totalSubscriptions: userSubs.size,
+    },
+    'User subscribed to notification topics'
+  );
 
   if (callback) {
     callback({
       success: true,
       subscribedTopics: newSubscriptions,
       totalSubscriptions: userSubs.size,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 };
@@ -85,14 +93,18 @@ const subscribe = async (socket, data, callback) => {
  */
 const unsubscribe = async (socket, data, callback) => {
   const { topics } = data || {};
-  
+
   if (!Array.isArray(topics) || topics.length === 0) {
-    if (callback) callback({ error: 'Topics array is required' });
+    if (callback) {
+      callback({ error: 'Topics array is required' });
+    }
     return;
   }
 
   if (!userSubscriptions.has(socket.userId)) {
-    if (callback) callback({ error: 'No subscriptions found' });
+    if (callback) {
+      callback({ error: 'No subscriptions found' });
+    }
     return;
   }
 
@@ -108,7 +120,7 @@ const unsubscribe = async (socket, data, callback) => {
       // Remove from topic subscribers
       if (topicSubscribers.has(topic)) {
         topicSubscribers.get(topic).delete(socket.userId);
-        
+
         // Clean up empty topic
         if (topicSubscribers.get(topic).size === 0) {
           topicSubscribers.delete(topic);
@@ -125,21 +137,24 @@ const unsubscribe = async (socket, data, callback) => {
     userSubscriptions.delete(socket.userId);
   }
 
-  logger.info({
-    component: 'notification',
-    event: 'unsubscribe',
-    socketId: socket.id,
-    userId: socket.userId,
-    topics: removedSubscriptions,
-    remainingSubscriptions: userSubs.size
-  }, 'User unsubscribed from notification topics');
+  logger.info(
+    {
+      component: 'notification',
+      event: 'unsubscribe',
+      socketId: socket.id,
+      userId: socket.userId,
+      topics: removedSubscriptions,
+      remainingSubscriptions: userSubs.size,
+    },
+    'User unsubscribed from notification topics'
+  );
 
   if (callback) {
     callback({
       success: true,
       unsubscribedTopics: removedSubscriptions,
       remainingSubscriptions: userSubs.size,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 };
@@ -149,14 +164,18 @@ const unsubscribe = async (socket, data, callback) => {
  */
 const markAsRead = async (socket, data, callback) => {
   const { notificationIds } = data || {};
-  
+
   if (!Array.isArray(notificationIds) || notificationIds.length === 0) {
-    if (callback) callback({ error: 'Notification IDs array is required' });
+    if (callback) {
+      callback({ error: 'Notification IDs array is required' });
+    }
     return;
   }
 
   if (!userNotifications.has(socket.userId)) {
-    if (callback) callback({ error: 'No notifications found' });
+    if (callback) {
+      callback({ error: 'No notifications found' });
+    }
     return;
   }
 
@@ -172,20 +191,23 @@ const markAsRead = async (socket, data, callback) => {
     }
   }
 
-  logger.info({
-    component: 'notification',
-    event: 'mark_read',
-    socketId: socket.id,
-    userId: socket.userId,
-    markedCount,
-    requestedIds: notificationIds.length
-  }, 'Notifications marked as read');
+  logger.info(
+    {
+      component: 'notification',
+      event: 'mark_read',
+      socketId: socket.id,
+      userId: socket.userId,
+      markedCount,
+      requestedIds: notificationIds.length,
+    },
+    'Notifications marked as read'
+  );
 
   if (callback) {
     callback({
       success: true,
       markedCount,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 };
@@ -217,11 +239,11 @@ const sendNotificationToTopic = (topic, notification) => {
       priority: notification.priority || 'normal',
       read: false,
       createdAt: new Date().toISOString(),
-      readAt: null
+      readAt: null,
     };
 
     userNotifs.push(userNotification);
-    
+
     // Keep only last 100 notifications per user
     if (userNotifs.length > 100) {
       userNotifs.splice(0, userNotifs.length - 100);
@@ -252,11 +274,11 @@ const sendNotificationToUser = (userId, notification) => {
     priority: notification.priority || 'normal',
     read: false,
     createdAt: new Date().toISOString(),
-    readAt: null
+    readAt: null,
   };
 
   userNotifs.push(userNotification);
-  
+
   // Keep only last 100 notifications per user
   if (userNotifs.length > 100) {
     userNotifs.splice(0, userNotifs.length - 100);
@@ -270,7 +292,7 @@ const sendNotificationToUser = (userId, notification) => {
  */
 const getUserNotifications = (userId, options = {}) => {
   const { limit = 50, offset = 0, unreadOnly = false } = options;
-  
+
   if (!userNotifications.has(userId)) {
     return [];
   }
@@ -290,7 +312,7 @@ const getUserNotifications = (userId, options = {}) => {
 /**
  * Get user's subscription topics
  */
-const getUserSubscriptions = (userId) => {
+const getUserSubscriptions = userId => {
   const subs = userSubscriptions.get(userId);
   return subs ? Array.from(subs) : [];
 };
@@ -298,22 +320,22 @@ const getUserSubscriptions = (userId) => {
 /**
  * Clean up user's subscriptions on disconnect
  */
-const cleanupUserSubscriptions = (userId) => {
+const cleanupUserSubscriptions = userId => {
   if (userSubscriptions.has(userId)) {
     const userSubs = userSubscriptions.get(userId);
-    
+
     // Remove from topic subscribers
     for (const topic of userSubs) {
       if (topicSubscribers.has(topic)) {
         topicSubscribers.get(topic).delete(userId);
-        
+
         // Clean up empty topic
         if (topicSubscribers.get(topic).size === 0) {
           topicSubscribers.delete(topic);
         }
       }
     }
-    
+
     userSubscriptions.delete(userId);
   }
 };
@@ -326,5 +348,5 @@ module.exports = {
   sendNotificationToUser,
   getUserNotifications,
   getUserSubscriptions,
-  cleanupUserSubscriptions
+  cleanupUserSubscriptions,
 };

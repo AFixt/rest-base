@@ -9,13 +9,13 @@
  * @author REST-Base Team
  */
 
-const fs = require("fs").promises;
-const fsSync = require("fs");
-const path = require("path");
-const readline = require("readline");
-const chalk = require("chalk");
-const inquirer = require("inquirer");
-const logger = require("../shared/logger");
+const fs = require('fs').promises;
+const fsSync = require('fs');
+const path = require('path');
+const readline = require('readline');
+const chalk = require('chalk');
+const inquirer = require('inquirer');
+const logger = require('../shared/logger');
 
 /**
  * CLI Options Manager
@@ -48,63 +48,63 @@ class CLIOptionsManager {
       const arg = args[i];
 
       // Handle --key=value format
-      if (arg.includes("=")) {
-        const [key, value] = arg.split("=");
-        const cleanKey = key.replace(/^--?/, "");
+      if (arg.includes('=')) {
+        const [key, value] = arg.split('=');
+        const cleanKey = key.replace(/^--?/, '');
         options[cleanKey] = value;
         continue;
       }
 
       switch (arg) {
-        case "--dry-run":
-        case "-d":
-          options["dry-run"] = true;
+        case '--dry-run':
+        case '-d':
+          options['dry-run'] = true;
           options.dryRun = true;
           break;
 
-        case "--interactive":
-        case "-i":
+        case '--interactive':
+        case '-i':
           options.interactive = true;
           break;
 
-        case "--config":
-        case "-c":
+        case '--config':
+        case '-c':
           options.config = args[++i];
           options.configFile = options.config;
           break;
 
-        case "--verbose":
-        case "-v":
+        case '--verbose':
+        case '-v':
           options.verbose = true;
           break;
 
-        case "--rollback":
-        case "-r":
+        case '--rollback':
+        case '-r':
           options.rollback = true;
           break;
 
-        case "--template":
-        case "-t":
+        case '--template':
+        case '-t':
           options.template = args[++i];
           break;
 
-        case "--no-backup":
+        case '--no-backup':
           options.backup = false;
           break;
 
-        case "--force":
-        case "-f":
+        case '--force':
+        case '-f':
           options.force = true;
           break;
 
-        case "--help":
-        case "-h":
+        case '--help':
+        case '-h':
           this.showHelp();
           process.exit(0);
           break;
 
         default:
-          if (!arg.startsWith("-")) {
+          if (!arg.startsWith('-')) {
             positionalArgs.push(arg);
           }
       }
@@ -138,7 +138,7 @@ class CLIOptionsManager {
    */
   async loadConfig(configPath) {
     try {
-      const configContent = await fs.readFile(configPath, "utf8");
+      const configContent = await fs.readFile(configPath, 'utf8');
       const config = JSON.parse(configContent);
 
       // Validate configuration
@@ -156,8 +156,8 @@ class CLIOptionsManager {
    */
   validateConfig(config) {
     // Basic validation - just ensure config is an object
-    if (!config || typeof config !== "object") {
-      throw new Error("Invalid configuration: must be an object");
+    if (!config || typeof config !== 'object') {
+      throw new Error('Invalid configuration: must be an object');
     }
   }
 
@@ -166,11 +166,11 @@ class CLIOptionsManager {
    */
   showHelp() {
     console.log(`
-${chalk.bold("REST-Base CLI - Enhanced Options")}
+${chalk.bold('REST-Base CLI - Enhanced Options')}
 
-${chalk.yellow("Usage:")} rest-base [command] [options]
+${chalk.yellow('Usage:')} rest-base [command] [options]
 
-${chalk.yellow("Options:")}
+${chalk.yellow('Options:')}
   -d, --dry-run          Run in dry-run mode (preview changes without applying)
   -i, --interactive      Run in interactive mode (prompt for confirmations)
   -c, --config <file>    Use configuration file
@@ -181,7 +181,7 @@ ${chalk.yellow("Options:")}
   -f, --force            Force operation without prompts
   -h, --help             Show this help message
 
-${chalk.yellow("Examples:")}
+${chalk.yellow('Examples:')}
   rest-base create my-project --dry-run
   rest-base setup --interactive
   rest-base create my-app --template microservice
@@ -224,10 +224,10 @@ class DryRunManager {
    */
   logOperation(type, description, details) {
     const icon = this.getOperationIcon(type);
-    console.log(`${icon} ${chalk.gray("[DRY-RUN]")} ${description}`);
+    console.log(`${icon} ${chalk.gray('[DRY-RUN]')} ${description}`);
 
     if (this.verbose && Object.keys(details).length > 0) {
-      console.log(chalk.gray("  Details:"), details);
+      console.log(chalk.gray('  Details:'), details);
     }
   }
 
@@ -236,40 +236,38 @@ class DryRunManager {
    */
   getOperationIcon(type) {
     const icons = {
-      create: "[CREATE]",
-      modify: "[MODIFY]",
-      delete: "[DELETE]",
-      copy: "[COPY]",
-      execute: "[EXECUTE]",
-      backup: "[BACKUP]",
+      create: '[CREATE]',
+      modify: '[MODIFY]',
+      delete: '[DELETE]',
+      copy: '[COPY]',
+      execute: '[EXECUTE]',
+      backup: '[BACKUP]',
     };
-    return icons[type] || "[ACTION]";
+    return icons[type] || '[ACTION]';
   }
 
   /**
    * Generate dry-run report
    */
   generateReport() {
-    console.log("\n" + chalk.bold.cyan("=== DRY RUN SUMMARY ==="));
+    console.log('\n' + chalk.bold.cyan('=== DRY RUN SUMMARY ==='));
     console.log(chalk.gray(`Total operations: ${this.operations.length}\n`));
 
     const groupedOps = this.groupOperations();
 
     for (const [type, ops] of Object.entries(groupedOps)) {
       console.log(
-        `${this.getOperationIcon(type)} ${chalk.bold(type.toUpperCase())} (${ops.length} operations)`,
+        `${this.getOperationIcon(type)} ${chalk.bold(type.toUpperCase())} (${ops.length} operations)`
       );
 
-      ops.forEach((op) => {
+      ops.forEach(op => {
         console.log(`  - ${op.description}`);
       });
       console.log();
     }
 
     console.log(
-      chalk.yellow(
-        "NOTICE: No changes were made. Remove --dry-run to apply these changes.",
-      ),
+      chalk.yellow('NOTICE: No changes were made. Remove --dry-run to apply these changes.')
     );
   }
 
@@ -322,8 +320,8 @@ class InteractiveModeManager {
   async confirm(message) {
     const response = await inquirer.prompt([
       {
-        type: "confirm",
-        name: "confirmed",
+        type: 'confirm',
+        name: 'confirmed',
         message,
         default: true,
       },
@@ -337,11 +335,11 @@ class InteractiveModeManager {
    * @param {string} defaultValue - Default value
    * @returns {Promise<string>} User's input
    */
-  async prompt(message, defaultValue = "") {
+  async prompt(message, defaultValue = '') {
     const response = await inquirer.prompt([
       {
-        type: "input",
-        name: "value",
+        type: 'input',
+        name: 'value',
         message,
         default: defaultValue,
       },
@@ -358,8 +356,8 @@ class InteractiveModeManager {
   async select(message, choices) {
     const response = await inquirer.prompt([
       {
-        type: "list",
-        name: "selection",
+        type: 'list',
+        name: 'selection',
         message,
         choices,
       },
@@ -376,8 +374,8 @@ class InteractiveModeManager {
   async multiSelect(message, choices) {
     const response = await inquirer.prompt([
       {
-        type: "checkbox",
-        name: "selections",
+        type: 'checkbox',
+        name: 'selections',
         message,
         choices,
       },
@@ -398,7 +396,7 @@ class InteractiveModeManager {
  * Handles rollback functionality
  */
 class RollbackManager {
-  constructor(backupDir = ".rest-base-backups") {
+  constructor(backupDir = '.rest-base-backups') {
     this.backupDir = backupDir;
   }
 
@@ -429,11 +427,11 @@ class RollbackManager {
 
     // Save metadata
     await fs.writeFile(
-      path.join(backupPath, "backup-metadata.json"),
-      JSON.stringify(metadata, null, 2),
+      path.join(backupPath, 'backup-metadata.json'),
+      JSON.stringify(metadata, null, 2)
     );
 
-    logger.info("Backup created", { backupId, path: backupPath });
+    logger.info('Backup created', { backupId, path: backupPath });
     return backupId;
   }
 
@@ -447,43 +445,40 @@ class RollbackManager {
     if (!backupId) {
       const backups = await this.listBackups();
       if (backups.length === 0) {
-        throw new Error("No backups available");
+        throw new Error('No backups available');
       }
 
       // In interactive mode, let user select
       const interactive = new InteractiveModeManager();
-      const choices = backups.map((b) => ({
+      const choices = backups.map(b => ({
         name: `Backup: ${b.id} - Operation: ${b.operationType} - Date: ${new Date(b.timestamp).toLocaleString()}`,
         value: b.id,
       }));
 
-      backupId = await interactive.select(
-        "Select backup to rollback to:",
-        choices,
-      );
+      backupId = await interactive.select('Select backup to rollback to:', choices);
       interactive.close();
     }
 
     // Load backup metadata
     const backupPath = path.join(this.backupDir, backupId);
-    const metadataPath = path.join(backupPath, "backup-metadata.json");
+    const metadataPath = path.join(backupPath, 'backup-metadata.json');
 
     if (!fsSync.existsSync(metadataPath)) {
       throw new Error(`Backup ${backupId} not found`);
     }
 
-    const metadata = JSON.parse(await fs.readFile(metadataPath, "utf8"));
+    const metadata = JSON.parse(await fs.readFile(metadataPath, 'utf8'));
 
     // Perform rollback
-    logger.info("Starting rollback", { backupId, to: metadata.projectPath });
+    logger.info('Starting rollback', { backupId, to: metadata.projectPath });
 
     // Create a new backup of current state before rollback
-    await this.createBackup(metadata.projectPath, "pre-rollback");
+    await this.createBackup(metadata.projectPath, 'pre-rollback');
 
     // Restore files
     await this.restoreFromBackup(backupPath, metadata.projectPath, metadata);
 
-    logger.success("Rollback completed successfully");
+    logger.success('Rollback completed successfully');
   }
 
   /**
@@ -500,22 +495,16 @@ class RollbackManager {
 
     for (const entry of entries) {
       if (entry.isDirectory()) {
-        const metadataPath = path.join(
-          this.backupDir,
-          entry.name,
-          "backup-metadata.json",
-        );
+        const metadataPath = path.join(this.backupDir, entry.name, 'backup-metadata.json');
         if (fsSync.existsSync(metadataPath)) {
-          const metadata = JSON.parse(await fs.readFile(metadataPath, "utf8"));
+          const metadata = JSON.parse(await fs.readFile(metadataPath, 'utf8'));
           backups.push(metadata);
         }
       }
     }
 
     // Sort by timestamp (newest first)
-    return backups.sort(
-      (a, b) => new Date(b.timestamp) - new Date(a.timestamp),
-    );
+    return backups.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
   }
 
   /**
@@ -525,14 +514,14 @@ class RollbackManager {
   async listBackups() {
     const metadata = await this.getAllBackupMetadata();
     // Return unique operation types
-    return [...new Set(metadata.map((m) => m.operationType))];
+    return [...new Set(metadata.map(m => m.operationType))];
   }
 
   /**
    * Generate backup ID
    */
   generateBackupId(operationType) {
-    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     return `${operationType}-${timestamp}`;
   }
 
@@ -548,7 +537,7 @@ class RollbackManager {
       const destPath = path.join(dest, entry.name);
 
       // Skip backup directory and node_modules
-      if (entry.name === this.backupDir || entry.name === "node_modules") {
+      if (entry.name === this.backupDir || entry.name === 'node_modules') {
         continue;
       }
 
@@ -616,7 +605,7 @@ class RollbackManager {
   async restoreBackup(targetPath, backupId) {
     // Find the most recent backup with this operation type
     const backups = await this.getAllBackupMetadata();
-    const matchingBackup = backups.find((b) => b.operationType === backupId);
+    const matchingBackup = backups.find(b => b.operationType === backupId);
 
     if (!matchingBackup) {
       throw new Error(`No backup found matching: ${backupId}`);
@@ -631,15 +620,9 @@ class RollbackManager {
  * Handles custom project templates
  */
 class TemplateManager {
-  constructor(templatesDir = path.join(__dirname, "..", "templates")) {
+  constructor(templatesDir = path.join(__dirname, '..', 'templates')) {
     this.templatesDir = templatesDir;
-    this.builtInTemplates = [
-      "default",
-      "microservice",
-      "api-gateway",
-      "graphql",
-      "websocket",
-    ];
+    this.builtInTemplates = ['default', 'microservice', 'api-gateway', 'graphql', 'websocket'];
   }
 
   /**
@@ -653,7 +636,7 @@ class TemplateManager {
     for (const name of this.builtInTemplates) {
       templates.push({
         name,
-        type: "built-in",
+        type: 'built-in',
         description: this.getTemplateDescription(name),
       });
     }
@@ -665,17 +648,14 @@ class TemplateManager {
       });
 
       for (const entry of entries) {
-        if (
-          entry.isDirectory() &&
-          !this.builtInTemplates.includes(entry.name)
-        ) {
+        if (entry.isDirectory() && !this.builtInTemplates.includes(entry.name)) {
           const templatePath = path.join(this.templatesDir, entry.name);
           const templateConfig = await this.loadTemplateConfig(templatePath);
 
           templates.push({
             name: entry.name,
-            type: "custom",
-            description: templateConfig.description || "Custom template",
+            type: 'custom',
+            description: templateConfig.description || 'Custom template',
             path: templatePath,
           });
         }
@@ -689,10 +669,10 @@ class TemplateManager {
    * Load template configuration
    */
   async loadTemplateConfig(templatePath) {
-    const configPath = path.join(templatePath, "template.json");
+    const configPath = path.join(templatePath, 'template.json');
 
     if (fsSync.existsSync(configPath)) {
-      return JSON.parse(await fs.readFile(configPath, "utf8"));
+      return JSON.parse(await fs.readFile(configPath, 'utf8'));
     }
 
     return {};
@@ -703,14 +683,14 @@ class TemplateManager {
    */
   getTemplateDescription(name) {
     const descriptions = {
-      default: "Standard REST API with Express.js",
-      microservice: "Microservice architecture with message queuing",
-      "api-gateway": "API Gateway pattern with rate limiting and caching",
-      graphql: "GraphQL API with Apollo Server",
-      websocket: "Real-time WebSocket application",
+      default: 'Standard REST API with Express.js',
+      microservice: 'Microservice architecture with message queuing',
+      'api-gateway': 'API Gateway pattern with rate limiting and caching',
+      graphql: 'GraphQL API with Apollo Server',
+      websocket: 'Real-time WebSocket application',
     };
 
-    return descriptions[name] || "Custom template";
+    return descriptions[name] || 'Custom template';
   }
 
   /**
@@ -731,17 +711,14 @@ class TemplateManager {
     // Process template files
     for (const file of template.files) {
       const sourcePath = path.join(template.path, file.src);
-      const destPath = path.join(
-        projectPath,
-        this.processTemplatePath(file.dest, variables),
-      );
+      const destPath = path.join(projectPath, this.processTemplatePath(file.dest, variables));
 
       // Create directory if needed
       await fs.mkdir(path.dirname(destPath), { recursive: true });
 
       if (file.template) {
         // Process template file
-        const content = await fs.readFile(sourcePath, "utf8");
+        const content = await fs.readFile(sourcePath, 'utf8');
         const processed = this.processTemplate(content, variables);
         await fs.writeFile(destPath, processed);
       } else {
@@ -773,12 +750,10 @@ class TemplateManager {
       const config = await this.loadTemplateConfig(templatePath);
 
       // Load package.json for dependencies
-      const packageJsonPath = path.join(templatePath, "package.json");
+      const packageJsonPath = path.join(templatePath, 'package.json');
       let dependencies = {};
       if (fsSync.existsSync(packageJsonPath)) {
-        const packageJson = JSON.parse(
-          await fs.readFile(packageJsonPath, "utf8"),
-        );
+        const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf8'));
         dependencies = packageJson.dependencies || {};
       }
 
@@ -797,18 +772,16 @@ class TemplateManager {
    * Get built-in template definition
    */
   async getBuiltInTemplate(name) {
-    const templatePath = path.join(__dirname, "..", "templates", name);
+    const templatePath = path.join(__dirname, '..', 'templates', name);
 
     // Load template.json configuration
     const config = await this.loadTemplateConfig(templatePath);
 
     // Load package.json for dependencies
-    const packageJsonPath = path.join(templatePath, "package.json");
+    const packageJsonPath = path.join(templatePath, 'package.json');
     let dependencies = {};
     if (fsSync.existsSync(packageJsonPath)) {
-      const packageJson = JSON.parse(
-        await fs.readFile(packageJsonPath, "utf8"),
-      );
+      const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf8'));
       dependencies = packageJson.dependencies || {};
     }
 
@@ -843,7 +816,7 @@ class TemplateManager {
    * Run template hook
    */
   async runHook(hook, projectPath, variables) {
-    if (typeof hook === "string") {
+    if (typeof hook === 'string') {
       // Execute command
       const command = this.processTemplate(hook, variables);
       await this.executeCommand(command, projectPath);
@@ -860,8 +833,8 @@ class TemplateManager {
    * Execute command
    */
   async executeCommand(command, cwd) {
-    const { exec } = require("child_process");
-    const { promisify } = require("util");
+    const { exec } = require('child_process');
+    const { promisify } = require('util');
     const execAsync = promisify(exec);
 
     try {
@@ -921,13 +894,13 @@ class EnhancedCLI {
       // Set up dry-run mode
       if (options.dryRun) {
         this.dryRunManager = new DryRunManager(options.verbose);
-        logger.info("Running in dry-run mode");
+        logger.info('Running in dry-run mode');
       }
 
       // Set up interactive mode
       if (options.interactive) {
         this.interactiveManager = new InteractiveModeManager();
-        logger.info("Running in interactive mode");
+        logger.info('Running in interactive mode');
       }
 
       // Load configuration if provided
@@ -957,7 +930,7 @@ class EnhancedCLI {
       // Create backup if needed
       if (options.backup && !options.dryRun) {
         const projectPath = positionalArgs[0] || process.cwd();
-        await this.rollbackManager.createBackup(projectPath, "cli-operation");
+        await this.rollbackManager.createBackup(projectPath, 'cli-operation');
       }
 
       // Run main function with context
@@ -976,7 +949,7 @@ class EnhancedCLI {
       // Clean up old backups
       await this.rollbackManager.cleanupOldBackups();
     } catch (error) {
-      logger.error("CLI operation failed", error);
+      logger.error('CLI operation failed', error);
       process.exit(1);
     }
   }
@@ -994,7 +967,7 @@ class EnhancedCLI {
     if (context.interactive && !context.options.force) {
       const confirmed = await context.interactive.confirm(`${description}?`);
       if (!confirmed) {
-        logger.info("Operation cancelled by user");
+        logger.info('Operation cancelled by user');
         return null;
       }
     }

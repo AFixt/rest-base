@@ -3,7 +3,7 @@
  * @module tests/gateway
  */
 
-import { jest, describe, it, expect, beforeAll, afterAll } from '@jest/globals';
+import { describe, it, expect, beforeAll } from '@jest/globals';
 import request from 'supertest';
 import createApp from '../src/gateway.js';
 
@@ -17,9 +17,7 @@ describe('API Gateway', () => {
 
   describe('Root endpoint', () => {
     it('should return gateway information', async () => {
-      const response = await request(app)
-        .get('/')
-        .expect(200);
+      const response = await request(app).get('/').expect(200);
 
       expect(response.body).toMatchObject({
         name: expect.any(String),
@@ -31,9 +29,7 @@ describe('API Gateway', () => {
     });
 
     it('should include required endpoint information', async () => {
-      const response = await request(app)
-        .get('/')
-        .expect(200);
+      const response = await request(app).get('/').expect(200);
 
       expect(response.body.endpoints).toHaveProperty('health');
       expect(response.body.endpoints).toHaveProperty('api');
@@ -43,9 +39,7 @@ describe('API Gateway', () => {
 
   describe('Health endpoints', () => {
     it('should return basic health status', async () => {
-      const response = await request(app)
-        .get('/health')
-        .expect(200);
+      const response = await request(app).get('/health').expect(200);
 
       expect(response.body).toMatchObject({
         status: expect.any(String),
@@ -58,9 +52,7 @@ describe('API Gateway', () => {
     });
 
     it('should return detailed health information', async () => {
-      const response = await request(app)
-        .get('/health/detailed')
-        .expect(200);
+      const response = await request(app).get('/health/detailed').expect(200);
 
       expect(response.body).toMatchObject({
         status: expect.any(String),
@@ -71,17 +63,14 @@ describe('API Gateway', () => {
     });
 
     it('should return readiness status', async () => {
-      const response = await request(app)
-        .get('/health/ready');
+      const response = await request(app).get('/health/ready');
 
       expect(response.body).toHaveProperty('ready');
       expect(response.body).toHaveProperty('checks');
     });
 
     it('should return liveness status', async () => {
-      const response = await request(app)
-        .get('/health/live')
-        .expect(200);
+      const response = await request(app).get('/health/live').expect(200);
 
       expect(response.body).toMatchObject({
         alive: true,
@@ -93,9 +82,7 @@ describe('API Gateway', () => {
 
   describe('API endpoints', () => {
     it('should return API information', async () => {
-      const response = await request(app)
-        .get('/api')
-        .expect(200);
+      const response = await request(app).get('/api').expect(200);
 
       expect(response.body).toMatchObject({
         name: expect.stringContaining('API Gateway'),
@@ -106,9 +93,7 @@ describe('API Gateway', () => {
     });
 
     it('should redirect to v1 by default', async () => {
-      const response = await request(app)
-        .get('/api/test')
-        .expect(301);
+      const response = await request(app).get('/api/test').expect(301);
 
       expect(response.headers.location).toContain('/api/v1/test');
     });
@@ -116,9 +101,7 @@ describe('API Gateway', () => {
 
   describe('Error handling', () => {
     it('should handle 404 errors', async () => {
-      const response = await request(app)
-        .get('/nonexistent-route')
-        .expect(404);
+      const response = await request(app).get('/nonexistent-route').expect(404);
 
       expect(response.body).toMatchObject({
         error: expect.stringContaining('Route not found'),
@@ -127,8 +110,7 @@ describe('API Gateway', () => {
     });
 
     it('should include security headers', async () => {
-      const response = await request(app)
-        .get('/');
+      const response = await request(app).get('/');
 
       expect(response.headers).toHaveProperty('x-content-type-options', 'nosniff');
       expect(response.headers).toHaveProperty('x-frame-options', 'DENY');
@@ -160,10 +142,7 @@ describe('API Gateway', () => {
 
   describe('Request validation', () => {
     it('should require Content-Type for POST requests', async () => {
-      const response = await request(app)
-        .post('/api/v1/test')
-        .send('test data')
-        .expect(400);
+      const response = await request(app).post('/api/v1/test').send('test data').expect(400);
 
       expect(response.body).toMatchObject({
         error: expect.stringContaining('Content-Type'),

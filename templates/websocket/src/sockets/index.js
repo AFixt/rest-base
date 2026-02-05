@@ -21,31 +21,34 @@ const RATE_LIMIT_MAX = 60; // 60 events per minute
 const rateLimitSocket = (socket, eventName) => {
   const key = `${socket.id}:${eventName}`;
   const now = Date.now();
-  
+
   if (!eventRateLimit.has(key)) {
     eventRateLimit.set(key, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
     return true;
   }
-  
+
   const limit = eventRateLimit.get(key);
-  
+
   if (now > limit.resetTime) {
     limit.count = 1;
     limit.resetTime = now + RATE_LIMIT_WINDOW;
     return true;
   }
-  
+
   if (limit.count >= RATE_LIMIT_MAX) {
-    logger.warn({
-      component: 'websocket',
-      event: 'rate_limit_exceeded',
-      socketId: socket.id,
-      userId: socket.userId,
-      eventName
-    }, 'Socket event rate limit exceeded');
+    logger.warn(
+      {
+        component: 'websocket',
+        event: 'rate_limit_exceeded',
+        socketId: socket.id,
+        userId: socket.userId,
+        eventName,
+      },
+      'Socket event rate limit exceeded'
+    );
     return false;
   }
-  
+
   limit.count++;
   return true;
 };
@@ -57,29 +60,37 @@ const wrapHandler = (handler, eventName) => {
   return async (socket, data, callback) => {
     // Rate limiting
     if (!rateLimitSocket(socket, eventName)) {
-      if (callback) callback({ error: 'Rate limit exceeded' });
+      if (callback) {
+        callback({ error: 'Rate limit exceeded' });
+      }
       return;
     }
 
     try {
-      logger.debug({
-        component: 'websocket',
-        event: eventName,
-        socketId: socket.id,
-        userId: socket.userId,
-        data: typeof data === 'object' ? Object.keys(data) : typeof data
-      }, 'Socket event received');
+      logger.debug(
+        {
+          component: 'websocket',
+          event: eventName,
+          socketId: socket.id,
+          userId: socket.userId,
+          data: typeof data === 'object' ? Object.keys(data) : typeof data,
+        },
+        'Socket event received'
+      );
 
       await handler(socket, data, callback);
     } catch (error) {
-      logger.error({
-        component: 'websocket',
-        event: 'handler_error',
-        socketId: socket.id,
-        userId: socket.userId,
-        eventName,
-        err: error
-      }, 'Socket handler error');
+      logger.error(
+        {
+          component: 'websocket',
+          event: 'handler_error',
+          socketId: socket.id,
+          userId: socket.userId,
+          eventName,
+          err: error,
+        },
+        'Socket handler error'
+      );
 
       if (callback) {
         callback({ error: 'Internal server error' });
@@ -109,48 +120,72 @@ const setupSocketHandlers = (io, socket) => {
   socket.on('room:info', wrapHandler(roomHandlers.getRoomInfo, 'room:info'));
 
   // Notification handlers
-  socket.on('notification:subscribe', wrapHandler(notificationHandlers.subscribe, 'notification:subscribe'));
-  socket.on('notification:unsubscribe', wrapHandler(notificationHandlers.unsubscribe, 'notification:unsubscribe'));
-  socket.on('notification:mark_read', wrapHandler(notificationHandlers.markAsRead, 'notification:mark_read'));
+  socket.on(
+    'notification:subscribe',
+    wrapHandler(notificationHandlers.subscribe, 'notification:subscribe')
+  );
+  socket.on(
+    'notification:unsubscribe',
+    wrapHandler(notificationHandlers.unsubscribe, 'notification:unsubscribe')
+  );
+  socket.on(
+    'notification:mark_read',
+    wrapHandler(notificationHandlers.markAsRead, 'notification:mark_read')
+  );
 
   // General event handlers
-  socket.on('ping', wrapHandler(async (socket, data, callback) => {
-    if (callback) {
-      callback({ pong: true, timestamp: new Date().toISOString() });
-    }
-  }, 'ping'));
+  socket.on(
+    'ping',
+    wrapHandler(async (socket, data, callback) => {
+      if (callback) {
+        callback({ pong: true, timestamp: new Date().toISOString() });
+      }
+    }, 'ping')
+  );
 
-  socket.on('user:status', wrapHandler(async (socket, data, callback) => {
-    const { status } = data || {};
-    
-    if (!['online', 'away', 'busy', 'offline'].includes(status)) {
-      if (callback) callback({ error: 'Invalid status' });
-      return;
-    }
+  socket.on(
+    'user:status',
+    wrapHandler(async (socket, data, callback) => {
+      const { status } = data || {};
 
-    socket.status = status;
-    socket.broadcast.emit('user:status_change', {
-      userId: socket.userId,
-      status,
-      timestamp: new Date().toISOString()
-    });
+      if (!['online', 'away', 'busy', 'offline'].includes(status)) {
+        if (callback) {
+          callback({ error: 'Invalid status' });
+        }
+        return;
+      }
 
-    if (callback) callback({ success: true });
-  }, 'user:status'));
+      socket.status = status;
+      socket.broadcast.emit('user:status_change', {
+        userId: socket.userId,
+        status,
+        timestamp: new Date().toISOString(),
+      });
+
+      if (callback) {
+        callback({ success: true });
+      }
+    }, 'user:status')
+  );
 
   // Heartbeat/keepalive
-  socket.on('heartbeat', wrapHandler(async (socket, data, callback) => {
-    socket.lastHeartbeat = Date.now();
-    if (callback) callback({ timestamp: new Date().toISOString() });
-  }, 'heartbeat'));
+  socket.on(
+    'heartbeat',
+    wrapHandler(async (socket, data, callback) => {
+      socket.lastHeartbeat = Date.now();
+      if (callback) {
+        callback({ timestamp: new Date().toISOString() });
+      }
+    }, 'heartbeat')
+  );
 
   // Store socket reference for the user
   socket.join(`user:${socket.userId}`);
-  
+
   // Broadcast user online status
   socket.broadcast.emit('user:online', {
     userId: socket.userId,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 };
 
@@ -166,5 +201,5 @@ setInterval(() => {
 
 module.exports = {
   setupSocketHandlers,
-  rateLimitSocket
+  rateLimitSocket,
 };

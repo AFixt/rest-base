@@ -1,11 +1,11 @@
 /**
  * Configuration Loader
- * 
+ *
  * This module loads and merges configuration from multiple sources:
  * 1. Default configuration (rest-spec.config.js)
  * 2. User's home directory config (~/.rest-spec.config.js)
  * 3. Project directory config (./rest-spec.config.js)
- * 
+ *
  * @author REST-Base Team
  */
 
@@ -42,7 +42,7 @@ function loadConfigFile(configPath) {
  */
 function deepMerge(target, source) {
   const result = { ...target };
-  
+
   for (const key in source) {
     if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
       result[key] = deepMerge(target[key] || {}, source[key]);
@@ -50,7 +50,7 @@ function deepMerge(target, source) {
       result[key] = source[key];
     }
   }
-  
+
   return result;
 }
 
@@ -174,5 +174,5 @@ module.exports = {
   getConfigValue,
   clearCache,
   validateConfig,
-  deepMerge
+  deepMerge,
 };

@@ -14,7 +14,6 @@ const rateLimit = require('express-rate-limit');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJSDoc = require('swagger-jsdoc');
 
-const config = require('./config');
 const logger = require('./utils/logger');
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 const routes = require('./routes');
@@ -27,23 +26,27 @@ const PORT = process.env.PORT || 3000;
 app.set('trust proxy', 1);
 
 // Security middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"]
-    }
-  }
-}));
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+      },
+    },
+  })
+);
 
 // CORS configuration
-app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
-  credentials: true,
-  optionsSuccessStatus: 200
-}));
+app.use(
+  cors({
+    origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
+    credentials: true,
+    optionsSuccessStatus: 200,
+  })
+);
 
 // Compression middleware
 app.use(compression());
@@ -54,29 +57,35 @@ const limiter = rateLimit({
   max: process.env.NODE_ENV === 'production' ? 100 : 1000,
   message: {
     error: 'Too many requests from this IP',
-    retryAfter: '15 minutes'
+    retryAfter: '15 minutes',
   },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
 });
 app.use('/api', limiter);
 
 // Request logging
-app.use(morgan('combined', { 
-  stream: { 
-    write: message => logger.info(message.trim()) 
-  } 
-}));
+app.use(
+  morgan('combined', {
+    stream: {
+      write: message => logger.info(message.trim()),
+    },
+  })
+);
 
 // Body parsing middleware
-app.use(express.json({ 
-  limit: '10mb',
-  strict: true
-}));
-app.use(express.urlencoded({ 
-  extended: true, 
-  limit: '10mb' 
-}));
+app.use(
+  express.json({
+    limit: '10mb',
+    strict: true,
+  })
+);
+app.use(
+  express.urlencoded({
+    extended: true,
+    limit: '10mb',
+  })
+);
 
 // Swagger documentation
 const swaggerOptions = {
@@ -88,37 +97,41 @@ const swaggerOptions = {
       description: '{{description}}',
       contact: {
         name: '{{author}}',
-        email: '{{email}}'
-      }
+        email: '{{email}}',
+      },
     },
     servers: [
       {
         url: `http://localhost:${PORT}/api`,
-        description: 'Development server'
+        description: 'Development server',
       },
       {
         url: `https://${process.env.DOMAIN || 'api.example.com'}/api`,
-        description: 'Production server'
-      }
+        description: 'Production server',
+      },
     ],
     components: {
       securitySchemes: {
         bearerAuth: {
           type: 'http',
           scheme: 'bearer',
-          bearerFormat: 'JWT'
-        }
-      }
-    }
+          bearerFormat: 'JWT',
+        },
+      },
+    },
   },
-  apis: ['./src/routes/*.js', './src/controllers/*.js']
+  apis: ['./src/routes/*.js', './src/controllers/*.js'],
 };
 
 const specs = swaggerJSDoc(swaggerOptions);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
-  explorer: true,
-  customSiteTitle: '{{projectName}} API Documentation'
-}));
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(specs, {
+    explorer: true,
+    customSiteTitle: '{{projectName}} API Documentation',
+  })
+);
 
 // Health check endpoints (top-level for load balancers)
 app.use('/health', healthRoutes);
@@ -134,8 +147,8 @@ app.get('/', (req, res) => {
     endpoints: {
       health: '/health',
       api: '/api',
-      docs: '/api-docs'
-    }
+      docs: '/api-docs',
+    },
   });
 });
 

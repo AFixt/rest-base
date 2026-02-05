@@ -30,38 +30,46 @@ function createApp() {
   const app = express();
 
   // Security middleware
-  app.use(helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        scriptSrc: ["'self'"],
-        imgSrc: ["'self'", 'data:', 'https:'],
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          scriptSrc: ["'self'"],
+          imgSrc: ["'self'", 'data:', 'https:'],
+        },
       },
-    },
-  }));
+    })
+  );
 
   // CORS configuration
-  app.use(cors({
-    origin: config.cors.origins,
-    credentials: config.cors.credentials,
-    optionsSuccessStatus: 200,
-  }));
+  app.use(
+    cors({
+      origin: config.cors.origins,
+      credentials: config.cors.credentials,
+      optionsSuccessStatus: 200,
+    })
+  );
 
   // Compression middleware
   app.use(compression());
 
   // Request logging
-  app.use(morgan(config.env === 'production' ? 'combined' : 'dev', {
-    stream: { write: (message) => logger.info(message.trim()) },
-  }));
+  app.use(
+    morgan(config.env === 'production' ? 'combined' : 'dev', {
+      stream: { write: message => logger.info(message.trim()) },
+    })
+  );
 
   // Body parsing middleware
   app.use(express.json({ limit: config.bodyParser.jsonLimit }));
-  app.use(express.urlencoded({ 
-    extended: true, 
-    limit: config.bodyParser.urlencodedLimit 
-  }));
+  app.use(
+    express.urlencoded({
+      extended: true,
+      limit: config.bodyParser.urlencodedLimit,
+    })
+  );
 
   // Trust proxy for accurate IP addresses
   app.set('trust proxy', config.trustProxy);
@@ -97,13 +105,14 @@ async function startServer() {
 
     // Start listening
     server.listen(config.port, () => {
-      logger.info(`{{projectName}} API Gateway running on port ${config.port} in ${config.env} mode`);
+      logger.info(
+        `{{projectName}} API Gateway running on port ${config.port} in ${config.env} mode`
+      );
       logger.info(`Health check available at: http://localhost:${config.port}/health`);
     });
 
     // Setup graceful shutdown
     gracefulShutdown(server);
-
   } catch (error) {
     logger.error('Failed to start server:', error);
     process.exit(1);

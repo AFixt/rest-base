@@ -16,7 +16,11 @@
     "docker:build": "docker build -t {{projectName}} .",
     "docker:run": "docker run -p 8080:8080 --env-file .env {{projectName}}"
   },
-  "keywords": ["api-gateway", "microservices", "rest-api"],
+  "keywords": [
+    "api-gateway",
+    "microservices",
+    "rest-api"
+  ],
   "author": "{{author}}",
   "license": "MIT",
   "engines": {
@@ -54,7 +58,9 @@
   },
   "jest": {
     "testEnvironment": "node",
-    "setupFilesAfterEnv": ["./tests/setup.js"],
+    "setupFilesAfterEnv": [
+      "./tests/setup.js"
+    ],
     "coverageDirectory": "./coverage",
     "collectCoverageFrom": [
       "src/**/*.js",

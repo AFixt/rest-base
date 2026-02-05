@@ -5,18 +5,14 @@
  * @author {{author}}
  */
 
-const { 
-  generateToken, 
-  verifyToken, 
-  hasRole 
-} = require('../src/middleware/auth');
+const { generateToken, verifyToken, hasRole } = require('../src/middleware/auth');
 
 describe('Authentication Middleware', () => {
   describe('generateToken', () => {
     test('should generate valid JWT token', () => {
       const payload = { userId: '123', email: 'test@example.com', role: 'user' };
       const token = generateToken(payload);
-      
+
       expect(token).toBeDefined();
       expect(typeof token).toBe('string');
       expect(token.split('.')).toHaveLength(3); // JWT has 3 parts
@@ -25,9 +21,9 @@ describe('Authentication Middleware', () => {
     test('should generate token with custom expiration', () => {
       const payload = { userId: '123' };
       const token = generateToken(payload, '1h');
-      
+
       expect(token).toBeDefined();
-      
+
       const decoded = verifyToken(token);
       expect(decoded).toBeTruthy();
       expect(decoded.userId).toBe('123');
@@ -39,7 +35,7 @@ describe('Authentication Middleware', () => {
       const payload = { userId: '123', email: 'test@example.com', role: 'user' };
       const token = generateToken(payload);
       const decoded = verifyToken(token);
-      
+
       expect(decoded).toBeTruthy();
       expect(decoded.userId).toBe('123');
       expect(decoded.email).toBe('test@example.com');
@@ -93,16 +89,16 @@ describe('Authentication Middleware', () => {
   describe('Token Expiration', () => {
     test('should handle expired tokens', () => {
       // Create an already expired token by manipulating JWT directly
-      const expiredPayload = { 
+      const expiredPayload = {
         userId: '123',
         iat: Math.floor(Date.now() / 1000) - 7200, // 2 hours ago
-        exp: Math.floor(Date.now() / 1000) - 3600  // 1 hour ago
+        exp: Math.floor(Date.now() / 1000) - 3600, // 1 hour ago
       };
-      
+
       const jwt = require('jsonwebtoken');
       const expiredToken = jwt.sign(expiredPayload, process.env.JWT_SECRET, { noTimestamp: true });
       const decoded = verifyToken(expiredToken);
-      
+
       expect(decoded).toBeNull();
     });
   });

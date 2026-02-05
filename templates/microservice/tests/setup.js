@@ -21,24 +21,26 @@ global.testUtils = {
   createTestItem: (overrides = {}) => ({
     name: 'Test Item',
     description: 'Test Description',
-    ...overrides
+    ...overrides,
   }),
 
   // Helper to create multiple test items
   createTestItems: (count = 3) => {
     return Array.from({ length: count }, (_, index) => ({
       name: `Test Item ${index + 1}`,
-      description: `Test Description ${index + 1}`
+      description: `Test Description ${index + 1}`,
     }));
   },
 
   // Helper to generate random string
   randomString: (length = 10) => {
-    return Math.random().toString(36).substring(2, length + 2);
+    return Math.random()
+      .toString(36)
+      .substring(2, length + 2);
   },
 
   // Helper to wait for async operations
-  sleep: (ms = 100) => new Promise(resolve => setTimeout(resolve, ms))
+  sleep: (ms = 100) => new Promise(resolve => setTimeout(resolve, ms)),
 };
 
 // Setup/teardown hooks
@@ -70,7 +72,7 @@ global.console = {
   info: jest.fn(),
   warn: jest.fn(),
   error: jest.fn(),
-  debug: jest.fn()
+  debug: jest.fn(),
 };
 
 // Restore console for specific tests if needed
@@ -85,7 +87,7 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 // Handle uncaught exceptions in tests
-process.on('uncaughtException', (error) => {
+process.on('uncaughtException', error => {
   console.error('Uncaught Exception:', error);
   // Don't exit in tests, just log
 });
@@ -97,12 +99,12 @@ expect.extend({
     if (pass) {
       return {
         message: () => `expected ${received} not to be a valid timestamp`,
-        pass: true
+        pass: true,
       };
     } else {
       return {
         message: () => `expected ${received} to be a valid timestamp`,
-        pass: false
+        pass: false,
       };
     }
   },
@@ -112,13 +114,13 @@ expect.extend({
     if (pass) {
       return {
         message: () => `expected ${received} not to be a valid ID`,
-        pass: true
+        pass: true,
       };
     } else {
       return {
         message: () => `expected ${received} to be a valid ID (positive integer)`,
-        pass: false
+        pass: false,
       };
     }
-  }
+  },
 });
