@@ -39,7 +39,9 @@ describe('CLI Enhancements', () => {
     });
 
     test('should load config file if specified', async () => {
-      const configPath = path.join(__dirname, '../fixtures/test-config.json');
+      const fixturesDir = path.join(__dirname, '../fixtures');
+      await fs.mkdir(fixturesDir, { recursive: true });
+      const configPath = path.join(fixturesDir, 'test-config.json');
       await fs.writeFile(
         configPath,
         JSON.stringify({
