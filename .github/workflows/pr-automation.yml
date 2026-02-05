@@ -45,10 +45,11 @@ jobs:
       - name: Check for breaking changes
         run: |
           # Compare with base branch to detect potential breaking changes
-          git fetch origin ${{ github.base_ref }}
-          
+          BASE_REF="${{ github.base_ref || github.event.pull_request.base.ref || 'main' }}"
+          git fetch origin "$BASE_REF"
+
           # Check if any public APIs have changed
-          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          CHANGED_FILES=$(git diff --name-only "origin/$BASE_REF"...HEAD)
           
           echo "Files changed in this PR:"
           echo "$CHANGED_FILES"
@@ -66,7 +67,8 @@ jobs:
         continue-on-error: true
         run: |
           # Get commits in this PR (exclude merge commits)
-          COMMITS=$(git log --no-merges --pretty=format:"%s" origin/${{ github.base_ref }}..HEAD)
+          BASE_REF="${{ github.base_ref || github.event.pull_request.base.ref || 'main' }}"
+          COMMITS=$(git log --no-merges --pretty=format:"%s" "origin/$BASE_REF"..HEAD)
 
           echo "Commit messages in this PR:"
           echo "$COMMITS"
