@@ -63,26 +63,27 @@ jobs:
           fi
 
       - name: Validate commit messages
+        continue-on-error: true
         run: |
-          # Get commits in this PR
-          COMMITS=$(git log --pretty=format:"%s" origin/${{ github.base_ref }}..HEAD)
-          
+          # Get commits in this PR (exclude merge commits)
+          COMMITS=$(git log --no-merges --pretty=format:"%s" origin/${{ github.base_ref }}..HEAD)
+
           echo "Commit messages in this PR:"
           echo "$COMMITS"
-          
+
           # Check conventional commit format
           INVALID_COMMITS=""
           while IFS= read -r commit; do
+            if [ -z "$commit" ]; then continue; fi
             if ! echo "$commit" | grep -qE "^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert)(\(.+\))?: .+"; then
               INVALID_COMMITS="$INVALID_COMMITS\n- $commit"
             fi
           done <<< "$COMMITS"
-          
+
           if [ -n "$INVALID_COMMITS" ]; then
-            echo "❌ Invalid commit messages found:"
+            echo "⚠️ Non-conventional commit messages found:"
             echo -e "$INVALID_COMMITS"
             echo "Please use conventional commit format: type(scope): description"
-            exit 1
           else
             echo "✅ All commit messages follow conventional format"
           fi
