@@ -20,6 +20,7 @@
     "lint:cpd": "jscpd . --config .jscpd.json",
     "lint:cpd:ci": "jscpd . --config .jscpd.json --threshold 5",
     "lint": "npm run lint:md && npm run lint:js",
+    "lint:fix": "eslint scripts/**/*.js --fix",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md}\" --ignore-path .prettierignore",
     "security:audit": "npm audit",
     "security:check": "npm audit --audit-level=high",
