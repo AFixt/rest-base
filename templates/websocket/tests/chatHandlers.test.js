@@ -5,12 +5,12 @@
  * @author {{author}}
  */
 
-const { 
-  joinChat, 
-  leaveChat, 
-  sendMessage, 
-  handleTyping, 
-  getChatHistory 
+const {
+  joinChat,
+  leaveChat,
+  sendMessage,
+  handleTyping,
+  getChatHistory,
 } = require('../src/sockets/chatHandlers');
 
 // Mock socket object
@@ -20,9 +20,9 @@ const createMockSocket = (userId = 'user123') => ({
   join: jest.fn(),
   leave: jest.fn(),
   to: jest.fn(() => ({
-    emit: jest.fn()
+    emit: jest.fn(),
   })),
-  emit: jest.fn()
+  emit: jest.fn(),
 });
 
 describe('Chat Handlers', () => {
@@ -43,7 +43,7 @@ describe('Chat Handlers', () => {
         success: true,
         roomId: 'room123',
         participants: 1,
-        timestamp: expect.any(String)
+        timestamp: expect.any(String),
       });
     });
 
@@ -55,7 +55,7 @@ describe('Chat Handlers', () => {
       await joinChat(socket, data, callback);
 
       expect(callback).toHaveBeenCalledWith({
-        error: 'Room ID is required'
+        error: 'Room ID is required',
       });
     });
 
@@ -75,7 +75,7 @@ describe('Chat Handlers', () => {
 
       // First join the room
       await joinChat(socket, data);
-      
+
       // Then leave it
       await leaveChat(socket, data, callback);
 
@@ -83,7 +83,7 @@ describe('Chat Handlers', () => {
       expect(callback).toHaveBeenCalledWith({
         success: true,
         roomId: 'room123',
-        timestamp: expect.any(String)
+        timestamp: expect.any(String),
       });
     });
 
@@ -95,7 +95,7 @@ describe('Chat Handlers', () => {
       await leaveChat(socket, data, callback);
 
       expect(callback).toHaveBeenCalledWith({
-        error: 'Room ID is required'
+        error: 'Room ID is required',
       });
     });
   });
@@ -107,7 +107,7 @@ describe('Chat Handlers', () => {
       const data = {
         roomId: 'room123',
         message: 'Hello world!',
-        type: 'text'
+        type: 'text',
       };
 
       await sendMessage(socket, data, callback);
@@ -120,9 +120,9 @@ describe('Chat Handlers', () => {
           roomId: 'room123',
           message: 'Hello world!',
           type: 'text',
-          timestamp: expect.any(String)
+          timestamp: expect.any(String),
         }),
-        timestamp: expect.any(String)
+        timestamp: expect.any(String),
       });
     });
 
@@ -133,7 +133,7 @@ describe('Chat Handlers', () => {
       // Missing room ID
       await sendMessage(socket, { message: 'Hello' }, callback);
       expect(callback).toHaveBeenCalledWith({
-        error: 'Room ID and message are required'
+        error: 'Room ID and message are required',
       });
 
       callback.mockClear();
@@ -141,7 +141,7 @@ describe('Chat Handlers', () => {
       // Missing message
       await sendMessage(socket, { roomId: 'room123' }, callback);
       expect(callback).toHaveBeenCalledWith({
-        error: 'Room ID and message are required'
+        error: 'Room ID and message are required',
       });
     });
 
@@ -151,13 +151,13 @@ describe('Chat Handlers', () => {
       const data = {
         roomId: 'room123',
         message: 'a'.repeat(1001), // Too long
-        type: 'text'
+        type: 'text',
       };
 
       await sendMessage(socket, data, callback);
 
       expect(callback).toHaveBeenCalledWith({
-        error: 'Message too long (max 1000 characters)'
+        error: 'Message too long (max 1000 characters)',
       });
     });
 
@@ -167,13 +167,13 @@ describe('Chat Handlers', () => {
       const data = {
         roomId: 'room123',
         message: 'Hello',
-        type: 'invalid'
+        type: 'invalid',
       };
 
       await sendMessage(socket, data, callback);
 
       expect(callback).toHaveBeenCalledWith({
-        error: 'Invalid message type'
+        error: 'Invalid message type',
       });
     });
 
@@ -182,7 +182,7 @@ describe('Chat Handlers', () => {
       const callback = jest.fn();
       const data = {
         roomId: 'room123',
-        message: 'Hello'
+        message: 'Hello',
       };
 
       await sendMessage(socket, data, callback);
@@ -190,9 +190,9 @@ describe('Chat Handlers', () => {
       expect(callback).toHaveBeenCalledWith({
         success: true,
         message: expect.objectContaining({
-          type: 'text'
+          type: 'text',
         }),
-        timestamp: expect.any(String)
+        timestamp: expect.any(String),
       });
     });
   });
@@ -205,7 +205,7 @@ describe('Chat Handlers', () => {
       const callback = jest.fn();
       const data = {
         roomId: 'room123',
-        isTyping: true
+        isTyping: true,
       };
 
       await handleTyping(socket, data, callback);
@@ -215,11 +215,11 @@ describe('Chat Handlers', () => {
         userId: 'user123',
         roomId: 'room123',
         isTyping: true,
-        timestamp: expect.any(String)
+        timestamp: expect.any(String),
       });
       expect(callback).toHaveBeenCalledWith({
         success: true,
-        timestamp: expect.any(String)
+        timestamp: expect.any(String),
       });
     });
 
@@ -231,7 +231,7 @@ describe('Chat Handlers', () => {
       await handleTyping(socket, data, callback);
 
       expect(callback).toHaveBeenCalledWith({
-        error: 'Room ID is required'
+        error: 'Room ID is required',
       });
     });
   });
@@ -240,18 +240,18 @@ describe('Chat Handlers', () => {
     test('should get chat history', async () => {
       const socket = createMockSocket();
       const callback = jest.fn();
-      
+
       // Use a unique room ID for this test
       const uniqueRoomId = `room-${Math.random().toString(36).substr(2, 9)}`;
-      
+
       // First send some messages to create history
       await sendMessage(socket, {
         roomId: uniqueRoomId,
-        message: 'Message 1'
+        message: 'Message 1',
       });
       await sendMessage(socket, {
         roomId: uniqueRoomId,
-        message: 'Message 2'
+        message: 'Message 2',
       });
 
       // Then get history
@@ -263,16 +263,16 @@ describe('Chat Handlers', () => {
         roomId: uniqueRoomId,
         messages: expect.arrayContaining([
           expect.objectContaining({
-            message: 'Message 1'
+            message: 'Message 1',
           }),
           expect.objectContaining({
-            message: 'Message 2'
-          })
+            message: 'Message 2',
+          }),
         ]),
         total: 2,
         limit: 50,
         offset: 0,
-        timestamp: expect.any(String)
+        timestamp: expect.any(String),
       });
     });
 
@@ -284,7 +284,7 @@ describe('Chat Handlers', () => {
       await getChatHistory(socket, data, callback);
 
       expect(callback).toHaveBeenCalledWith({
-        error: 'Room ID is required'
+        error: 'Room ID is required',
       });
     });
 
@@ -294,7 +294,7 @@ describe('Chat Handlers', () => {
       const data = {
         roomId: 'room123',
         limit: 1,
-        offset: 0
+        offset: 0,
       };
 
       await getChatHistory(socket, data, callback);
@@ -306,7 +306,7 @@ describe('Chat Handlers', () => {
         total: expect.any(Number),
         limit: 1,
         offset: 0,
-        timestamp: expect.any(String)
+        timestamp: expect.any(String),
       });
     });
   });

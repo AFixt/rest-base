@@ -8,20 +8,14 @@
  * @requires ../utils/logger.js
  */
 
-import { Router } from "express";
-import { isRedisConnected } from "../services/redis.js";
-import {
-  getRegisteredServices,
-  createHealthCheckProxy,
-} from "../middleware/proxy.js";
-import { asyncHandler } from "../middleware/errorHandler.js";
-import logger from "../utils/logger.js";
-import { createRequire } from "module";
+import { Router } from 'express';
+import { isRedisConnected } from '../services/redis.js';
+import { getRegisteredServices, createHealthCheckProxy } from '../middleware/proxy.js';
+import { asyncHandler } from '../middleware/errorHandler.js';
+import logger from '../utils/logger.js';
+import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
-const {
-  HealthChecker,
-  HealthStatus,
-} = require("../../../../shared/health-checker.js");
+const { HealthChecker, HealthStatus } = require('../../../../shared/health-checker.js');
 
 const router = Router();
 
@@ -38,33 +32,33 @@ const healthChecker = new HealthChecker({
 
 // Register Redis health check
 healthChecker.registerCheck(
-  "redis",
+  'redis',
   async () => {
     try {
       const connected = isRedisConnected();
       return {
         status: connected ? HealthStatus.HEALTHY : HealthStatus.UNHEALTHY,
-        message: connected ? "Redis connected" : "Redis disconnected",
+        message: connected ? 'Redis connected' : 'Redis disconnected',
         data: { connected },
       };
     } catch (error) {
       return {
         status: HealthStatus.UNHEALTHY,
-        message: "Redis check failed",
+        message: 'Redis check failed',
         data: { error: error.message },
       };
     }
   },
-  { critical: true },
+  { critical: true }
 );
 
 // Register upstream service health checks
 const registeredServices = getRegisteredServices();
-registeredServices.forEach((service) => {
+registeredServices.forEach(service => {
   healthChecker.registerCheck(
     `service-${service.name}`,
     HealthChecker.createExternalServiceCheck(`${service.url}/health`),
-    { critical: false, timeout: 5000 },
+    { critical: false, timeout: 5000 }
   );
 });
 
@@ -73,7 +67,7 @@ registeredServices.forEach((service) => {
  * GET /health
  */
 router.get(
-  "/",
+  '/',
   asyncHandler(async (req, res) => {
     try {
       const health = await healthChecker.checkHealth();
@@ -84,8 +78,7 @@ router.get(
         statusCode = 503;
       } else if (health.status === HealthStatus.UNHEALTHY) {
         // Only return 503 if critical services (Redis) are down
-        const criticalDown =
-          health.checks.redis?.status === HealthStatus.UNHEALTHY;
+        const criticalDown = health.checks.redis?.status === HealthStatus.UNHEALTHY;
         statusCode = criticalDown ? 503 : 200;
       }
 
@@ -93,11 +86,11 @@ router.get(
         status: health.status,
         timestamp: health.timestamp,
         uptime: health.uptime,
-        service: "{{projectName}}",
-        version: "1.0.0",
-        environment: process.env.NODE_ENV || "development",
+        service: '{{projectName}}',
+        version: '1.0.0',
+        environment: process.env.NODE_ENV || 'development',
         gateway: {
-          role: "api-gateway",
+          role: 'api-gateway',
           upstreamServices: registeredServices.length,
           redisConnected: health.checks.redis?.status === HealthStatus.HEALTHY,
         },
@@ -105,12 +98,12 @@ router.get(
     } catch (error) {
       res.status(503).json({
         status: HealthStatus.CRITICAL,
-        message: "Gateway health check failed",
+        message: 'Gateway health check failed',
         error: error.message,
         timestamp: new Date().toISOString(),
       });
     }
-  }),
+  })
 );
 
 /**
@@ -118,16 +111,16 @@ router.get(
  * GET /health/detailed
  */
 router.get(
-  "/detailed",
+  '/detailed',
   asyncHandler(async (req, res) => {
     const startTime = Date.now();
     const registeredServices = getRegisteredServices();
 
     const detailedHealth = {
-      status: "healthy",
+      status: 'healthy',
       timestamp: new Date().toISOString(),
-      service: "{{projectName}}",
-      version: "1.0.0",
+      service: '{{projectName}}',
+      version: '1.0.0',
       uptime: process.uptime(),
       environment: process.env.NODE_ENV,
       system: {
@@ -139,7 +132,7 @@ router.get(
       },
       dependencies: {
         redis: {
-          status: isRedisConnected() ? "healthy" : "unhealthy",
+          status: isRedisConnected() ? 'healthy' : 'unhealthy',
           connection: isRedisConnected(),
         },
       },
@@ -147,7 +140,7 @@ router.get(
     };
 
     // Check each registered service health
-    const serviceHealthPromises = registeredServices.map(async (service) => {
+    const serviceHealthPromises = registeredServices.map(async service => {
       try {
         const healthCheckStartTime = Date.now();
 
@@ -156,14 +149,14 @@ router.get(
         const isHealthy = await checkServiceHealth(service.url);
 
         detailedHealth.services[service.name] = {
-          status: isHealthy ? "healthy" : "unhealthy",
+          status: isHealthy ? 'healthy' : 'unhealthy',
           url: service.url,
           responseTime: Date.now() - healthCheckStartTime,
           lastChecked: new Date().toISOString(),
         };
       } catch (error) {
         detailedHealth.services[service.name] = {
-          status: "unhealthy",
+          status: 'unhealthy',
           url: service.url,
           error: error.message,
           lastChecked: new Date().toISOString(),
@@ -174,23 +167,23 @@ router.get(
     await Promise.allSettled(serviceHealthPromises);
 
     // Determine overall status
-    const hasUnhealthyDependencies = Object.values(
-      detailedHealth.dependencies,
-    ).some((dep) => dep.status === "unhealthy");
+    const hasUnhealthyDependencies = Object.values(detailedHealth.dependencies).some(
+      dep => dep.status === 'unhealthy'
+    );
 
     const hasUnhealthyServices = Object.values(detailedHealth.services).some(
-      (service) => service.status === "unhealthy",
+      service => service.status === 'unhealthy'
     );
 
     if (hasUnhealthyDependencies || hasUnhealthyServices) {
-      detailedHealth.status = "degraded";
+      detailedHealth.status = 'degraded';
     }
 
     detailedHealth.responseTime = Date.now() - startTime;
 
-    const statusCode = detailedHealth.status === "healthy" ? 200 : 503;
+    const statusCode = detailedHealth.status === 'healthy' ? 200 : 503;
     res.status(statusCode).json(detailedHealth);
-  }),
+  })
 );
 
 /**
@@ -198,16 +191,14 @@ router.get(
  * GET /health/ready
  */
 router.get(
-  "/ready",
+  '/ready',
   asyncHandler(async (req, res) => {
     const readinessChecks = {
       redis: isRedisConnected(),
       services: true, // Could check if critical services are available
     };
 
-    const isReady = Object.values(readinessChecks).every(
-      (check) => check === true,
-    );
+    const isReady = Object.values(readinessChecks).every(check => check === true);
 
     const response = {
       ready: isReady,
@@ -217,14 +208,14 @@ router.get(
 
     const statusCode = isReady ? 200 : 503;
     res.status(statusCode).json(response);
-  }),
+  })
 );
 
 /**
  * Liveness probe endpoint
  * GET /health/live
  */
-router.get("/live", (req, res) => {
+router.get('/live', (req, res) => {
   // Simple liveness check - if we can respond, we're alive
   res.json({
     alive: true,
@@ -238,23 +229,23 @@ router.get("/live", (req, res) => {
  * GET /health/service/:serviceName
  */
 router.get(
-  "/service/:serviceName",
+  '/service/:serviceName',
   asyncHandler(async (req, res) => {
     const { serviceName } = req.params;
     const registeredServices = getRegisteredServices();
-    const service = registeredServices.find((s) => s.name === serviceName);
+    const service = registeredServices.find(s => s.name === serviceName);
 
     if (!service) {
       return res.status(404).json({
         error: `Service '${serviceName}' not found`,
-        availableServices: registeredServices.map((s) => s.name),
+        availableServices: registeredServices.map(s => s.name),
       });
     }
 
     // Use the health check proxy to forward the request
     const healthProxy = createHealthCheckProxy(serviceName);
     return healthProxy(req, res);
-  }),
+  })
 );
 
 /**
@@ -267,16 +258,13 @@ async function checkServiceHealth(serviceUrl) {
     // In a real implementation, you would make an HTTP request to the service
     // For this template, we'll simulate the check
     const response = await fetch(`${serviceUrl}/health`, {
-      method: "GET",
+      method: 'GET',
       timeout: 5000,
     });
 
     return response.ok;
   } catch (error) {
-    logger.warn(
-      `Health check failed for service at ${serviceUrl}:`,
-      error.message,
-    );
+    logger.warn(`Health check failed for service at ${serviceUrl}:`, error.message);
     return false;
   }
 }

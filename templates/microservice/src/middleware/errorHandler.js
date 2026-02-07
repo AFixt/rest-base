@@ -11,16 +11,19 @@ const logger = require('../utils/logger');
  * Global error handler middleware
  * Should be placed after all routes and other middleware
  */
-const errorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res, _next) => {
   // Log the error
-  logger.error({
-    component: 'error-handler',
-    err,
-    url: req.originalUrl,
-    method: req.method,
-    userAgent: req.get('User-Agent'),
-    ip: req.ip || req.connection.remoteAddress
-  }, 'Unhandled error occurred');
+  logger.error(
+    {
+      component: 'error-handler',
+      err,
+      url: req.originalUrl,
+      method: req.method,
+      userAgent: req.get('User-Agent'),
+      ip: req.ip || req.connection.remoteAddress,
+    },
+    'Unhandled error occurred'
+  );
 
   // Default error response
   let status = err.status || err.statusCode || 500;
@@ -49,7 +52,7 @@ const errorHandler = (err, req, res, next) => {
     error: message,
     timestamp: new Date().toISOString(),
     path: req.originalUrl,
-    ...(process.env.NODE_ENV !== 'production' && { stack: err.stack })
+    ...(process.env.NODE_ENV !== 'production' && { stack: err.stack }),
   });
 };
 
@@ -62,11 +65,11 @@ const notFoundHandler = (req, res) => {
     error: 'Not found',
     message: `Route ${req.originalUrl} not found`,
     timestamp: new Date().toISOString(),
-    path: req.originalUrl
+    path: req.originalUrl,
   });
 };
 
 module.exports = {
   errorHandler,
-  notFoundHandler
+  notFoundHandler,
 };

@@ -4,13 +4,13 @@ Comprehensive performance monitoring and profiling tools for Node.js/Express app
 
 ## Features
 
-* **Real-time Performance Monitoring**: Track CPU, memory, and request performance in real-time
-* **CPU Profiling**: Detailed CPU usage analysis with sampling
-* **Memory Leak Detection**: Automatic detection of potential memory leaks
-* **Request Performance Analysis**: Monitor and analyze HTTP request performance
-* **Express Middleware Integration**: Drop-in middleware for automatic monitoring
-* **Comprehensive Reporting**: Generate detailed performance reports in multiple formats
-* **Benchmarking Tools**: Built-in benchmarks for performance testing
+- **Real-time Performance Monitoring**: Track CPU, memory, and request performance in real-time
+- **CPU Profiling**: Detailed CPU usage analysis with sampling
+- **Memory Leak Detection**: Automatic detection of potential memory leaks
+- **Request Performance Analysis**: Monitor and analyze HTTP request performance
+- **Express Middleware Integration**: Drop-in middleware for automatic monitoring
+- **Comprehensive Reporting**: Generate detailed performance reports in multiple formats
+- **Benchmarking Tools**: Built-in benchmarks for performance testing
 
 ## Installation
 
@@ -43,11 +43,13 @@ const { createPerformanceMiddleware } = require('rest-spec/scripts/performance-p
 const app = express();
 
 // Add performance monitoring middleware
-app.use(createPerformanceMiddleware({
-  slowRequestThreshold: 1000, // Log requests slower than 1s
-  enableGC: true,
-  outputFile: './performance-logs.json'
-}));
+app.use(
+  createPerformanceMiddleware({
+    slowRequestThreshold: 1000, // Log requests slower than 1s
+    enableGC: true,
+    outputFile: './performance-logs.json',
+  })
+);
 
 // Your routes
 app.get('/api/users', (req, res) => {
@@ -68,9 +70,9 @@ npx rest-spec-profiler monitor [options]
 
 **Options:**
 
-* `-i, --interval <ms>` - Sample interval in milliseconds (default: 1000)
-* `-o, --output <file>` - Output file for report
-* `--gc` - Enable garbage collection monitoring
+- `-i, --interval <ms>` - Sample interval in milliseconds (default: 1000)
+- `-o, --output <file>` - Output file for report
+- `--gc` - Enable garbage collection monitoring
 
 **Example:**
 
@@ -92,9 +94,9 @@ npx rest-spec-profiler profile <target> [options]
 
 **Options:**
 
-* `-d, --duration <ms>` - Profile duration in milliseconds (default: 10000)
-* `-i, --interval <ms>` - Sample interval in milliseconds (default: 100)
-* `-o, --output <file>` - Output file for report
+- `-d, --duration <ms>` - Profile duration in milliseconds (default: 10000)
+- `-i, --interval <ms>` - Sample interval in milliseconds (default: 100)
+- `-o, --output <file>` - Output file for report
 
 **Example:**
 
@@ -113,8 +115,8 @@ npx rest-spec-profiler benchmark [options]
 
 **Options:**
 
-* `-n, --iterations <count>` - Number of iterations (default: 100)
-* `-o, --output <file>` - Output file for results
+- `-n, --iterations <count>` - Number of iterations (default: 100)
+- `-o, --output <file>` - Output file for results
 
 **Example:**
 
@@ -133,7 +135,7 @@ npx rest-spec-profiler analyze <file> [options]
 
 **Options:**
 
-* `-f, --format <type>` - Output format: console, html (default: console)
+- `-f, --format <type>` - Output format: console, html (default: console)
 
 **Example:**
 
@@ -155,7 +157,7 @@ const { PerformanceMonitor } = require('rest-spec/scripts/performance-profiler')
 const monitor = new PerformanceMonitor({
   sampleInterval: 1000,
   maxSamples: 1000,
-  enableGC: true
+  enableGC: true,
 });
 
 // Start monitoring
@@ -200,7 +202,7 @@ const { MemoryLeakDetector } = require('rest-spec/scripts/performance-profiler')
 const detector = new MemoryLeakDetector({
   interval: 5000,
   threshold: 50 * 1024 * 1024, // 50MB threshold
-  forceGC: true
+  forceGC: true,
 });
 
 detector.start();
@@ -227,17 +229,17 @@ analyzer.start();
 app.use((req, res, next) => {
   const start = performance.now();
   const startMemory = process.memoryUsage();
-  
+
   res.on('finish', () => {
     const duration = performance.now() - start;
     const endMemory = process.memoryUsage();
-    
+
     analyzer.recordRequest(req, res, duration, {
       start: startMemory,
-      end: endMemory
+      end: endMemory,
     });
   });
-  
+
   next();
 });
 
@@ -255,13 +257,15 @@ setTimeout(() => {
 ```javascript
 const { createPerformanceMiddleware } = require('rest-spec/scripts/performance-profiler');
 
-app.use(createPerformanceMiddleware({
-  slowRequestThreshold: 1000,  // Log slow requests > 1000ms
-  enableGC: true,              // Enable garbage collection monitoring
-  outputFile: './perf.json',   // Auto-save reports
-  sampleInterval: 1000,        // Memory sampling interval
-  maxSamples: 1000            // Maximum memory samples
-}));
+app.use(
+  createPerformanceMiddleware({
+    slowRequestThreshold: 1000, // Log slow requests > 1000ms
+    enableGC: true, // Enable garbage collection monitoring
+    outputFile: './perf.json', // Auto-save reports
+    sampleInterval: 1000, // Memory sampling interval
+    maxSamples: 1000, // Maximum memory samples
+  })
+);
 ```
 
 ### Advanced Configuration
@@ -273,25 +277,25 @@ const performanceMiddleware = createPerformanceMiddleware({
   sampleInterval: 500,
   maxSamples: 2000,
   outputFile: './logs/performance.json',
-  
+
   // Custom request filter
-  shouldMonitor: (req) => {
+  shouldMonitor: req => {
     return req.path.startsWith('/api/');
   },
-  
+
   // Custom slow request handler
   onSlowRequest: (req, res, metrics) => {
     console.warn(`Slow ${req.method} ${req.path}: ${metrics.duration}ms`);
-    
+
     // Send to monitoring service
     if (metrics.duration > 5000) {
       alertingService.sendAlert({
         type: 'slow_request',
         path: req.path,
-        duration: metrics.duration
+        duration: metrics.duration,
       });
     }
-  }
+  },
 });
 
 app.use(performanceMiddleware);
@@ -301,23 +305,23 @@ app.use(performanceMiddleware);
 
 ### Memory Metrics
 
-* **RSS**: Resident Set Size - total memory allocated
-* **Heap Used**: Memory used by JavaScript objects
-* **Heap Total**: Total heap memory allocated
-* **External**: Memory used by C++ objects bound to JavaScript
+- **RSS**: Resident Set Size - total memory allocated
+- **Heap Used**: Memory used by JavaScript objects
+- **Heap Total**: Total heap memory allocated
+- **External**: Memory used by C++ objects bound to JavaScript
 
 ### CPU Metrics
 
-* **User CPU**: Time spent executing user code
-* **System CPU**: Time spent executing system calls
-* **CPU Usage**: Percentage of CPU time used
+- **User CPU**: Time spent executing user code
+- **System CPU**: Time spent executing system calls
+- **CPU Usage**: Percentage of CPU time used
 
 ### Request Metrics
 
-* **Response Time**: Time from request start to response end
-* **Memory Usage**: Memory consumed during request processing
-* **Status Code Distribution**: Breakdown of HTTP status codes
-* **Request Method Distribution**: Breakdown by HTTP method
+- **Response Time**: Time from request start to response end
+- **Memory Usage**: Memory consumed during request processing
+- **Status Code Distribution**: Breakdown of HTTP status codes
+- **Request Method Distribution**: Breakdown by HTTP method
 
 ## Report Formats
 
@@ -410,12 +414,12 @@ Slowest Operations:
 // Production configuration
 const productionConfig = {
   slowRequestThreshold: 1000,
-  sampleInterval: 5000,     // Sample less frequently
-  maxSamples: 500,          // Limit memory usage
-  enableGC: false,          // Disable in production
-  
+  sampleInterval: 5000, // Sample less frequently
+  maxSamples: 500, // Limit memory usage
+  enableGC: false, // Disable in production
+
   // Sample only 10% of requests
-  shouldMonitor: (req) => Math.random() < 0.1
+  shouldMonitor: req => Math.random() < 0.1,
 };
 ```
 
@@ -428,11 +432,11 @@ const productionConfig = {
 ```javascript
 // Development configuration
 const developmentConfig = {
-  slowRequestThreshold: 100,  // Lower threshold
-  sampleInterval: 1000,       // Higher frequency
-  maxSamples: 2000,          // More samples
-  enableGC: true,            // Track GC
-  outputFile: './dev-perf.json'
+  slowRequestThreshold: 100, // Lower threshold
+  sampleInterval: 1000, // Higher frequency
+  maxSamples: 2000, // More samples
+  enableGC: true, // Track GC
+  outputFile: './dev-perf.json',
 };
 ```
 
@@ -444,14 +448,14 @@ const developmentConfig = {
 
 ```javascript
 const leakDetector = new MemoryLeakDetector({
-  interval: 10000,           // Check every 10 seconds
+  interval: 10000, // Check every 10 seconds
   threshold: 100 * 1024 * 1024, // 100MB threshold
-  forceGC: true,             // Force GC before measurement
-  
-  onLeak: (growth) => {
+  forceGC: true, // Force GC before measurement
+
+  onLeak: growth => {
     console.error(`Memory leak detected: ${growth}MB`);
     alertingService.sendAlert('memory_leak', { growth });
-  }
+  },
 });
 ```
 
@@ -462,27 +466,29 @@ const leakDetector = new MemoryLeakDetector({
 ```javascript
 const express = require('express');
 const mongoose = require('mongoose');
-const { 
-  createPerformanceMiddleware, 
-  PerformanceMonitor 
+const {
+  createPerformanceMiddleware,
+  PerformanceMonitor,
 } = require('rest-spec/scripts/performance-profiler');
 
 const app = express();
 const monitor = new PerformanceMonitor();
 
 // Performance monitoring middleware
-app.use(createPerformanceMiddleware({
-  slowRequestThreshold: 500,
-  outputFile: './logs/api-performance.json'
-}));
+app.use(
+  createPerformanceMiddleware({
+    slowRequestThreshold: 500,
+    outputFile: './logs/api-performance.json',
+  })
+);
 
 // Database performance monitoring
-mongoose.plugin((schema) => {
-  schema.pre(/^find/, function() {
+mongoose.plugin(schema => {
+  schema.pre(/^find/, function () {
     monitor.startTimer(`db-${this.getQuery()._id || 'query'}`);
   });
-  
-  schema.post(/^find/, function() {
+
+  schema.post(/^find/, function () {
     monitor.endTimer(`db-${this.getQuery()._id || 'query'}`);
   });
 });
@@ -511,7 +517,7 @@ class MicroserviceMonitor {
   start() {
     this.monitor.start();
     this.analyzer.start();
-    
+
     // Report every 5 minutes
     this.reportInterval = setInterval(() => {
       this.generateReport();
@@ -521,14 +527,14 @@ class MicroserviceMonitor {
   async generateReport() {
     const perfReport = this.monitor.getReport();
     const reqReport = this.analyzer.getReport();
-    
+
     const report = {
       service: this.serviceName,
       timestamp: new Date().toISOString(),
       performance: perfReport,
-      requests: reqReport
+      requests: reqReport,
     };
-    
+
     // Send to monitoring service
     await this.sendToMonitoring(report);
   }
@@ -556,21 +562,18 @@ async function loadTest() {
   // Simulate load
   const requests = [];
   for (let i = 0; i < 100; i++) {
-    requests.push(
-      fetch('/api/users')
-        .then(response => response.json())
-    );
+    requests.push(fetch('/api/users').then(response => response.json()));
   }
 
   await Promise.all(requests);
-  
+
   monitor.stop();
   const report = monitor.getReport();
-  
+
   console.log('Load test results:');
   console.log(`Peak memory: ${report.summary.peakMemory.heapUsed / 1024 / 1024}MB`);
   console.log(`Avg memory: ${report.summary.avgMemory.heapUsed / 1024 / 1024}MB`);
-  
+
   return report;
 }
 ```
@@ -596,15 +599,15 @@ DEBUG=profiler npx rest-spec-profiler monitor
 
 The profiler itself has minimal performance impact:
 
-* Memory overhead: ~1-5MB
-* CPU overhead: <1% with default settings
-* Request overhead: <1ms per request
+- Memory overhead: ~1-5MB
+- CPU overhead: <1% with default settings
+- Request overhead: <1ms per request
 
 ### Memory Considerations
 
-* Default settings use ~10MB for storing samples
-* Adjust `maxSamples` for memory-constrained environments
-* Use `sampleInterval` to reduce memory usage
+- Default settings use ~10MB for storing samples
+- Adjust `maxSamples` for memory-constrained environments
+- Use `sampleInterval` to reduce memory usage
 
 ## License
 

@@ -1,10 +1,10 @@
 /**
  * Error Reporter Module
- * 
+ *
  * Provides comprehensive error tracking and reporting for REST-SPEC CLI tools.
  * Features include error categorization, context capture, privacy protection,
  * and structured logging for monitoring and debugging.
- * 
+ *
  * @module shared/error-reporter
  * @author Karl Groves
  */
@@ -19,62 +19,26 @@ const logger = require('./logger');
  * Error categories for classification
  */
 const ErrorCategory = {
-  USER_ERROR: 'USER_ERROR',           // User input or usage errors
-  SYSTEM_ERROR: 'SYSTEM_ERROR',       // System or environment errors
-  NETWORK_ERROR: 'NETWORK_ERROR',     // Network related errors
-  FILE_ERROR: 'FILE_ERROR',           // File system errors
+  USER_ERROR: 'USER_ERROR', // User input or usage errors
+  SYSTEM_ERROR: 'SYSTEM_ERROR', // System or environment errors
+  NETWORK_ERROR: 'NETWORK_ERROR', // Network related errors
+  FILE_ERROR: 'FILE_ERROR', // File system errors
   PERMISSION_ERROR: 'PERMISSION_ERROR', // Permission related errors
   DEPENDENCY_ERROR: 'DEPENDENCY_ERROR', // Missing or failed dependencies
   UNEXPECTED_ERROR: 'UNEXPECTED_ERROR', // Unhandled or unknown errors
   VALIDATION_ERROR: 'VALIDATION_ERROR', // Input validation errors
-  CONFIGURATION_ERROR: 'CONFIGURATION_ERROR' // Configuration errors
+  CONFIGURATION_ERROR: 'CONFIGURATION_ERROR', // Configuration errors
 };
 
 /**
  * Error severity levels
  */
 const ErrorSeverity = {
-  LOW: 'LOW',         // Minor issues that don't prevent operation
-  MEDIUM: 'MEDIUM',   // Issues that may affect functionality
-  HIGH: 'HIGH',       // Critical issues that prevent operation
-  CRITICAL: 'CRITICAL' // System-wide failures
+  LOW: 'LOW', // Minor issues that don't prevent operation
+  MEDIUM: 'MEDIUM', // Issues that may affect functionality
+  HIGH: 'HIGH', // Critical issues that prevent operation
+  CRITICAL: 'CRITICAL', // System-wide failures
 };
-
-/**
- * Privacy filter patterns for sanitizing sensitive data
- */
-const PRIVACY_PATTERNS = [
-  // API keys and tokens
-  /[aA][pP][iI][-_]?[kK][eE][yY]\s*[:=]\s*["']?([^"'\s]+)["']?/gi,
-  /[tT][oO][kK][eE][nN]\s*[:=]\s*["']?([^"'\s]+)["']?/gi,
-  /[sS][eE][cC][rR][eE][tT]\s*[:=]\s*["']?([^"'\s]+)["']?/gi,
-  
-  // Passwords
-  /[pP][aA][sS][sS][wW][oO][rR][dD]\s*[:=]\s*["']?([^"'\s]+)["']?/gi,
-  /[pP][wW][dD]\s*[:=]\s*["']?([^"'\s]+)["']?/gi,
-  
-  // Email addresses
-  /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g,
-  
-  // IP addresses
-  /\b(?:\d{1,3}\.){3}\d{1,3}\b/g,
-  
-  // File paths with usernames
-  /\/(?:home|users?)\/([^\/\s]+)/gi,
-  /C:\\Users\\([^\\]+)/gi,
-  
-  // Database connection strings
-  /(?:mongodb|mysql|postgres|postgresql):\/\/[^@]+@[^\/]+/gi,
-  
-  // Credit card numbers (basic pattern)
-  /\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/g,
-  
-  // Social Security Numbers (US)
-  /\b\d{3}-\d{2}-\d{4}\b/g,
-  
-  // JWT tokens
-  /eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+/g
-];
 
 class ErrorReporter {
   constructor() {
@@ -84,7 +48,7 @@ class ErrorReporter {
     this.errorSummary = new Map();
     this.isEnabled = process.env.REST_SPEC_ERROR_REPORTING !== 'false';
     this.isDevelopment = process.env.NODE_ENV === 'development';
-    
+
     // Initialize error log directory
     this.initializeErrorLog();
   }
@@ -101,8 +65,10 @@ class ErrorReporter {
    * Initializes the error log directory
    */
   async initializeErrorLog() {
-    if (!this.isEnabled) return;
-    
+    if (!this.isEnabled) {
+      return;
+    }
+
     try {
       await fs.mkdir(this.errorLogPath, { recursive: true });
     } catch (error) {
@@ -117,9 +83,14 @@ class ErrorReporter {
    * @returns {string} Error category
    */
   categorizeError(error) {
+    // Check if error already has a category property
+    if (error.category && Object.values(ErrorCategory).includes(error.category)) {
+      return error.category;
+    }
+
     const errorString = error.toString().toLowerCase();
     const code = error.code || '';
-    
+
     // File system errors
     if (code === 'ENOENT' || errorString.includes('no such file')) {
       return ErrorCategory.FILE_ERROR;
@@ -127,39 +98,42 @@ class ErrorReporter {
     if (code === 'EACCES' || code === 'EPERM' || errorString.includes('permission')) {
       return ErrorCategory.PERMISSION_ERROR;
     }
-    
+
     // Network errors
-    if (code === 'ECONNREFUSED' || code === 'ETIMEDOUT' || 
-        errorString.includes('network') || errorString.includes('fetch')) {
+    if (
+      code === 'ECONNREFUSED' ||
+      code === 'ETIMEDOUT' ||
+      errorString.includes('network') ||
+      errorString.includes('fetch')
+    ) {
       return ErrorCategory.NETWORK_ERROR;
     }
-    
+
     // Dependency errors
-    if (errorString.includes('cannot find module') || 
-        errorString.includes('module not found')) {
+    if (errorString.includes('cannot find module') || errorString.includes('module not found')) {
       return ErrorCategory.DEPENDENCY_ERROR;
     }
-    
+
     // Validation errors
     if (errorString.includes('invalid') || errorString.includes('validation')) {
       return ErrorCategory.VALIDATION_ERROR;
     }
-    
+
     // Configuration errors
     if (errorString.includes('config') || errorString.includes('configuration')) {
       return ErrorCategory.CONFIGURATION_ERROR;
     }
-    
+
     // User errors
     if (errorString.includes('usage:') || errorString.includes('must provide')) {
       return ErrorCategory.USER_ERROR;
     }
-    
+
     // System errors
     if (code && code.startsWith('E')) {
       return ErrorCategory.SYSTEM_ERROR;
     }
-    
+
     return ErrorCategory.UNEXPECTED_ERROR;
   }
 
@@ -171,24 +145,27 @@ class ErrorReporter {
    */
   determineSeverity(category, context) {
     // Critical errors that prevent operation
-    if (category === ErrorCategory.SYSTEM_ERROR || 
-        category === ErrorCategory.PERMISSION_ERROR ||
-        (context && context.fatal)) {
+    if (
+      category === ErrorCategory.SYSTEM_ERROR ||
+      category === ErrorCategory.PERMISSION_ERROR ||
+      (context && context.fatal)
+    ) {
       return ErrorSeverity.CRITICAL;
     }
-    
+
     // High severity errors that affect functionality
-    if (category === ErrorCategory.DEPENDENCY_ERROR ||
-        category === ErrorCategory.CONFIGURATION_ERROR) {
+    if (
+      category === ErrorCategory.DEPENDENCY_ERROR ||
+      category === ErrorCategory.CONFIGURATION_ERROR
+    ) {
       return ErrorSeverity.HIGH;
     }
-    
+
     // Medium severity errors
-    if (category === ErrorCategory.NETWORK_ERROR ||
-        category === ErrorCategory.FILE_ERROR) {
+    if (category === ErrorCategory.NETWORK_ERROR || category === ErrorCategory.FILE_ERROR) {
       return ErrorSeverity.MEDIUM;
     }
-    
+
     // Low severity errors
     return ErrorSeverity.LOW;
   }
@@ -199,26 +176,90 @@ class ErrorReporter {
    * @returns {*} Sanitized data
    */
   sanitizeData(data) {
-    if (!data) return data;
-    
+    if (!data) {
+      return data;
+    }
+
+    // Handle objects differently
+    if (typeof data === 'object' && !Array.isArray(data)) {
+      const sanitized = {};
+      const sensitiveKeys = ['apikey', 'api_key', 'token', 'secret', 'password', 'pwd', 'pass'];
+
+      for (const [key, value] of Object.entries(data)) {
+        // Check if the key name indicates sensitive data
+        if (sensitiveKeys.includes(key.toLowerCase())) {
+          sanitized[key] = '[REDACTED]';
+        } else {
+          sanitized[key] = this.sanitizeData(value);
+        }
+      }
+      return sanitized;
+    }
+
     // Convert to string for pattern matching
     let dataString = typeof data === 'string' ? data : JSON.stringify(data);
-    
-    // Apply privacy patterns
-    PRIVACY_PATTERNS.forEach(pattern => {
-      dataString = dataString.replace(pattern, (match) => {
-        // Preserve structure but redact content
-        if (match.includes('@')) return '[REDACTED_EMAIL]';
-        if (match.includes('://')) return '[REDACTED_URL]';
-        if (match.match(/\d{4}[\s-]?\d{4}/)) return '[REDACTED_CARD]';
-        if (match.match(/\d{3}-\d{2}-\d{4}/)) return '[REDACTED_SSN]';
-        if (match.startsWith('eyJ')) return '[REDACTED_TOKEN]';
-        if (match.match(/\/(?:home|users?)\//i)) return match.replace(/\/([^\/\s]+)/, '/[REDACTED_USER]');
-        if (match.match(/C:\\Users\\/i)) return match.replace(/\\([^\\]+)/, '\\[REDACTED_USER]');
-        return '[REDACTED]';
-      });
-    });
-    
+
+    // API keys and tokens - preserve the key name
+    dataString = dataString.replace(
+      /([aA][pP][iI][-_]?[kK][eE][yY]\s*[:=]\s*)["']?([^"'\s]+)["']?/gi,
+      '$1[REDACTED]'
+    );
+    dataString = dataString.replace(
+      /([tT][oO][kK][eE][nN]\s*[:=]\s*)["']?([^"'\s]+)["']?/gi,
+      '$1[REDACTED_TOKEN]'
+    );
+    dataString = dataString.replace(
+      /([sS][eE][cC][rR][eE][tT]\s*[:=]\s*)["']?([^"'\s]+)["']?/gi,
+      '$1[REDACTED]'
+    );
+
+    // Passwords
+    dataString = dataString.replace(
+      /([pP][aA][sS][sS][wW][oO][rR][dD]\s*[:=]\s*)["']?([^"'\s]+)["']?/gi,
+      '$1[REDACTED]'
+    );
+    dataString = dataString.replace(
+      /([pP][wW][dD]\s*[:=]\s*)["']?([^"'\s]+)["']?/gi,
+      '$1[REDACTED]'
+    );
+
+    // JWT tokens (standalone)
+    dataString = dataString.replace(
+      /eyJ[A-Za-z0-9-_]+\.eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+/g,
+      '[REDACTED]'
+    );
+
+    // Database URLs - include path
+    dataString = dataString.replace(
+      /(?:mongodb|mysql|postgres|postgresql):\/\/[^@]+@[^\s]+/gi,
+      '[REDACTED_URL]'
+    );
+
+    // File paths with usernames - Unix
+    dataString = dataString.replace(/\/home\/([^/\s]+)/gi, '/home/[REDACTED_USER]');
+    dataString = dataString.replace(/\/users\/([^/\s]+)/gi, '/users/[REDACTED_USER]');
+
+    // File paths with usernames - Windows
+    dataString = dataString.replace(/C:\\Users\\([^\\]+)/gi, 'C:\\Users\\[REDACTED_USER]');
+
+    // Email addresses
+    dataString = dataString.replace(
+      /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g,
+      '[REDACTED_EMAIL]'
+    );
+
+    // IP addresses
+    dataString = dataString.replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g, '[REDACTED]');
+
+    // Credit card numbers
+    dataString = dataString.replace(
+      /\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/g,
+      '[REDACTED_CARD]'
+    );
+
+    // Social Security Numbers
+    dataString = dataString.replace(/\b\d{3}-\d{2}-\d{4}\b/g, '[REDACTED_SSN]');
+
     // Parse back if original was object
     if (typeof data !== 'string') {
       try {
@@ -227,7 +268,7 @@ class ErrorReporter {
         return dataString;
       }
     }
-    
+
     return dataString;
   }
 
@@ -244,12 +285,12 @@ class ErrorReporter {
       memory: {
         total: os.totalmem(),
         free: os.freemem(),
-        used: process.memoryUsage()
+        used: process.memoryUsage(),
       },
       cpu: os.cpus().length,
       timestamp: new Date().toISOString(),
       sessionId: this.sessionId,
-      environment: this.isDevelopment ? 'development' : 'production'
+      environment: this.isDevelopment ? 'development' : 'production',
     };
   }
 
@@ -264,11 +305,11 @@ class ErrorReporter {
    */
   async report(error, options = {}) {
     this.errorCount++;
-    
+
     // Categorize and determine severity
     const category = this.categorizeError(error);
     const severity = this.determineSeverity(category, options);
-    
+
     // Build error report
     const errorReport = {
       id: crypto.randomBytes(8).toString('hex'),
@@ -280,21 +321,21 @@ class ErrorReporter {
       command: options.command || 'unknown',
       context: this.sanitizeData(options.context || {}),
       system: this.captureSystemContext(),
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
-    
+
     // Update error summary
     const summaryKey = `${category}:${error.code || error.message}`;
     this.errorSummary.set(summaryKey, (this.errorSummary.get(summaryKey) || 0) + 1);
-    
+
     // Log based on severity
     this.logError(errorReport);
-    
+
     // Save to error log if enabled
     if (this.isEnabled) {
       await this.saveErrorReport(errorReport);
     }
-    
+
     return errorReport;
   }
 
@@ -304,7 +345,7 @@ class ErrorReporter {
    */
   logError(errorReport) {
     const { severity, category, message, command } = errorReport;
-    
+
     switch (severity) {
       case ErrorSeverity.CRITICAL:
         logger.error(`CRITICAL ERROR in ${command}: ${message}`, { category });
@@ -319,7 +360,7 @@ class ErrorReporter {
         logger.info(`Minor issue in ${command}: ${message}`, { category });
         break;
     }
-    
+
     // In development, show more details
     if (this.isDevelopment && errorReport.stack) {
       logger.debug('Stack trace:', errorReport.stack);
@@ -334,9 +375,9 @@ class ErrorReporter {
     try {
       const filename = `error-${errorReport.id}-${Date.now()}.json`;
       const filepath = path.join(this.errorLogPath, filename);
-      
+
       await fs.writeFile(filepath, JSON.stringify(errorReport, null, 2), 'utf8');
-      
+
       // Clean up old error files (keep last 100)
       await this.cleanupOldReports();
     } catch (error) {
@@ -356,10 +397,10 @@ class ErrorReporter {
         .map(f => ({
           name: f,
           path: path.join(this.errorLogPath, f),
-          time: f.match(/error-.*-(\d+)\.json/)?.[1] || 0
+          time: f.match(/error-.*-(\d+)\.json/)?.[1] || 0,
         }))
         .sort((a, b) => b.time - a.time);
-      
+
       // Keep only the last 100 reports
       if (errorFiles.length > 100) {
         const toDelete = errorFiles.slice(100);
@@ -379,20 +420,20 @@ class ErrorReporter {
       sessionId: this.sessionId,
       totalErrors: this.errorCount,
       errorsByCategory: {},
-      topErrors: []
+      topErrors: [],
     };
-    
+
     // Count errors by category
     for (const [key, count] of this.errorSummary.entries()) {
       const [category] = key.split(':');
       summary.errorsByCategory[category] = (summary.errorsByCategory[category] || 0) + count;
       summary.topErrors.push({ error: key, count });
     }
-    
+
     // Sort top errors
     summary.topErrors.sort((a, b) => b.count - a.count);
     summary.topErrors = summary.topErrors.slice(0, 10);
-    
+
     return summary;
   }
 
@@ -403,24 +444,24 @@ class ErrorReporter {
   async generateDashboard() {
     const summary = this.getErrorSummary();
     const recentErrors = await this.getRecentErrors();
-    
+
     let dashboard = `# REST-SPEC Error Report Dashboard\n\n`;
     dashboard += `Generated: ${new Date().toISOString()}\n`;
     dashboard += `Session ID: ${summary.sessionId}\n\n`;
-    
+
     dashboard += `## Summary\n\n`;
     dashboard += `- Total Errors: ${summary.totalErrors}\n`;
     dashboard += `- Error Categories:\n`;
-    
+
     for (const [category, count] of Object.entries(summary.errorsByCategory)) {
       dashboard += `  - ${category}: ${count}\n`;
     }
-    
+
     dashboard += `\n## Top Errors\n\n`;
     summary.topErrors.forEach((error, index) => {
       dashboard += `${index + 1}. ${error.error} (${error.count} occurrences)\n`;
     });
-    
+
     dashboard += `\n## Recent Errors\n\n`;
     for (const error of recentErrors.slice(0, 10)) {
       dashboard += `### ${error.timestamp} - ${error.category} (${error.severity})\n`;
@@ -428,7 +469,7 @@ class ErrorReporter {
       dashboard += `- Message: ${error.message}\n`;
       dashboard += `- Error ID: ${error.id}\n\n`;
     }
-    
+
     return dashboard;
   }
 
@@ -444,11 +485,11 @@ class ErrorReporter {
         .map(f => ({
           name: f,
           path: path.join(this.errorLogPath, f),
-          time: parseInt(f.match(/error-.*-(\d+)\.json/)?.[1] || 0)
+          time: parseInt(f.match(/error-.*-(\d+)\.json/)?.[1] || 0),
         }))
         .sort((a, b) => b.time - a.time)
         .slice(0, 20);
-      
+
       const errors = [];
       for (const file of errorFiles) {
         try {
@@ -458,7 +499,7 @@ class ErrorReporter {
           // Skip invalid files
         }
       }
-      
+
       return errors;
     } catch {
       return [];
@@ -479,7 +520,7 @@ class ErrorReporter {
         await this.report(error, {
           command,
           context: { args },
-          fatal: true
+          fatal: true,
         });
         throw error;
       }
@@ -500,19 +541,19 @@ class ErrorReporter {
         const report = await this.report(error, {
           command,
           context: { args },
-          fatal: true
+          fatal: true,
         });
-        
+
         // Show user-friendly error message
         logger.error(`An error occurred while running ${command}`);
-        
+
         if (error.category === ErrorCategory.USER_ERROR) {
           logger.info('Please check your command usage and try again.');
         } else {
           logger.info(`Error ID: ${report.id}`);
           logger.info('This error has been logged for analysis.');
         }
-        
+
         // Exit with appropriate code
         const exitCode = error.code === 'EACCES' ? 126 : 1;
         process.exit(exitCode);

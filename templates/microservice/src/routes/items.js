@@ -10,9 +10,19 @@ const { body, param, query, validationResult } = require('express-validator');
 const router = express.Router();
 
 // Mock data - replace with actual database operations
-let items = [
-  { id: 1, name: 'Sample Item 1', description: 'This is a sample item', createdAt: new Date().toISOString() },
-  { id: 2, name: 'Sample Item 2', description: 'Another sample item', createdAt: new Date().toISOString() }
+const items = [
+  {
+    id: 1,
+    name: 'Sample Item 1',
+    description: 'This is a sample item',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 2,
+    name: 'Sample Item 2',
+    description: 'Another sample item',
+    createdAt: new Date().toISOString(),
+  },
 ];
 let nextId = 3;
 
@@ -32,11 +42,11 @@ const validateItem = [
     if (!errors.isEmpty()) {
       return res.status(400).json({
         error: 'Validation failed',
-        details: errors.array()
+        details: errors.array(),
       });
     }
     next();
-  }
+  },
 ];
 
 const validateId = [
@@ -46,15 +56,18 @@ const validateId = [
     if (!errors.isEmpty()) {
       return res.status(400).json({
         error: 'Invalid ID parameter',
-        details: errors.array()
+        details: errors.array(),
       });
     }
     next();
-  }
+  },
 ];
 
 const validateQuery = [
-  query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
+  query('limit')
+    .optional()
+    .isInt({ min: 1, max: 100 })
+    .withMessage('Limit must be between 1 and 100'),
   query('offset').optional().isInt({ min: 0 }).withMessage('Offset must be non-negative'),
   query('search').optional().trim().isLength({ max: 100 }).withMessage('Search term too long'),
   (req, res, next) => {
@@ -62,11 +75,11 @@ const validateQuery = [
     if (!errors.isEmpty()) {
       return res.status(400).json({
         error: 'Invalid query parameters',
-        details: errors.array()
+        details: errors.array(),
       });
     }
     next();
-  }
+  },
 ];
 
 /**
@@ -153,31 +166,29 @@ const validateQuery = [
  */
 router.get('/', validateQuery, (req, res) => {
   const { limit = 10, offset = 0, search } = req.query;
-  
+
   let filteredItems = items;
-  
+
   // Apply search filter
   if (search) {
-    filteredItems = items.filter(item => 
-      item.name.toLowerCase().includes(search.toLowerCase()) ||
-      (item.description && item.description.toLowerCase().includes(search.toLowerCase()))
+    filteredItems = items.filter(
+      item =>
+        item.name.toLowerCase().includes(search.toLowerCase()) ||
+        (item.description && item.description.toLowerCase().includes(search.toLowerCase()))
     );
   }
-  
+
   // Apply pagination
-  const paginatedItems = filteredItems.slice(
-    parseInt(offset), 
-    parseInt(offset) + parseInt(limit)
-  );
-  
+  const paginatedItems = filteredItems.slice(parseInt(offset), parseInt(offset) + parseInt(limit));
+
   res.json({
     data: paginatedItems,
     meta: {
       total: filteredItems.length,
       limit: parseInt(limit),
       offset: parseInt(offset),
-      hasMore: (parseInt(offset) + parseInt(limit)) < filteredItems.length
-    }
+      hasMore: parseInt(offset) + parseInt(limit) < filteredItems.length,
+    },
   });
 });
 
@@ -212,14 +223,14 @@ router.get('/', validateQuery, (req, res) => {
 router.get('/:id', validateId, (req, res) => {
   const id = parseInt(req.params.id);
   const item = items.find(item => item.id === id);
-  
+
   if (!item) {
     return res.status(404).json({
       error: 'Item not found',
-      message: `No item found with ID ${id}`
+      message: `No item found with ID ${id}`,
     });
   }
-  
+
   res.json({ data: item });
 });
 
@@ -261,20 +272,20 @@ router.get('/:id', validateId, (req, res) => {
  */
 router.post('/', validateItem, (req, res) => {
   const { name, description } = req.body;
-  
+
   const newItem = {
     id: nextId++,
     name: name.trim(),
     description: description?.trim() || null,
     createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
   };
-  
+
   items.push(newItem);
-  
+
   res.status(201).json({
     data: newItem,
-    message: 'Item created successfully'
+    message: 'Item created successfully',
   });
 });
 
@@ -320,26 +331,26 @@ router.post('/', validateItem, (req, res) => {
 router.put('/:id', validateId, validateItem, (req, res) => {
   const id = parseInt(req.params.id);
   const itemIndex = items.findIndex(item => item.id === id);
-  
+
   if (itemIndex === -1) {
     return res.status(404).json({
       error: 'Item not found',
-      message: `No item found with ID ${id}`
+      message: `No item found with ID ${id}`,
     });
   }
-  
+
   const { name, description } = req.body;
-  
+
   items[itemIndex] = {
     ...items[itemIndex],
     name: name.trim(),
     description: description?.trim() || null,
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
   };
-  
+
   res.json({
     data: items[itemIndex],
-    message: 'Item updated successfully'
+    message: 'Item updated successfully',
   });
 });
 
@@ -367,19 +378,19 @@ router.put('/:id', validateId, validateItem, (req, res) => {
 router.delete('/:id', validateId, (req, res) => {
   const id = parseInt(req.params.id);
   const itemIndex = items.findIndex(item => item.id === id);
-  
+
   if (itemIndex === -1) {
     return res.status(404).json({
       error: 'Item not found',
-      message: `No item found with ID ${id}`
+      message: `No item found with ID ${id}`,
     });
   }
-  
+
   const deletedItem = items.splice(itemIndex, 1)[0];
-  
+
   res.json({
     data: deletedItem,
-    message: 'Item deleted successfully'
+    message: 'Item deleted successfully',
   });
 });
 

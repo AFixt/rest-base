@@ -10,10 +10,7 @@ module.exports = {
   testEnvironment: 'node',
 
   // Test file patterns
-  testMatch: [
-    '**/tests/**/*.test.js',
-    '**/?(*.)+(spec|test).js'
-  ],
+  testMatch: ['**/tests/**/*.test.js', '**/?(*.)+(spec|test).js'],
 
   // Coverage collection
   collectCoverageFrom: [
@@ -21,7 +18,7 @@ module.exports = {
     '!src/app.js',
     '!src/config/**',
     '!**/node_modules/**',
-    '!**/tests/**'
+    '!**/tests/**',
   ],
 
   // Coverage thresholds
@@ -30,17 +27,12 @@ module.exports = {
       branches: 80,
       functions: 80,
       lines: 80,
-      statements: 80
-    }
+      statements: 80,
+    },
   },
 
   // Coverage reporters
-  coverageReporters: [
-    'text',
-    'lcov',
-    'html',
-    'json-summary'
-  ],
+  coverageReporters: ['text', 'lcov', 'html', 'json-summary'],
 
   // Coverage directory
   coverageDirectory: 'coverage',
@@ -80,10 +72,7 @@ module.exports = {
   // globalTeardown: '<rootDir>/tests/globalTeardown.js',
 
   // Watch plugins for development
-  watchPlugins: [
-    'jest-watch-typeahead/filename',
-    'jest-watch-typeahead/testname'
-  ],
+  watchPlugins: ['jest-watch-typeahead/filename', 'jest-watch-typeahead/testname'],
 
   // Error on deprecated features
   errorOnDeprecated: true,
@@ -92,5 +81,5 @@ module.exports = {
   notify: false,
 
   // Maximum worker processes
-  maxWorkers: '50%'
+  maxWorkers: '50%',
 };

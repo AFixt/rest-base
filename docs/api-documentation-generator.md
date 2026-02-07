@@ -4,14 +4,14 @@ Automatically generate comprehensive API documentation from your Express.js rout
 
 ## Features
 
-* **Automatic Route Discovery**: Scans your project for Express route definitions
-* **Multiple Output Formats**: OpenAPI 3.0 (JSON/YAML), Markdown, and HTML
-* **JSDoc Support**: Extracts documentation from JSDoc comments
-* **Smart Parameter Detection**: Automatically identifies path and query parameters
-* **Customizable Output**: Configure titles, versions, servers, and more
-* **Tag-based Organization**: Group endpoints by tags for better organization
-* **Security Definitions**: Document authentication requirements
-* **Beautiful HTML Output**: Responsive, styled documentation pages
+- **Automatic Route Discovery**: Scans your project for Express route definitions
+- **Multiple Output Formats**: OpenAPI 3.0 (JSON/YAML), Markdown, and HTML
+- **JSDoc Support**: Extracts documentation from JSDoc comments
+- **Smart Parameter Detection**: Automatically identifies path and query parameters
+- **Customizable Output**: Configure titles, versions, servers, and more
+- **Tag-based Organization**: Group endpoints by tags for better organization
+- **Security Definitions**: Document authentication requirements
+- **Beautiful HTML Output**: Responsive, styled documentation pages
 
 ## Installation
 
@@ -34,24 +34,24 @@ npx rest-spec api-doc --config api-doc.config.json
 
 ### Available Options
 
-* `-p, --project <path>` - Project path (default: current directory)
-* `-o, --output <path>` - Output directory (default: ./api-docs)
-* `-f, --format <format>` - Output format: openapi, markdown, html, all (default: all)
-* `-c, --config <path>` - Configuration file path
-* `--pattern <pattern>` - Route file pattern (default: **/routes/**/*.js)
-* `--title <title>` - API documentation title
-* `--version <version>` - API version
-* `--server <url>` - Server URL
+- `-p, --project <path>` - Project path (default: current directory)
+- `-o, --output <path>` - Output directory (default: ./api-docs)
+- `-f, --format <format>` - Output format: openapi, markdown, html, all (default: all)
+- `-c, --config <path>` - Configuration file path
+- `--pattern <pattern>` - Route file pattern (default: **/routes/**/\*.js)
+- `--title <title>` - API documentation title
+- `--version <version>` - API version
+- `--server <url>` - Server URL
 
 ### Programmatic Usage
 
 ```javascript
-const { 
-  parseRouteFile, 
-  findRouteFiles, 
+const {
+  parseRouteFile,
+  findRouteFiles,
   generateOpenAPI,
   generateMarkdown,
-  generateHTML 
+  generateHTML,
 } = require('rest-spec/scripts/api-doc-generator');
 
 // Parse routes from files
@@ -61,7 +61,7 @@ const routes = await parseRouteFile('./src/routes/users.js');
 const openapi = generateOpenAPI(routes, {
   title: 'My API',
   version: '1.0.0',
-  servers: [{ url: 'https://api.example.com' }]
+  servers: [{ url: 'https://api.example.com' }],
 });
 
 // Generate Markdown documentation
@@ -93,10 +93,7 @@ Create an `api-doc.config.json` file in your project root:
       "description": "Auth endpoints"
     }
   ],
-  "patterns": [
-    "**/routes/**/*.js",
-    "**/api/**/*.js"
-  ],
+  "patterns": ["**/routes/**/*.js", "**/api/**/*.js"],
   "output": {
     "formats": ["openapi", "markdown", "html"],
     "directory": "./docs/api"
@@ -163,13 +160,13 @@ router.get('/users/:id', authenticate, async (req, res) => {
 
 ### Supported JSDoc Tags
 
-* `@route <method> <path>` - Define route method and path
-* `@summary <text>` - Short description of the endpoint
-* `@description <text>` - Detailed description
-* `@tag <name>` - Group endpoint under a tag
-* `@param {type} [name] description` - Document parameters
-* `@response <code> <description>` - Document response codes
-* `@security <scheme>` - Specify security requirements
+- `@route <method> <path>` - Define route method and path
+- `@summary <text>` - Short description of the endpoint
+- `@description <text>` - Detailed description
+- `@tag <name>` - Group endpoint under a tag
+- `@param {type} [name] description` - Document parameters
+- `@response <code> <description>` - Document response codes
+- `@security <scheme>` - Specify security requirements
 
 ## Output Examples
 
@@ -224,17 +221,17 @@ Retrieves a paginated list of all users in the system
 
 **Parameters:**
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| page | number | No | Page number |
-| limit | number | No | Items per page |
+| Name  | Type   | Required | Description    |
+| ----- | ------ | -------- | -------------- |
+| page  | number | No       | Page number    |
+| limit | number | No       | Items per page |
 
 **Responses:**
 
-| Status | Description |
-|--------|-------------|
-| 200 | Successful response |
-| 401 | Unauthorized |
+| Status | Description         |
+| ------ | ------------------- |
+| 200    | Successful response |
+| 401    | Unauthorized        |
 
 **Security:** bearerAuth
 ```
@@ -243,11 +240,11 @@ Retrieves a paginated list of all users in the system
 
 The HTML output provides a beautiful, responsive documentation page with:
 
-* Syntax highlighting
-* Collapsible sections
-* Search functionality
-* Method color coding
-* Mobile-friendly design
+- Syntax highlighting
+- Collapsible sections
+- Search functionality
+- Method color coding
+- Mobile-friendly design
 
 ## Integration with CI/CD
 
@@ -302,21 +299,21 @@ jobs:
 
 ### No routes found
 
-* Check your route file pattern matches your project structure
-* Ensure route files use standard Express syntax
-* Verify files aren't being ignored
+- Check your route file pattern matches your project structure
+- Ensure route files use standard Express syntax
+- Verify files aren't being ignored
 
 ### Missing documentation
 
-* Add JSDoc comments above route definitions
-* Ensure comments include `@route` tag
-* Check comment syntax is valid
+- Add JSDoc comments above route definitions
+- Ensure comments include `@route` tag
+- Check comment syntax is valid
 
 ### Parser errors
 
-* Verify JavaScript syntax is valid
-* Update to latest REST-SPEC version
-* Check for unsupported syntax features
+- Verify JavaScript syntax is valid
+- Update to latest REST-SPEC version
+- Check for unsupported syntax features
 
 ## Advanced Features
 
@@ -330,16 +327,16 @@ const customTemplate = {
   info: {
     title: 'Custom API',
     'x-logo': {
-      url: 'https://example.com/logo.png'
-    }
+      url: 'https://example.com/logo.png',
+    },
   },
   // Custom extensions
   'x-tagGroups': [
     {
       name: 'Core',
-      tags: ['Users', 'Auth']
-    }
-  ]
+      tags: ['Users', 'Auth'],
+    },
+  ],
 };
 ```
 

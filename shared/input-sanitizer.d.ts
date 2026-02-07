@@ -23,10 +23,7 @@ export function sanitizeProjectName(name: string): SanitizationResult;
  * Validates and sanitizes file paths
  * Prevents directory traversal attacks
  */
-export function sanitizeFilePath(
-  path: string,
-  basePath?: string,
-): SanitizationResult;
+export function sanitizeFilePath(path: string, basePath?: string): SanitizationResult;
 
 /**
  * Validates npm package names

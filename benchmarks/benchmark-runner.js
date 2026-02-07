@@ -11,11 +11,11 @@ const {
   PerformanceMonitor,
   formatDuration,
   formatBytes,
-} = require("../shared/performance-monitor");
-const fs = require("fs").promises;
-const path = require("path");
-const logger = require("../shared/logger");
-const { createSpinner } = require("../shared/cli-utils");
+} = require('../shared/performance-monitor');
+const fs = require('fs').promises;
+const path = require('path');
+const logger = require('../shared/logger');
+const { createSpinner } = require('../shared/cli-utils');
 
 /**
  * Benchmark configuration
@@ -33,7 +33,7 @@ const DEFAULT_CONFIG = {
     verbose: false,
     json: true,
     console: true,
-    file: "benchmark-results.json",
+    file: 'benchmark-results.json',
   },
 };
 
@@ -115,13 +115,11 @@ class BenchmarkSuite {
         }
       }
 
-      spinner.succeed("Warmup complete");
+      spinner.succeed('Warmup complete');
     }
 
     // Actual benchmark runs
-    const spinner = createSpinner(
-      `Running ${options.iterations} iterations...`,
-    );
+    const spinner = createSpinner(`Running ${options.iterations} iterations...`);
     spinner.start();
 
     for (let i = 0; i < options.iterations; i++) {
@@ -132,12 +130,9 @@ class BenchmarkSuite {
         }
 
         // Run with monitoring
-        const { metrics } = await this.monitor.monitor(
-          `${name}-${i}`,
-          async () => {
-            await fn();
-          },
-        );
+        const { metrics } = await this.monitor.monitor(`${name}-${i}`, async () => {
+          await fn();
+        });
 
         results.push(metrics);
 
@@ -145,9 +140,7 @@ class BenchmarkSuite {
           spinner.text = `Iteration ${i + 1}/${options.iterations} - ${formatDuration(metrics.executionTime)}`;
         }
       } catch (error) {
-        spinner.fail(
-          `Benchmark failed at iteration ${i + 1}: ${error.message}`,
-        );
+        spinner.fail(`Benchmark failed at iteration ${i + 1}: ${error.message}`);
         throw error;
       }
     }
@@ -168,9 +161,9 @@ class BenchmarkSuite {
    * @returns {Object} Statistical analysis
    */
   analyzeResults(results) {
-    const executionTimes = results.map((r) => r.executionTime);
-    const memoryUsages = results.map((r) => r.memory.heapUsed);
-    const cpuTimes = results.map((r) => r.cpu.user + r.cpu.system);
+    const executionTimes = results.map(r => r.executionTime);
+    const memoryUsages = results.map(r => r.memory.heapUsed);
+    const cpuTimes = results.map(r => r.cpu.user + r.cpu.system);
 
     return {
       iterations: results.length,
@@ -222,9 +215,7 @@ class BenchmarkSuite {
   calculateMedian(values) {
     const sorted = [...values].sort((a, b) => a - b);
     const mid = Math.floor(sorted.length / 2);
-    return sorted.length % 2 === 0
-      ? (sorted[mid - 1] + sorted[mid]) / 2
-      : sorted[mid];
+    return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
   }
 
   /**
@@ -234,7 +225,7 @@ class BenchmarkSuite {
    */
   calculateStdDev(values) {
     const mean = this.calculateMean(values);
-    const squaredDiffs = values.map((v) => Math.pow(v - mean, 2));
+    const squaredDiffs = values.map(v => Math.pow(v - mean, 2));
     const variance = this.calculateMean(squaredDiffs);
     return Math.sqrt(variance);
   }
@@ -364,13 +355,13 @@ class BenchmarkSuite {
    */
   displaySummary(results) {
     console.log();
-    logger.heading("Benchmark Suite Summary");
+    logger.heading('Benchmark Suite Summary');
     console.log(`Suite: ${results.suite}`);
     console.log(`Total Duration: ${formatDuration(results.duration)}`);
     console.log(`Benchmarks Run: ${results.benchmarks.length}`);
 
-    const successful = results.benchmarks.filter((b) => !b.error).length;
-    const failed = results.benchmarks.filter((b) => b.error).length;
+    const successful = results.benchmarks.filter(b => !b.error).length;
+    const failed = results.benchmarks.filter(b => b.error).length;
 
     if (successful > 0) {
       logger.success(`Successful: ${successful}`);
@@ -423,9 +414,7 @@ function compareBenchmarks(baseline, current) {
 
   // Compare each benchmark
   for (const currentBench of current.benchmarks) {
-    const baselineBench = baseline.benchmarks.find(
-      (b) => b.name === currentBench.name,
-    );
+    const baselineBench = baseline.benchmarks.find(b => b.name === currentBench.name);
 
     if (!baselineBench || currentBench.error || baselineBench.error) {
       continue;
@@ -436,11 +425,9 @@ function compareBenchmarks(baseline, current) {
       executionTime: {
         baseline: baselineBench.executionTime.mean,
         current: currentBench.executionTime.mean,
-        change:
-          currentBench.executionTime.mean - baselineBench.executionTime.mean,
+        change: currentBench.executionTime.mean - baselineBench.executionTime.mean,
         changePercent:
-          ((currentBench.executionTime.mean -
-            baselineBench.executionTime.mean) /
+          ((currentBench.executionTime.mean - baselineBench.executionTime.mean) /
             baselineBench.executionTime.mean) *
           100,
       },
@@ -449,8 +436,7 @@ function compareBenchmarks(baseline, current) {
         current: currentBench.memory.mean,
         change: currentBench.memory.mean - baselineBench.memory.mean,
         changePercent:
-          ((currentBench.memory.mean - baselineBench.memory.mean) /
-            baselineBench.memory.mean) *
+          ((currentBench.memory.mean - baselineBench.memory.mean) / baselineBench.memory.mean) *
           100,
       },
       throughput: {
@@ -468,22 +454,22 @@ function compareBenchmarks(baseline, current) {
     change.status = {
       executionTime:
         change.executionTime.changePercent < -5
-          ? "improved"
+          ? 'improved'
           : change.executionTime.changePercent > 5
-            ? "degraded"
-            : "stable",
+            ? 'degraded'
+            : 'stable',
       memory:
         change.memory.changePercent < -5
-          ? "improved"
+          ? 'improved'
           : change.memory.changePercent > 5
-            ? "degraded"
-            : "stable",
+            ? 'degraded'
+            : 'stable',
       throughput:
         change.throughput.changePercent > 5
-          ? "improved"
+          ? 'improved'
           : change.throughput.changePercent < -5
-            ? "degraded"
-            : "stable",
+            ? 'degraded'
+            : 'stable',
     };
 
     comparison.benchmarks.push(change);

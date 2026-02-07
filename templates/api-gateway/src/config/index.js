@@ -15,42 +15,19 @@ dotenv.config();
  * Configuration schema validation
  */
 const configSchema = Joi.object({
-  NODE_ENV: Joi.string()
-    .valid('development', 'production', 'test')
-    .default('development'),
-  PORT: Joi.number()
-    .port()
-    .default(8080),
-  REDIS_URL: Joi.string()
-    .uri()
-    .default('redis://localhost:6379'),
-  JWT_SECRET: Joi.string()
-    .min(32)
-    .required()
-    .description('JWT secret key for token verification'),
-  JWT_ISSUER: Joi.string()
-    .default('{{projectName}}'),
-  JWT_AUDIENCE: Joi.string()
-    .default('{{projectName}}-users'),
-  CORS_ORIGINS: Joi.string()
-    .default('http://localhost:3000'),
-  TRUST_PROXY: Joi.boolean()
-    .default(false),
-  LOG_LEVEL: Joi.string()
-    .valid('error', 'warn', 'info', 'debug')
-    .default('info'),
-  RATE_LIMIT_WINDOW_MS: Joi.number()
-    .integer()
-    .min(1000)
-    .default(900000), // 15 minutes
-  RATE_LIMIT_MAX_REQUESTS: Joi.number()
-    .integer()
-    .min(1)
-    .default(100),
-  BODY_PARSER_JSON_LIMIT: Joi.string()
-    .default('1mb'),
-  BODY_PARSER_URLENCODED_LIMIT: Joi.string()
-    .default('1mb'),
+  NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),
+  PORT: Joi.number().port().default(8080),
+  REDIS_URL: Joi.string().uri().default('redis://localhost:6379'),
+  JWT_SECRET: Joi.string().min(32).required().description('JWT secret key for token verification'),
+  JWT_ISSUER: Joi.string().default('{{projectName}}'),
+  JWT_AUDIENCE: Joi.string().default('{{projectName}}-users'),
+  CORS_ORIGINS: Joi.string().default('http://localhost:3000'),
+  TRUST_PROXY: Joi.boolean().default(false),
+  LOG_LEVEL: Joi.string().valid('error', 'warn', 'info', 'debug').default('info'),
+  RATE_LIMIT_WINDOW_MS: Joi.number().integer().min(1000).default(900000), // 15 minutes
+  RATE_LIMIT_MAX_REQUESTS: Joi.number().integer().min(1).default(100),
+  BODY_PARSER_JSON_LIMIT: Joi.string().default('1mb'),
+  BODY_PARSER_URLENCODED_LIMIT: Joi.string().default('1mb'),
 }).unknown(true);
 
 /**

@@ -8,42 +8,35 @@
  * @author Karl Groves
  */
 
-const fs = require("fs").promises;
+const fs = require('fs').promises;
 // const fsSync = require("fs");
-const path = require("path");
+const path = require('path');
 // const { spawn } = require("child_process");
 // const { pipeline } = require("stream/promises");
-const UpdateChecker = require("../shared/update-checker");
-const logger = require("../shared/logger");
-const errorReporter = require("../shared/error-reporter");
-const { ErrorCategory } = require("../shared/error-reporter");
+const UpdateChecker = require('../shared/update-checker');
+const logger = require('../shared/logger');
+const errorReporter = require('../shared/error-reporter');
+const { ErrorCategory } = require('../shared/error-reporter');
 // const { formatSection, formatStatus, createSpinner } = require("../shared/cli-utils");
 
 // Mock functions for missing dependencies (same as original)
 // const getEslintConfigString = () => "module.exports = {};"
 const loadConfig = () => ({
   directories: {
-    docs: "docs",
-    src: "src",
-    tests: "tests",
-    public: "public",
-    srcSubdirs: [
-      "controllers",
-      "models",
-      "routes",
-      "middlewares",
-      "utils",
-      "config",
-    ],
-    testSubdirs: ["unit", "integration"],
+    docs: 'docs',
+    src: 'src',
+    tests: 'tests',
+    public: 'public',
+    srcSubdirs: ['controllers', 'models', 'routes', 'middlewares', 'utils', 'config'],
+    testSubdirs: ['unit', 'integration'],
     publicSubdirs: [],
   },
   scripts: {},
   project: {
-    keywords: ["rest-api"],
-    author: { name: "" },
-    license: "MIT",
-    nodeVersion: "22.11.0",
+    keywords: ['rest-api'],
+    author: { name: '' },
+    license: 'MIT',
+    nodeVersion: '22.11.0',
   },
   dependencies: {
     production: {},
@@ -107,8 +100,8 @@ const loadConfig = () => ({
  */
 function validateProjectName(name) {
   // Check for empty or null name
-  if (!name || typeof name !== "string" || name.trim().length === 0) {
-    const error = new Error("Project name cannot be empty");
+  if (!name || typeof name !== 'string' || name.trim().length === 0) {
+    const error = new Error('Project name cannot be empty');
     error.category = ErrorCategory.USER_ERROR;
     throw error;
   }
@@ -119,88 +112,88 @@ function validateProjectName(name) {
   const invalidChars = /[<>:"|?*;\\&$`(){}[\]!]/;
   if (invalidChars.test(trimmedName)) {
     const error = new Error(
-      "Project name contains invalid characters. Only letters, numbers, hyphens, underscores, and dots are allowed.",
+      'Project name contains invalid characters. Only letters, numbers, hyphens, underscores, and dots are allowed.'
     );
     error.category = ErrorCategory.USER_ERROR;
     throw error;
   }
 
   // Check for names that start with dots (hidden files/directories)
-  if (trimmedName.startsWith(".")) {
-    const error = new Error("Project name cannot start with a dot");
+  if (trimmedName.startsWith('.')) {
+    const error = new Error('Project name cannot start with a dot');
     error.category = ErrorCategory.USER_ERROR;
     throw error;
   }
 
   // Check for reserved names
   const reservedNames = [
-    "con",
-    "prn",
-    "aux",
-    "nul",
-    "com1",
-    "com2",
-    "com3",
-    "com4",
-    "com5",
-    "com6",
-    "com7",
-    "com8",
-    "com9",
-    "lpt1",
-    "lpt2",
-    "lpt3",
-    "lpt4",
-    "lpt5",
-    "lpt6",
-    "lpt7",
-    "lpt8",
-    "lpt9",
-    "node_modules",
-    "package.json",
-    "package-lock.json",
-    ".git",
-    ".gitignore",
-    ".env",
-    ".npmrc",
-    "bin",
-    "boot",
-    "dev",
-    "etc",
-    "home",
-    "lib",
-    "media",
-    "mnt",
-    "opt",
-    "proc",
-    "root",
-    "run",
-    "sbin",
-    "srv",
-    "sys",
-    "tmp",
-    "usr",
-    "var",
-    "system32",
-    "windows",
-    "program files",
-    "documents and settings",
-    "admin",
-    "administrator",
-    "root",
-    "sudo",
-    "www",
-    "ftp",
-    "mail",
-    "test",
-    "temp",
-    "cache",
-    "logs",
+    'con',
+    'prn',
+    'aux',
+    'nul',
+    'com1',
+    'com2',
+    'com3',
+    'com4',
+    'com5',
+    'com6',
+    'com7',
+    'com8',
+    'com9',
+    'lpt1',
+    'lpt2',
+    'lpt3',
+    'lpt4',
+    'lpt5',
+    'lpt6',
+    'lpt7',
+    'lpt8',
+    'lpt9',
+    'node_modules',
+    'package.json',
+    'package-lock.json',
+    '.git',
+    '.gitignore',
+    '.env',
+    '.npmrc',
+    'bin',
+    'boot',
+    'dev',
+    'etc',
+    'home',
+    'lib',
+    'media',
+    'mnt',
+    'opt',
+    'proc',
+    'root',
+    'run',
+    'sbin',
+    'srv',
+    'sys',
+    'tmp',
+    'usr',
+    'var',
+    'system32',
+    'windows',
+    'program files',
+    'documents and settings',
+    'admin',
+    'administrator',
+    'root',
+    'sudo',
+    'www',
+    'ftp',
+    'mail',
+    'test',
+    'temp',
+    'cache',
+    'logs',
   ];
 
   if (reservedNames.includes(trimmedName.toLowerCase())) {
     const error = new Error(
-      `'${trimmedName}' is a reserved name and cannot be used as a project name`,
+      `'${trimmedName}' is a reserved name and cannot be used as a project name`
     );
     error.category = ErrorCategory.USER_ERROR;
     throw error;
@@ -208,17 +201,17 @@ function validateProjectName(name) {
 
   // Enhanced directory traversal prevention
   if (
-    trimmedName.includes("..") ||
-    trimmedName.includes("/") ||
-    trimmedName.includes("\\") ||
-    trimmedName.includes("%2e") ||
-    trimmedName.includes("%2f") ||
-    trimmedName.includes("%5c") ||
+    trimmedName.includes('..') ||
+    trimmedName.includes('/') ||
+    trimmedName.includes('\\') ||
+    trimmedName.includes('%2e') ||
+    trimmedName.includes('%2f') ||
+    trimmedName.includes('%5c') ||
     path.normalize(trimmedName) !== trimmedName ||
-    path.resolve(trimmedName) !== path.resolve(".", trimmedName)
+    path.resolve(trimmedName) !== path.resolve('.', trimmedName)
   ) {
     const error = new Error(
-      "Project name cannot contain path separators, parent directory references, or encoded path characters",
+      'Project name cannot contain path separators, parent directory references, or encoded path characters'
     );
     error.category = ErrorCategory.USER_ERROR;
     throw error;
@@ -226,9 +219,7 @@ function validateProjectName(name) {
 
   // Check length constraints
   if (trimmedName.length > 214) {
-    const error = new Error(
-      "Project name is too long (maximum 214 characters)",
-    );
+    const error = new Error('Project name is too long (maximum 214 characters)');
     error.category = ErrorCategory.USER_ERROR;
     throw error;
   }
@@ -286,38 +277,30 @@ async function createProjectStructure(projectDir) {
   // Build directory list from configuration
   const directories = [
     `${config.directories.docs}/standards`,
-    ...config.directories.srcSubdirs.map(
-      (dir) => `${config.directories.src}/${dir}`,
-    ),
-    ...config.directories.testSubdirs.map(
-      (dir) => `${config.directories.tests}/${dir}`,
-    ),
-    ...config.directories.publicSubdirs.map(
-      (dir) => `${config.directories.public}/${dir}`,
-    ),
+    ...config.directories.srcSubdirs.map(dir => `${config.directories.src}/${dir}`),
+    ...config.directories.testSubdirs.map(dir => `${config.directories.tests}/${dir}`),
+    ...config.directories.publicSubdirs.map(dir => `${config.directories.public}/${dir}`),
   ];
 
   try {
     // Create directories in parallel for better performance
     await Promise.all(
-      directories.map(async (dir) => {
+      directories.map(async dir => {
         const fullPath = path.join(projectDir, dir);
         try {
           await fs.mkdir(fullPath, { recursive: true });
         } catch (error) {
-          if (error.code !== "EEXIST") {
+          if (error.code !== 'EEXIST') {
             error.context = { directory: dir, fullPath };
             throw error;
           }
         }
-      }),
+      })
     );
 
-    logger.success("Created project directory structure");
+    logger.success('Created project directory structure');
   } catch (error) {
-    const enhancedError = new Error(
-      `Failed to create project structure: ${error.message}`,
-    );
+    const enhancedError = new Error(`Failed to create project structure: ${error.message}`);
     enhancedError.originalError = error;
     enhancedError.context = { projectDir, directories };
     throw enhancedError;
@@ -336,12 +319,12 @@ async function createPackageJson(projectDir, projectName) {
 
   const packageJson = {
     name: projectName,
-    version: "1.0.0",
-    description: "A RESTful API using REST-SPEC standards",
+    version: '1.0.0',
+    description: 'A RESTful API using REST-SPEC standards',
     main: `${config.directories.src}/app.js`,
     scripts: config.scripts,
     keywords: config.project.keywords,
-    author: config.project.author.name || "",
+    author: config.project.author.name || '',
     license: config.project.license,
     dependencies: config.dependencies.production,
     devDependencies: config.dependencies.development,
@@ -351,17 +334,11 @@ async function createPackageJson(projectDir, projectName) {
   };
 
   try {
-    const packageJsonPath = path.join(projectDir, "package.json");
-    await fs.writeFile(
-      packageJsonPath,
-      JSON.stringify(packageJson, null, 2),
-      "utf8",
-    );
-    logger.success("Created package.json");
+    const packageJsonPath = path.join(projectDir, 'package.json');
+    await fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2), 'utf8');
+    logger.success('Created package.json');
   } catch (error) {
-    const enhancedError = new Error(
-      `Failed to create package.json: ${error.message}`,
-    );
+    const enhancedError = new Error(`Failed to create package.json: ${error.message}`);
     enhancedError.originalError = error;
     enhancedError.context = { projectDir, projectName };
     throw enhancedError;
@@ -414,7 +391,7 @@ async function createAppFiles(projectDir) {
   // Define all application files
   const files = [
     {
-      path: path.join(projectDir, "src", "app.js"),
+      path: path.join(projectDir, 'src', 'app.js'),
       content: `/**
  * Main application entry point
  */
@@ -454,7 +431,7 @@ module.exports = app;
 `,
     },
     {
-      path: path.join(projectDir, "src", "utils", "logger.js"),
+      path: path.join(projectDir, 'src', 'utils', 'logger.js'),
       content: `/**
  * Logger utility
  */
@@ -475,7 +452,7 @@ module.exports = logger;
 `,
     },
     {
-      path: path.join(projectDir, "src", "middlewares", "errorHandler.js"),
+      path: path.join(projectDir, 'src', 'middlewares', 'errorHandler.js'),
       content: `/**
  * Global error handler middleware
  */
@@ -506,7 +483,7 @@ module.exports = { errorHandler };
 `,
     },
     {
-      path: path.join(projectDir, "src", "routes", "index.js"),
+      path: path.join(projectDir, 'src', 'routes', 'index.js'),
       content: `/**
  * API Routes
  */
@@ -528,21 +505,19 @@ module.exports = router;
 
   try {
     await Promise.all(
-      files.map(async (file) => {
+      files.map(async file => {
         try {
           await fs.writeFile(file.path, file.content);
         } catch (error) {
           error.context = { file: file.path };
           throw error;
         }
-      }),
+      })
     );
 
-    logger.success("Created application files");
+    logger.success('Created application files');
   } catch (error) {
-    const enhancedError = new Error(
-      `Failed to create application files: ${error.message}`,
-    );
+    const enhancedError = new Error(`Failed to create application files: ${error.message}`);
     enhancedError.originalError = error;
     enhancedError.context = { projectDir };
     throw enhancedError;
@@ -566,14 +541,14 @@ async function main() {
   }
 
   if (args.length === 0) {
-    const error = new Error("Please provide a project name");
+    const error = new Error('Please provide a project name');
     error.category = ErrorCategory.USER_ERROR;
     await errorReporter.report(error, {
-      command: "create-project",
+      command: 'create-project',
       context: { args },
     });
-    logger.error("ERROR: Please provide a project name");
-    logger.warn("USAGE: node create-project.js <project-name>");
+    logger.error('ERROR: Please provide a project name');
+    logger.warn('USAGE: node create-project.js <project-name>');
     process.exit(1);
   }
 
@@ -582,11 +557,11 @@ async function main() {
     projectName = validateProjectName(args[0]);
   } catch (error) {
     await errorReporter.report(error, {
-      command: "create-project:validation",
+      command: 'create-project:validation',
       context: { providedName: args[0] },
     });
     logger.error(error.message);
-    logger.warn("USAGE: node create-project.js <project-name>");
+    logger.warn('USAGE: node create-project.js <project-name>');
     process.exit(1);
   }
 
@@ -596,21 +571,19 @@ async function main() {
   // Check if directory already exists
   try {
     await fs.access(projectDir);
-    const error = new Error(
-      `Directory ${projectDir} already exists. Please choose another name.`,
-    );
+    const error = new Error(`Directory ${projectDir} already exists. Please choose another name.`);
     error.category = ErrorCategory.USER_ERROR;
     await errorReporter.report(error, {
-      command: "create-project:directory-check",
+      command: 'create-project:directory-check',
       context: { projectDir },
     });
     logger.error(error.message);
     process.exit(1);
   } catch (error) {
     // Directory doesn't exist (ENOENT) or isn't accessible - this is what we want
-    if (error.code !== "ENOENT") {
+    if (error.code !== 'ENOENT') {
       await errorReporter.report(error, {
-        command: "create-project:directory-access",
+        command: 'create-project:directory-access',
         context: { projectDir },
       });
       logger.error(`Cannot access ${projectDir}: ${error.message}`);
@@ -619,10 +592,10 @@ async function main() {
   }
 
   logger.heading(`Creating new project: ${projectName}`);
-  logger.info("Starting project creation process");
+  logger.info('Starting project creation process');
 
   try {
-    logger.highlight("Phase 1/3: Creating project structure...");
+    logger.highlight('Phase 1/3: Creating project structure...');
 
     // First, create the main project directory
     await fs.mkdir(projectDir, { recursive: true });
@@ -633,19 +606,19 @@ async function main() {
       createPackageJson(projectDir, projectName),
     ]);
 
-    logger.success("Phase 1 complete - Project structure created");
-    logger.highlight("Phase 2/3: Creating project files...");
+    logger.success('Phase 1 complete - Project structure created');
+    logger.highlight('Phase 2/3: Creating project files...');
 
     // Phase 2: Create application files
     await createAppFiles(projectDir);
 
-    logger.success("Phase 2 complete - Project files created");
+    logger.success('Phase 2 complete - Project files created');
 
     // Success!
     console.log();
-    logger.success("Project creation complete!");
+    logger.success('Project creation complete!');
     console.log();
-    logger.heading("Next steps to get started:");
+    logger.heading('Next steps to get started:');
     console.log(`  1. Change to project directory: cd ${projectName}`);
     console.log(`  2. Install dependencies: npm install`);
     console.log(`  3. Start development server: npm run dev`);
@@ -654,20 +627,20 @@ async function main() {
     const summary = errorReporter.getErrorSummary();
     if (summary.totalErrors > 0) {
       logger.info(
-        `\nNote: ${summary.totalErrors} non-fatal issues were encountered during creation.`,
+        `\nNote: ${summary.totalErrors} non-fatal issues were encountered during creation.`
       );
-      logger.debug("Run with VERBOSE=true for more details.");
+      logger.debug('Run with VERBOSE=true for more details.');
     }
   } catch (error) {
     console.log();
 
     // Report the error
     const report = await errorReporter.report(error, {
-      command: "create-project",
+      command: 'create-project',
       context: {
         projectName,
         projectDir,
-        phase: error.phase || "unknown",
+        phase: error.phase || 'unknown',
       },
       fatal: true,
     });
@@ -677,15 +650,15 @@ async function main() {
 
     // Cleanup attempt
     try {
-      logger.warn("Attempting to clean up...");
+      logger.warn('Attempting to clean up...');
       await fs.rm(projectDir, { recursive: true, force: true });
-      logger.success("Cleanup complete");
+      logger.success('Cleanup complete');
     } catch (cleanupError) {
       await errorReporter.report(cleanupError, {
-        command: "create-project:cleanup",
+        command: 'create-project:cleanup',
         context: { projectDir },
       });
-      logger.warn("Could not clean up project directory");
+      logger.warn('Could not clean up project directory');
     }
 
     process.exit(1);
@@ -693,12 +666,12 @@ async function main() {
 }
 
 // Wrap main function with error boundary
-const wrappedMain = errorReporter.createErrorBoundary(main, "create-project");
+const wrappedMain = errorReporter.createErrorBoundary(main, 'create-project');
 
 // Execute with global error handling
-wrappedMain().catch(async (error) => {
+wrappedMain().catch(async error => {
   await errorReporter.report(error, {
-    command: "create-project:fatal",
+    command: 'create-project:fatal',
     fatal: true,
   });
   logger.error(`FATAL ERROR: ${error.message}`);

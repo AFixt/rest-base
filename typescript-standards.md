@@ -6,41 +6,41 @@
 
 ## Table of Contents
 
-* [Purpose](#purpose)
-* [TypeScript Configuration](#typescript-configuration)
-  * [Compiler Options](#compiler-options)
-    * [Target and Module Settings](#target-and-module-settings)
-    * [Strict Type Checking](#strict-type-checking)
-    * [Path Mapping](#path-mapping)
-* [Type Definition Standards](#type-definition-standards)
-  * [Interface Naming](#interface-naming)
-  * [Type Aliases](#type-aliases)
-  * [Generic Type Parameters](#generic-type-parameters)
-* [Function and Method Standards](#function-and-method-standards)
-  * [Function Signatures](#function-signatures)
-  * [Optional vs Required Parameters](#optional-vs-required-parameters)
-* [Error Handling Standards](#error-handling-standards)
-  * [Custom Error Types](#custom-error-types)
-* [Utility Types and Patterns](#utility-types-and-patterns)
-  * [Common Utility Types](#common-utility-types)
-  * [Configuration and Constants](#configuration-and-constants)
-* [Module and Import Standards](#module-and-import-standards)
-  * [Import Organization](#import-organization)
-  * [Export Patterns](#export-patterns)
-* [Testing with TypeScript](#testing-with-typescript)
-  * [Test Type Safety](#test-type-safety)
-* [Integration with Node.js Standards](#integration-with-nodejs-standards)
-  * [Express.js Integration](#expressjs-integration)
-* [Performance Considerations](#performance-considerations)
-  * [Type-Only Imports](#type-only-imports)
-  * [Lazy Loading Types](#lazy-loading-types)
-* [Migration Strategy](#migration-strategy)
-  * [From JavaScript to TypeScript](#from-javascript-to-typescript)
-* [Tools Integration](#tools-integration)
-  * [ESLint Configuration](#eslint-configuration)
-  * [Jest Configuration](#jest-configuration)
-* [Best Practices Summary](#best-practices-summary)
-* [Resources](#resources)
+- [Purpose](#purpose)
+- [TypeScript Configuration](#typescript-configuration)
+  - [Compiler Options](#compiler-options)
+    - [Target and Module Settings](#target-and-module-settings)
+    - [Strict Type Checking](#strict-type-checking)
+    - [Path Mapping](#path-mapping)
+- [Type Definition Standards](#type-definition-standards)
+  - [Interface Naming](#interface-naming)
+  - [Type Aliases](#type-aliases)
+  - [Generic Type Parameters](#generic-type-parameters)
+- [Function and Method Standards](#function-and-method-standards)
+  - [Function Signatures](#function-signatures)
+  - [Optional vs Required Parameters](#optional-vs-required-parameters)
+- [Error Handling Standards](#error-handling-standards)
+  - [Custom Error Types](#custom-error-types)
+- [Utility Types and Patterns](#utility-types-and-patterns)
+  - [Common Utility Types](#common-utility-types)
+  - [Configuration and Constants](#configuration-and-constants)
+- [Module and Import Standards](#module-and-import-standards)
+  - [Import Organization](#import-organization)
+  - [Export Patterns](#export-patterns)
+- [Testing with TypeScript](#testing-with-typescript)
+  - [Test Type Safety](#test-type-safety)
+- [Integration with Node.js Standards](#integration-with-nodejs-standards)
+  - [Express.js Integration](#expressjs-integration)
+- [Performance Considerations](#performance-considerations)
+  - [Type-Only Imports](#type-only-imports)
+  - [Lazy Loading Types](#lazy-loading-types)
+- [Migration Strategy](#migration-strategy)
+  - [From JavaScript to TypeScript](#from-javascript-to-typescript)
+- [Tools Integration](#tools-integration)
+  - [ESLint Configuration](#eslint-configuration)
+  - [Jest Configuration](#jest-configuration)
+- [Best Practices Summary](#best-practices-summary)
+- [Resources](#resources)
 
 ## Purpose
 
@@ -101,9 +101,9 @@ projects. These standards ensure type safety, maintainability, and consistency a
 
 ### Interface Naming
 
-* Use PascalCase for interface names
-* Prefix interfaces with `I` only when necessary to avoid naming conflicts
-* Use descriptive, domain-specific names
+- Use PascalCase for interface names
+- Prefix interfaces with `I` only when necessary to avoid naming conflicts
+- Use descriptive, domain-specific names
 
 ```typescript
 // ✅ Good
@@ -120,16 +120,17 @@ interface DatabaseConnection {
 }
 
 // ❌ Avoid
-interface IUser {  // Unnecessary I prefix
-  data: any;       // Too generic
+interface IUser {
+  // Unnecessary I prefix
+  data: any; // Too generic
 }
 ```
 
 ### Type Aliases
 
-* Use PascalCase for type aliases
-* Prefer union types over enums when possible
-* Use descriptive names that indicate the domain
+- Use PascalCase for type aliases
+- Prefer union types over enums when possible
+- Use descriptive names that indicate the domain
 
 ```typescript
 // ✅ Good
@@ -145,15 +146,15 @@ type ApiResponse<T> = {
 };
 
 // ❌ Avoid
-type Methods = string;  // Too generic
-type DB = any;          // No type safety
+type Methods = string; // Too generic
+type DB = any; // No type safety
 ```
 
 ### Generic Type Parameters
 
-* Use single uppercase letters starting with `T`
-* Use descriptive names for complex generics
-* Provide default types when appropriate
+- Use single uppercase letters starting with `T`
+- Use descriptive names for complex generics
+- Provide default types when appropriate
 
 ```typescript
 // ✅ Good
@@ -169,7 +170,8 @@ interface ApiEndpoint<TRequest, TResponse> {
 }
 
 // ❌ Avoid
-interface Repository<Type, KeyType> {  // Too verbose for simple cases
+interface Repository<Type, KeyType> {
+  // Too verbose for simple cases
   findById(id: KeyType): Promise<Type | null>;
 }
 ```
@@ -178,9 +180,9 @@ interface Repository<Type, KeyType> {  // Too verbose for simple cases
 
 ### Function Signatures
 
-* Always specify return types explicitly
-* Use readonly for parameters that shouldn't be modified
-* Prefer specific types over `any` or `unknown`
+- Always specify return types explicitly
+- Use readonly for parameters that shouldn't be modified
+- Prefer specific types over `any` or `unknown`
 
 ```typescript
 // ✅ Good
@@ -203,25 +205,27 @@ function processItems(items: readonly Item[]): ProcessedItem[] {
   return items.map(item => ({
     ...item,
     processed: true,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   }));
 }
 
 // ❌ Avoid
-function doSomething(data: any): any {  // No type safety
+function doSomething(data: any): any {
+  // No type safety
   return data.whatever;
 }
 
-async function getStuff(id) {  // Missing types
+async function getStuff(id) {
+  // Missing types
   return await something(id);
 }
 ```
 
 ### Optional vs Required Parameters
 
-* Use optional parameters judiciously
-* Prefer required parameters with default values
-* Use object parameters for functions with many arguments
+- Use optional parameters judiciously
+- Prefer required parameters with default values
+- Use object parameters for functions with many arguments
 
 ```typescript
 // ✅ Good
@@ -238,7 +242,7 @@ function createUser(options: CreateUserOptions): Promise<User> {
     role: options.role ?? 'user',
     isActive: options.isActive ?? true,
     id: generateId(),
-    createdAt: new Date()
+    createdAt: new Date(),
   };
   return userRepository.save(user);
 }
@@ -247,7 +251,7 @@ function createUser(options: CreateUserOptions): Promise<User> {
 function formatCurrency(amount: number, currency = 'USD'): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency
+    currency,
   }).format(amount);
 }
 
@@ -259,7 +263,8 @@ function createUser(
   isActive?: boolean,
   department?: string,
   manager?: string
-): Promise<User> {  // Too many parameters
+): Promise<User> {
+  // Too many parameters
   // ...
 }
 ```
@@ -268,17 +273,20 @@ function createUser(
 
 ### Custom Error Types
 
-* Extend built-in Error class
-* Provide structured error information
-* Use discriminated unions for error types
+- Extend built-in Error class
+- Provide structured error information
+- Use discriminated unions for error types
 
 ```typescript
 // ✅ Good
 abstract class AppError extends Error {
   abstract readonly code: string;
   abstract readonly statusCode: number;
-  
-  constructor(message: string, public readonly context?: Record<string, any>) {
+
+  constructor(
+    message: string,
+    public readonly context?: Record<string, any>
+  ) {
     super(message);
     this.name = this.constructor.name;
   }
@@ -287,7 +295,7 @@ abstract class AppError extends Error {
 class ValidationError extends AppError {
   readonly code = 'VALIDATION_ERROR';
   readonly statusCode = 400;
-  
+
   constructor(
     message: string,
     public readonly field: string,
@@ -303,13 +311,15 @@ class NotFoundError extends AppError {
 }
 
 // ✅ Result pattern for error handling
-type Result<T, E = Error> = {
-  success: true;
-  data: T;
-} | {
-  success: false;
-  error: E;
-};
+type Result<T, E = Error> =
+  | {
+      success: true;
+      data: T;
+    }
+  | {
+      success: false;
+      error: E;
+    };
 
 async function safeParseJson<T>(json: string): Promise<Result<T, SyntaxError>> {
   try {
@@ -344,7 +354,7 @@ type Timestamp = number & { __brand: 'Timestamp' };
 
 function validateEmail(email: string): EmailAddress | null {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email) ? email as EmailAddress : null;
+  return emailRegex.test(email) ? (email as EmailAddress) : null;
 }
 ```
 
@@ -374,13 +384,13 @@ const HTTP_STATUS_CODES = {
   BAD_REQUEST: 400,
   UNAUTHORIZED: 401,
   NOT_FOUND: 404,
-  INTERNAL_SERVER_ERROR: 500
+  INTERNAL_SERVER_ERROR: 500,
 } as const;
 
-type HttpStatusCode = typeof HTTP_STATUS_CODES[keyof typeof HTTP_STATUS_CODES];
+type HttpStatusCode = (typeof HTTP_STATUS_CODES)[keyof typeof HTTP_STATUS_CODES];
 
 const SUPPORTED_CURRENCIES = ['USD', 'EUR', 'GBP', 'JPY'] as const;
-type Currency = typeof SUPPORTED_CURRENCIES[number];
+type Currency = (typeof SUPPORTED_CURRENCIES)[number];
 ```
 
 ## Module and Import Standards
@@ -426,17 +436,9 @@ export class DefaultUserService implements UserService {
 export const userService = new DefaultUserService();
 
 // ✅ Re-exports for clean APIs
-export type {
-  UserProfile,
-  CreateUserRequest,
-  UpdateUserRequest
-} from './types';
+export type { UserProfile, CreateUserRequest, UpdateUserRequest } from './types';
 
-export {
-  UserService,
-  DefaultUserService,
-  userService
-} from './user-service';
+export { UserService, DefaultUserService, userService } from './user-service';
 
 // ✅ Default exports only for single-purpose modules
 export default class ApiServer {
@@ -455,24 +457,24 @@ import { UserService } from '../user-service';
 
 describe('UserService', () => {
   let userService: UserService;
-  
+
   beforeEach(() => {
     userService = new UserService();
   });
-  
+
   it('should create a user with valid data', async () => {
     const userData: CreateUserRequest = {
       name: 'John Doe',
       email: 'john@example.com' as EmailAddress,
-      role: 'user'
+      role: 'user',
     };
-    
+
     const result = await userService.createUser(userData);
-    
+
     expect(result).toMatchObject<Partial<User>>({
       name: userData.name,
       email: userData.email,
-      role: userData.role
+      role: userData.role,
     });
   });
 });
@@ -481,7 +483,7 @@ describe('UserService', () => {
 const mockUserRepository: jest.Mocked<UserRepository> = {
   findById: jest.fn(),
   save: jest.fn(),
-  delete: jest.fn()
+  delete: jest.fn(),
 };
 ```
 
@@ -515,11 +517,11 @@ const getUser: AsyncHandler<AuthenticatedRequest> = async (req, res, next) => {
   try {
     const { id } = req.params;
     const user = await userService.findById(id as UserId);
-    
+
     if (!user) {
       throw new NotFoundError('User not found');
     }
-    
+
     res.json({ data: user });
   } catch (error) {
     next(error);
@@ -560,18 +562,18 @@ async function getDatabaseConnection(): Promise<DatabaseConnection> {
 ### From JavaScript to TypeScript
 
 1. **Gradual Migration**
-   * Start with `.ts` extension on new files
-   * Add `// @ts-check` to JavaScript files
-   * Convert one module at a time
+   - Start with `.ts` extension on new files
+   - Add `// @ts-check` to JavaScript files
+   - Convert one module at a time
 
 2. **Type Declaration Files**
-   * Create `.d.ts` files for existing JavaScript modules
-   * Gradually replace with TypeScript implementations
+   - Create `.d.ts` files for existing JavaScript modules
+   - Gradually replace with TypeScript implementations
 
 3. **Configuration Updates**
-   * Update build scripts to handle TypeScript
-   * Configure Jest for TypeScript testing
-   * Update linting rules for TypeScript
+   - Update build scripts to handle TypeScript
+   - Configure Jest for TypeScript testing
+   - Update linting rules for TypeScript
 
 ## Tools Integration
 
@@ -602,10 +604,7 @@ async function getDatabaseConnection(): Promise<DatabaseConnection> {
 {
   "preset": "ts-jest",
   "testEnvironment": "node",
-  "collectCoverageFrom": [
-    "src/**/*.ts",
-    "!src/**/*.d.ts"
-  ]
+  "collectCoverageFrom": ["src/**/*.ts", "!src/**/*.d.ts"]
 }
 ```
 
@@ -622,7 +621,7 @@ async function getDatabaseConnection(): Promise<DatabaseConnection> {
 
 ## Resources
 
-* [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-* [TypeScript Deep Dive](https://basarat.gitbook.io/typescript/)
-* [Effective TypeScript](https://effectivetypescript.com/)
-* [TypeScript ESLint Rules](https://typescript-eslint.io/rules/)
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
+- [TypeScript Deep Dive](https://basarat.gitbook.io/typescript/)
+- [Effective TypeScript](https://effectivetypescript.com/)
+- [TypeScript ESLint Rules](https://typescript-eslint.io/rules/)

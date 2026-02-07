@@ -34,16 +34,16 @@ function createRateLimiter(options = {}) {
     },
     standardHeaders: true,
     legacyHeaders: false,
-    keyGenerator: (req) => {
+    keyGenerator: req => {
       // Use IP address and user ID if available for more granular limiting
       const userId = req.user?.id || 'anonymous';
       return `rate_limit:${req.ip}:${userId}`;
     },
-    skip: (req) => {
+    skip: req => {
       // Skip rate limiting for health checks
       return req.path === '/health';
     },
-    onLimitReached: (req, res) => {
+    onLimitReached: (req, _res) => {
       logger.warn(`Rate limit exceeded for IP: ${req.ip}, Path: ${req.path}`);
     },
   };
@@ -81,7 +81,7 @@ export const authRateLimit = createRateLimiter({
     code: 'AUTH_RATE_LIMIT_EXCEEDED',
     retryAfter: 900,
   },
-  keyGenerator: (req) => `auth_rate_limit:${req.ip}`,
+  keyGenerator: req => `auth_rate_limit:${req.ip}`,
 });
 
 /**
@@ -108,7 +108,7 @@ export function createCustomRateLimit(max, windowMs, prefix = 'custom') {
   return createRateLimiter({
     max,
     windowMs,
-    keyGenerator: (req) => {
+    keyGenerator: req => {
       const userId = req.user?.id || 'anonymous';
       return `${prefix}_rate_limit:${req.ip}:${userId}`;
     },

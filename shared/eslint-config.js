@@ -1,9 +1,9 @@
 /**
  * Shared ESLint Configuration
- * 
+ *
  * This module provides a standardized ESLint configuration
  * that can be used across all REST-SPEC projects.
- * 
+ *
  * @author REST-Base Team
  */
 
@@ -24,12 +24,12 @@ function getEslintConfig() {
       'max-len': ['error', { code: 100, ignoreComments: true }],
       'no-console': ['warn'],
       'prefer-const': ['error'],
-      'no-var': ['error']
+      'no-var': ['error'],
     },
     parserOptions: {
       ecmaVersion: 2022,
-      sourceType: 'module'
-    }
+      sourceType: 'module',
+    },
   };
 }
 
@@ -53,13 +53,13 @@ function getCustomEslintConfig(customRules = {}) {
     ...baseConfig,
     rules: {
       ...baseConfig.rules,
-      ...customRules
-    }
+      ...customRules,
+    },
   };
 }
 
 module.exports = {
   getEslintConfig,
   getEslintConfigString,
-  getCustomEslintConfig
+  getCustomEslintConfig,
 };

@@ -23,10 +23,7 @@ export default {
   setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
 
   // Test file patterns
-  testMatch: [
-    '<rootDir>/tests/**/*.test.js',
-    '<rootDir>/src/**/*.test.js',
-  ],
+  testMatch: ['<rootDir>/tests/**/*.test.js', '<rootDir>/src/**/*.test.js'],
 
   // Coverage configuration
   collectCoverage: true,
@@ -36,12 +33,7 @@ export default {
     '!src/**/*.test.js',
     '!src/gateway.js', // Main entry point, covered by integration tests
   ],
-  coverageReporters: [
-    'text',
-    'lcov',
-    'html',
-    'json-summary',
-  ],
+  coverageReporters: ['text', 'lcov', 'html', 'json-summary'],
   coverageThreshold: {
     global: {
       branches: 70,
@@ -74,18 +66,10 @@ export default {
 
   // Watch mode configuration
   watchman: true,
-  watchPathIgnorePatterns: [
-    '<rootDir>/node_modules/',
-    '<rootDir>/coverage/',
-    '<rootDir>/logs/',
-  ],
+  watchPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/coverage/', '<rootDir>/logs/'],
 
   // Ignore patterns
-  testPathIgnorePatterns: [
-    '<rootDir>/node_modules/',
-    '<rootDir>/coverage/',
-    '<rootDir>/logs/',
-  ],
+  testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/coverage/', '<rootDir>/logs/'],
 
   // Reporter configuration
   reporters: [

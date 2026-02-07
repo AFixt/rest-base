@@ -28,10 +28,10 @@ const io = socketIo(server, {
   cors: {
     origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
     methods: ['GET', 'POST'],
-    credentials: true
+    credentials: true,
   },
   transports: ['websocket', 'polling'],
-  allowEIO3: true
+  allowEIO3: true,
 });
 
 const PORT = process.env.PORT || 3000;
@@ -40,23 +40,27 @@ const PORT = process.env.PORT || 3000;
 app.use(helmet());
 
 // CORS for HTTP routes
-app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
+    credentials: true,
+  })
+);
 
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100,
-  message: 'Too many requests from this IP'
+  message: 'Too many requests from this IP',
 });
 app.use(limiter);
 
 // Request logging
-app.use(morgan('combined', {
-  stream: { write: message => logger.info({ component: 'http' }, message.trim()) }
-}));
+app.use(
+  morgan('combined', {
+    stream: { write: message => logger.info({ component: 'http' }, message.trim()) },
+  })
+);
 
 // Body parsing
 app.use(express.json());
@@ -73,10 +77,10 @@ app.get('/', (req, res) => {
     description: '{{description}}',
     websocket: {
       endpoint: `ws://localhost:${PORT}`,
-      transports: ['websocket', 'polling']
+      transports: ['websocket', 'polling'],
     },
     environment: process.env.NODE_ENV || 'development',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -84,52 +88,61 @@ app.get('/', (req, res) => {
 io.use(authenticateSocket);
 
 // Socket connection stats
-let connectionStats = {
+const connectionStats = {
   current: 0,
   total: 0,
-  peak: 0
+  peak: 0,
 };
 
 // Socket.IO connection handling
-io.on('connection', (socket) => {
+io.on('connection', socket => {
   connectionStats.current++;
   connectionStats.total++;
   connectionStats.peak = Math.max(connectionStats.peak, connectionStats.current);
 
-  logger.info({
-    component: 'websocket',
-    event: 'connection',
-    socketId: socket.id,
-    userId: socket.userId,
-    stats: connectionStats
-  }, 'Client connected');
+  logger.info(
+    {
+      component: 'websocket',
+      event: 'connection',
+      socketId: socket.id,
+      userId: socket.userId,
+      stats: connectionStats,
+    },
+    'Client connected'
+  );
 
   // Setup socket handlers
   setupSocketHandlers(io, socket);
 
   // Handle disconnection
-  socket.on('disconnect', (reason) => {
+  socket.on('disconnect', reason => {
     connectionStats.current--;
-    
-    logger.info({
-      component: 'websocket',
-      event: 'disconnect',
-      socketId: socket.id,
-      userId: socket.userId,
-      reason,
-      stats: connectionStats
-    }, 'Client disconnected');
+
+    logger.info(
+      {
+        component: 'websocket',
+        event: 'disconnect',
+        socketId: socket.id,
+        userId: socket.userId,
+        reason,
+        stats: connectionStats,
+      },
+      'Client disconnected'
+    );
   });
 
   // Handle connection errors
-  socket.on('error', (error) => {
-    logger.error({
-      component: 'websocket',
-      event: 'error',
-      socketId: socket.id,
-      userId: socket.userId,
-      err: error
-    }, 'Socket error occurred');
+  socket.on('error', error => {
+    logger.error(
+      {
+        component: 'websocket',
+        event: 'error',
+        socketId: socket.id,
+        userId: socket.userId,
+        err: error,
+      },
+      'Socket error occurred'
+    );
   });
 });
 
@@ -139,22 +152,25 @@ app.get('/stats', (req, res) => {
     connections: connectionStats,
     uptime: process.uptime(),
     memory: process.memoryUsage(),
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
 // Error handling
-app.use((err, req, res, next) => {
-  logger.error({
-    component: 'http',
-    err,
-    url: req.originalUrl,
-    method: req.method
-  }, 'HTTP error occurred');
+app.use((err, req, res, _next) => {
+  logger.error(
+    {
+      component: 'http',
+      err,
+      url: req.originalUrl,
+      method: req.method,
+    },
+    'HTTP error occurred'
+  );
 
   res.status(err.status || 500).json({
     error: process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -163,17 +179,17 @@ app.use((req, res) => {
   res.status(404).json({
     error: 'Not found',
     path: req.originalUrl,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
 // Graceful shutdown
 const gracefulShutdown = () => {
   logger.info({ component: 'server' }, 'Shutting down gracefully...');
-  
+
   server.close(() => {
     logger.info({ component: 'server' }, 'HTTP server closed');
-    
+
     io.close(() => {
       logger.info({ component: 'websocket' }, 'WebSocket server closed');
       process.exit(0);
@@ -192,11 +208,14 @@ process.on('SIGINT', gracefulShutdown);
 
 // Start server
 server.listen(PORT, () => {
-  logger.info({
-    component: 'server',
-    port: PORT,
-    environment: process.env.NODE_ENV || 'development'
-  }, '{{projectName}} WebSocket server started');
+  logger.info(
+    {
+      component: 'server',
+      port: PORT,
+      environment: process.env.NODE_ENV || 'development',
+    },
+    '{{projectName}} WebSocket server started'
+  );
 });
 
 // Export for testing

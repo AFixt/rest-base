@@ -5,48 +5,48 @@
 
 ## Table of Contents
 
-* [Purpose](#purpose)
-* [Core Validation Principles](#core-validation-principles)
-  * [Security-First Approach](#security-first-approach)
-  * [Data Integrity](#data-integrity)
-* [Universal Validation Rules](#universal-validation-rules)
-  * [Authentication and Authorization](#authentication-and-authorization)
-  * [Data Type Handling](#data-type-handling)
-* [Method-Specific Validation](#method-specific-validation)
-  * [GET Requests](#get-requests)
-    * [List Operations (`GET /api/resource`)](#list-operations-get-apiresource)
-    * [Single Resource Operations (`GET /api/resource/:id`)](#single-resource-operations-get-apiresourceid)
-  * [POST Requests](#post-requests)
-    * [Create Operations (`POST /api/resource`)](#create-operations-post-apiresource)
-  * [PUT Requests](#put-requests)
-    * [Update Operations (`PUT /api/resource/:id`)](#update-operations-put-apiresourceid)
-  * [DELETE Requests](#delete-requests)
-    * [Delete Operations (`DELETE /api/resource/:id`)](#delete-operations-delete-apiresourceid)
-  * [HEAD Requests](#head-requests)
-    * [Existence Check (`HEAD /api/resource/:id`)](#existence-check-head-apiresourceid)
-* [Advanced Validation Patterns](#advanced-validation-patterns)
-  * [Input Sanitization](#input-sanitization)
-  * [Complex Field Validation](#complex-field-validation)
-  * [Conditional Validation](#conditional-validation)
-* [Validation Error Handling](#validation-error-handling)
-  * [Error Response Format](#error-response-format)
-  * [Custom Error Classes](#custom-error-classes)
-* [Schema Definition Patterns](#schema-definition-patterns)
-  * [JSON Schema Validation](#json-schema-validation)
-  * [Joi Schema Validation](#joi-schema-validation)
-* [Performance Considerations](#performance-considerations)
-  * [Validation Optimization](#validation-optimization)
-  * [Rate Limiting for Validation](#rate-limiting-for-validation)
-* [Security Best Practices](#security-best-practices)
-  * [Input Validation Security](#input-validation-security)
-  * [Common Attack Prevention](#common-attack-prevention)
-* [Testing Validation Logic](#testing-validation-logic)
-  * [Unit Testing Validation](#unit-testing-validation)
-  * [Integration Testing](#integration-testing)
-* [Migration from Legacy Validation](#migration-from-legacy-validation)
-  * [Consolidation Strategy](#consolidation-strategy)
-  * [Deprecated Files](#deprecated-files)
-* [Resources](#resources)
+- [Purpose](#purpose)
+- [Core Validation Principles](#core-validation-principles)
+  - [Security-First Approach](#security-first-approach)
+  - [Data Integrity](#data-integrity)
+- [Universal Validation Rules](#universal-validation-rules)
+  - [Authentication and Authorization](#authentication-and-authorization)
+  - [Data Type Handling](#data-type-handling)
+- [Method-Specific Validation](#method-specific-validation)
+  - [GET Requests](#get-requests)
+    - [List Operations (`GET /api/resource`)](#list-operations-get-apiresource)
+    - [Single Resource Operations (`GET /api/resource/:id`)](#single-resource-operations-get-apiresourceid)
+  - [POST Requests](#post-requests)
+    - [Create Operations (`POST /api/resource`)](#create-operations-post-apiresource)
+  - [PUT Requests](#put-requests)
+    - [Update Operations (`PUT /api/resource/:id`)](#update-operations-put-apiresourceid)
+  - [DELETE Requests](#delete-requests)
+    - [Delete Operations (`DELETE /api/resource/:id`)](#delete-operations-delete-apiresourceid)
+  - [HEAD Requests](#head-requests)
+    - [Existence Check (`HEAD /api/resource/:id`)](#existence-check-head-apiresourceid)
+- [Advanced Validation Patterns](#advanced-validation-patterns)
+  - [Input Sanitization](#input-sanitization)
+  - [Complex Field Validation](#complex-field-validation)
+  - [Conditional Validation](#conditional-validation)
+- [Validation Error Handling](#validation-error-handling)
+  - [Error Response Format](#error-response-format)
+  - [Custom Error Classes](#custom-error-classes)
+- [Schema Definition Patterns](#schema-definition-patterns)
+  - [JSON Schema Validation](#json-schema-validation)
+  - [Joi Schema Validation](#joi-schema-validation)
+- [Performance Considerations](#performance-considerations)
+  - [Validation Optimization](#validation-optimization)
+  - [Rate Limiting for Validation](#rate-limiting-for-validation)
+- [Security Best Practices](#security-best-practices)
+  - [Input Validation Security](#input-validation-security)
+  - [Common Attack Prevention](#common-attack-prevention)
+- [Testing Validation Logic](#testing-validation-logic)
+  - [Unit Testing Validation](#unit-testing-validation)
+  - [Integration Testing](#integration-testing)
+- [Migration from Legacy Validation](#migration-from-legacy-validation)
+  - [Consolidation Strategy](#consolidation-strategy)
+  - [Deprecated Files](#deprecated-files)
+- [Resources](#resources)
 
 ## Purpose
 
@@ -58,17 +58,17 @@ integrity enforcement.
 
 ### Security-First Approach
 
-* **Input Sanitization**: All user inputs must be validated and sanitized before processing
-* **Type Coercion**: Handle string-to-type conversion safely (e.g., URL parameters as strings)
-* **Parameter Whitelisting**: Explicitly validate allowed parameters and ignore/unset others
-* **Authentication Verification**: Validate JWT tokens and check blacklist status
+- **Input Sanitization**: All user inputs must be validated and sanitized before processing
+- **Type Coercion**: Handle string-to-type conversion safely (e.g., URL parameters as strings)
+- **Parameter Whitelisting**: Explicitly validate allowed parameters and ignore/unset others
+- **Authentication Verification**: Validate JWT tokens and check blacklist status
 
 ### Data Integrity
 
-* **Required Field Validation**: Enforce mandatory fields for each operation type
-* **Format Validation**: Ensure data matches expected formats (UUID, email, etc.)
-* **Business Logic Validation**: Apply domain-specific rules and constraints
-* **Referential Integrity**: Verify foreign key relationships exist
+- **Required Field Validation**: Enforce mandatory fields for each operation type
+- **Format Validation**: Ensure data matches expected formats (UUID, email, etc.)
+- **Business Logic Validation**: Apply domain-specific rules and constraints
+- **Referential Integrity**: Verify foreign key relationships exist
 
 ## Universal Validation Rules
 
@@ -77,22 +77,22 @@ integrity enforcement.
 All requests (except authentication and registration routes) must:
 
 1. **JWT Token Validation**:
-   * Validate JWT signature and structure according to [JWT validation standards](https://medium.com/dataseries/public-claims-and-how-to-validate-a-jwt-1d6c81823826)
-   * Verify token expiration date
-   * Check that JWT is not in the blacklist table
-   * Extract user information for authorization checks
+   - Validate JWT signature and structure according to [JWT validation standards](https://medium.com/dataseries/public-claims-and-how-to-validate-a-jwt-1d6c81823826)
+   - Verify token expiration date
+   - Check that JWT is not in the blacklist table
+   - Extract user information for authorization checks
 
 2. **Permission Verification**:
-   * Verify user has appropriate permissions for the requested operation
-   * Check ownership for user-specific resources
-   * Validate role-based access for administrative operations
+   - Verify user has appropriate permissions for the requested operation
+   - Check ownership for user-specific resources
+   - Validate role-based access for administrative operations
 
 ### Data Type Handling
 
-* **String-to-Type Conversion**: Browser URL parameters arrive as strings; validation must handle type casting
-* **UUID Validation**: Use regex pattern: `/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i`
-* **Integer Validation**: Cast string numbers to integers with bounds checking
-* **Boolean Validation**: Accept `true`/`false`, `1`/`0`, `yes`/`no` with normalization
+- **String-to-Type Conversion**: Browser URL parameters arrive as strings; validation must handle type casting
+- **UUID Validation**: Use regex pattern: `/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i`
+- **Integer Validation**: Cast string numbers to integers with bounds checking
+- **Boolean Validation**: Accept `true`/`false`, `1`/`0`, `yes`/`no` with normalization
 
 ## Method-Specific Validation
 
@@ -102,8 +102,8 @@ All requests (except authentication and registration routes) must:
 
 **Required Validation:**
 
-* User has `read` permissions for the resource type
-* User is owner of records OR has appropriate access level
+- User has `read` permissions for the resource type
+- User is owner of records OR has appropriate access level
 
 **Optional Query Parameters:**
 
@@ -151,32 +151,32 @@ All requests (except authentication and registration routes) must:
 
 **Security Requirements:**
 
-* Ignore and unset all other query parameters
-* Validate `order` field against allowed fields for resource type
-* Prevent SQL injection through parameterized queries
+- Ignore and unset all other query parameters
+- Validate `order` field against allowed fields for resource type
+- Prevent SQL injection through parameterized queries
 
 **Default Ordering Rules:**
 
-* **Date-based fields**: Most recent first (`created_at DESC`, `updated_at DESC`)
-* **Name/Title fields**: Alphabetical ascending (`name ASC`, `title ASC`)
-* **Priority/Status fields**: Custom business logic ordering
+- **Date-based fields**: Most recent first (`created_at DESC`, `updated_at DESC`)
+- **Name/Title fields**: Alphabetical ascending (`name ASC`, `title ASC`)
+- **Priority/Status fields**: Custom business logic ordering
 
 #### Single Resource Operations (`GET /api/resource/:id`)
 
 **Required Validation:**
 
-* `id` parameter is present and valid UUID
-* Record exists in database
-* User has read access to specific record
+- `id` parameter is present and valid UUID
+- Record exists in database
+- User has read access to specific record
 
 **Optional Parameters:**
 
-* `expand`: Same as list operations
+- `expand`: Same as list operations
 
 **Security Requirements:**
 
-* Ignore all URL parameters except `id`
-* Return 404 for both non-existent and unauthorized records (security through obscurity)
+- Ignore all URL parameters except `id`
+- Return 404 for both non-existent and unauthorized records (security through obscurity)
 
 ### POST Requests
 
@@ -184,11 +184,11 @@ All requests (except authentication and registration routes) must:
 
 **Required Validation:**
 
-* Request has `Content-Type: application/json` header
-* JSON body is valid and parseable
-* All required fields are present
-* Field values pass format validation
-* Business logic constraints are satisfied
+- Request has `Content-Type: application/json` header
+- JSON body is valid and parseable
+- All required fields are present
+- Field values pass format validation
+- Business logic constraints are satisfied
 
 **Standard Validation Flow:**
 
@@ -211,11 +211,11 @@ const sanitizedData = sanitizeInput(validatedData);
 
 **Common Field Validations:**
 
-* **Email**: RFC 5322 compliant regex
-* **Phone**: E.164 international format
-* **URLs**: Valid HTTP/HTTPS URLs only
-* **Passwords**: Minimum complexity requirements
-* **File uploads**: Type, size, and content validation
+- **Email**: RFC 5322 compliant regex
+- **Phone**: E.164 international format
+- **URLs**: Valid HTTP/HTTPS URLs only
+- **Passwords**: Minimum complexity requirements
+- **File uploads**: Type, size, and content validation
 
 ### PUT Requests
 
@@ -223,18 +223,18 @@ const sanitizedData = sanitizeInput(validatedData);
 
 **Required Validation:**
 
-* `id` parameter is present and valid UUID
-* Request has `Content-Type: application/json` header
-* JSON body is valid and parseable
-* Record exists in database
-* User has write permissions for record
+- `id` parameter is present and valid UUID
+- Request has `Content-Type: application/json` header
+- JSON body is valid and parseable
+- Record exists in database
+- User has write permissions for record
 
 **Partial Update Support:**
 
-* Only validate fields that are present in request body
-* Do not require all fields (unlike POST)
-* Maintain referential integrity for related records
-* Preserve existing values for omitted fields
+- Only validate fields that are present in request body
+- Do not require all fields (unlike POST)
+- Maintain referential integrity for related records
+- Preserve existing values for omitted fields
 
 **Update Validation Flow:**
 
@@ -261,16 +261,16 @@ await validateCompleteRecord(mergedData);
 
 **Required Validation:**
 
-* `id` parameter is present and valid UUID
-* Record exists in database
-* User has delete permissions for record
-* Check for dependent records (unless cascade delete is configured)
+- `id` parameter is present and valid UUID
+- Record exists in database
+- User has delete permissions for record
+- Check for dependent records (unless cascade delete is configured)
 
 **Security Considerations:**
 
-* Log all delete operations for audit trail
-* Consider soft delete vs hard delete based on compliance requirements
-* Validate cascade delete operations don't orphan critical data
+- Log all delete operations for audit trail
+- Consider soft delete vs hard delete based on compliance requirements
+- Validate cascade delete operations don't orphan critical data
 
 ### HEAD Requests
 
@@ -278,9 +278,9 @@ await validateCompleteRecord(mergedData);
 
 **Required Validation:**
 
-* `id` parameter is present and valid UUID
-* User has read permissions for resource type
-* Return 200 if exists and accessible, 404 otherwise
+- `id` parameter is present and valid UUID
+- User has read permissions for resource type
+- Return 200 if exists and accessible, 404 otherwise
 
 ## Advanced Validation Patterns
 
@@ -288,21 +288,21 @@ await validateCompleteRecord(mergedData);
 
 ```javascript
 // HTML sanitization
-const sanitizeHtml = (input) => {
+const sanitizeHtml = input => {
   return DOMPurify.sanitize(input, {
     ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'p', 'br'],
-    ALLOWED_ATTR: []
+    ALLOWED_ATTR: [],
   });
 };
 
 // SQL injection prevention
-const sanitizeSql = (input) => {
+const sanitizeSql = input => {
   // Use parameterized queries instead of string concatenation
   return db.query('SELECT * FROM users WHERE id = ?', [input]);
 };
 
 // XSS prevention
-const sanitizeXss = (input) => {
+const sanitizeXss = input => {
   return validator.escape(input);
 };
 ```
@@ -313,11 +313,11 @@ const sanitizeXss = (input) => {
 // Custom validators
 const validators = {
   uniqueEmail: async (email, userId = null) => {
-    const existing = await User.findOne({ 
-      where: { 
+    const existing = await User.findOne({
+      where: {
         email,
-        id: { [Op.ne]: userId } // Exclude current user for updates
-      }
+        id: { [Op.ne]: userId }, // Exclude current user for updates
+      },
     });
     return !existing;
   },
@@ -328,9 +328,9 @@ const validators = {
     return start < end && start >= new Date();
   },
 
-  phoneFormat: (phone) => {
+  phoneFormat: phone => {
     return /^\+[1-9]\d{1,14}$/.test(phone); // E.164 format
-  }
+  },
 };
 ```
 
@@ -340,7 +340,7 @@ const validators = {
 // Validation that depends on other fields
 const conditionalValidation = {
   // If user role is admin, additional fields are required
-  adminFields: (data) => {
+  adminFields: data => {
     if (data.role === 'admin') {
       const required = ['department', 'manager_id', 'access_level'];
       const missing = required.filter(field => !data[field]);
@@ -353,14 +353,14 @@ const conditionalValidation = {
   // Subscription-based feature validation
   premiumFeatures: async (data, user) => {
     const restrictedFeatures = ['advanced_analytics', 'custom_branding'];
-    const requestedFeatures = Object.keys(data).filter(key => 
-      restrictedFeatures.includes(key) && data[key]
+    const requestedFeatures = Object.keys(data).filter(
+      key => restrictedFeatures.includes(key) && data[key]
     );
-    
+
     if (requestedFeatures.length > 0 && !user.subscription?.isPremium) {
       throw new PaymentRequiredError('Premium features require subscription');
     }
-  }
+  },
 };
 ```
 
@@ -434,26 +434,26 @@ const userSchema = {
     email: {
       type: 'string',
       format: 'email',
-      maxLength: 255
+      maxLength: 255,
     },
     name: {
       type: 'string',
       minLength: 2,
       maxLength: 100,
-      pattern: '^[a-zA-Z\\s]+$'
+      pattern: '^[a-zA-Z\\s]+$',
     },
     password: {
       type: 'string',
       minLength: 8,
-      pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]'
+      pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]',
     },
     age: {
       type: 'integer',
       minimum: 13,
-      maximum: 120
-    }
+      maximum: 120,
+    },
   },
-  additionalProperties: false
+  additionalProperties: false,
 };
 ```
 
@@ -464,15 +464,20 @@ const Joi = require('joi');
 
 const userValidationSchema = Joi.object({
   email: Joi.string().email().required().max(255),
-  name: Joi.string().min(2).max(100).pattern(/^[a-zA-Z\s]+$/).required(),
-  password: Joi.string().min(8).pattern(
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/
-  ).required(),
+  name: Joi.string()
+    .min(2)
+    .max(100)
+    .pattern(/^[a-zA-Z\s]+$/)
+    .required(),
+  password: Joi.string()
+    .min(8)
+    .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
+    .required(),
   age: Joi.number().integer().min(13).max(120),
   preferences: Joi.object({
     notifications: Joi.boolean().default(true),
-    theme: Joi.string().valid('light', 'dark').default('light')
-  }).optional()
+    theme: Joi.string().valid('light', 'dark').default('light'),
+  }).optional(),
 });
 ```
 
@@ -480,10 +485,10 @@ const userValidationSchema = Joi.object({
 
 ### Validation Optimization
 
-* **Schema Caching**: Cache compiled validation schemas
-* **Early Exit**: Fail fast on first validation error
-* **Async Validation**: Use Promise.all for independent async validations
-* **Database Optimization**: Use indexes for uniqueness checks
+- **Schema Caching**: Cache compiled validation schemas
+- **Early Exit**: Fail fast on first validation error
+- **Async Validation**: Use Promise.all for independent async validations
+- **Database Optimization**: Use indexes for uniqueness checks
 
 ### Rate Limiting for Validation
 
@@ -493,14 +498,14 @@ const validationRateLimits = {
   uniquenessCheck: rateLimit({
     windowMs: 60 * 1000, // 1 minute
     max: 10, // 10 uniqueness checks per minute
-    message: 'Too many validation requests'
+    message: 'Too many validation requests',
   }),
-  
+
   externalApiValidation: rateLimit({
-    windowMs: 5 * 60 * 1000, // 5 minutes  
+    windowMs: 5 * 60 * 1000, // 5 minutes
     max: 5, // 5 external API calls per 5 minutes
-    message: 'External validation rate limit exceeded'
-  })
+    message: 'External validation rate limit exceeded',
+  }),
 };
 ```
 
@@ -515,11 +520,11 @@ const validationRateLimits = {
 
 ### Common Attack Prevention
 
-* **SQL Injection**: Use parameterized queries exclusively
-* **XSS Prevention**: Sanitize HTML content and escape output
-* **LDAP Injection**: Validate and escape LDAP query parameters
-* **Command Injection**: Never execute user input as system commands
-* **Path Traversal**: Validate file paths and restrict directory access
+- **SQL Injection**: Use parameterized queries exclusively
+- **XSS Prevention**: Sanitize HTML content and escape output
+- **LDAP Injection**: Validate and escape LDAP query parameters
+- **Command Injection**: Never execute user input as system commands
+- **Path Traversal**: Validate file paths and restrict directory access
 
 ## Testing Validation Logic
 
@@ -531,9 +536,9 @@ describe('User Validation', () => {
     const validUser = {
       email: 'test@example.com',
       name: 'Test User',
-      password: 'SecurePass123!'
+      password: 'SecurePass123!',
     };
-    
+
     const result = await validateUser(validUser);
     expect(result).toEqual(validUser);
   });
@@ -542,12 +547,10 @@ describe('User Validation', () => {
     const invalidUser = {
       email: 'invalid-email',
       name: 'Test User',
-      password: 'SecurePass123!'
+      password: 'SecurePass123!',
     };
-    
-    await expect(validateUser(invalidUser))
-      .rejects
-      .toThrow(ValidationError);
+
+    await expect(validateUser(invalidUser)).rejects.toThrow(ValidationError);
   });
 });
 ```
@@ -581,15 +584,15 @@ This document consolidates validation rules previously split between `validation
 
 ### Deprecated Files
 
-* `validation.md`: Content merged into this document
-* `request.md`: Request pattern validation integrated here
+- `validation.md`: Content merged into this document
+- `request.md`: Request pattern validation integrated here
 
 Projects should update their documentation references to point to this consolidated validation standards document.
 
 ## Resources
 
-* [OWASP Input Validation Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html)
-* [JSON Schema Specification](https://json-schema.org/)
-* [Joi Validation Library](https://joi.dev/)
-* [Express Validator Documentation](https://express-validator.github.io/docs/)
-* [JWT Best Practices](https://auth0.com/blog/a-look-at-the-latest-draft-for-jwt-bcp/)
+- [OWASP Input Validation Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html)
+- [JSON Schema Specification](https://json-schema.org/)
+- [Joi Validation Library](https://joi.dev/)
+- [Express Validator Documentation](https://express-validator.github.io/docs/)
+- [JWT Best Practices](https://auth0.com/blog/a-look-at-the-latest-draft-for-jwt-bcp/)

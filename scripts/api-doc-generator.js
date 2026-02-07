@@ -9,21 +9,21 @@
  * @author REST-SPEC
  */
 
-const fs = require("fs").promises;
-const path = require("path");
-const { program } = require("commander");
+const fs = require('fs').promises;
+const path = require('path');
+const { program } = require('commander');
 // Simple color functions to avoid ESM issues with chalk v5
 const color = {
-  green: (text) => `\x1b[32m${text}\x1b[0m`,
-  red: (text) => `\x1b[31m${text}\x1b[0m`,
-  cyan: (text) => `\x1b[36m${text}\x1b[0m`,
-  gray: (text) => `\x1b[90m${text}\x1b[0m`,
-  bold: (text) => `\x1b[1m${text}\x1b[0m`,
+  green: text => `\x1b[32m${text}\x1b[0m`,
+  red: text => `\x1b[31m${text}\x1b[0m`,
+  cyan: text => `\x1b[36m${text}\x1b[0m`,
+  gray: text => `\x1b[90m${text}\x1b[0m`,
+  bold: text => `\x1b[1m${text}\x1b[0m`,
 };
 // Simple spinner implementation to avoid ESM issues
-const createSpinner = (text) => {
+const createSpinner = text => {
   let interval;
-  const frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+  const frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
   let i = 0;
 
   const spinner = {
@@ -48,23 +48,23 @@ const createSpinner = (text) => {
 
   return spinner;
 };
-const { glob } = require("glob");
-const parser = require("@babel/parser");
-const traverse = require("@babel/traverse").default;
+const { glob } = require('glob');
+const parser = require('@babel/parser');
+const traverse = require('@babel/traverse').default;
 // Simple logger for this script
 const logger = {
-  info: (message) => console.log(message),
-  warn: (message) => console.warn(`⚠️  ${message}`),
-  error: (message, error) => console.error(`❌ ${message}`, error || ""),
+  info: message => console.log(message),
+  warn: message => console.warn(`⚠️  ${message}`),
+  error: (message, error) => console.error(`❌ ${message}`, error || ''),
 };
 
 // OpenAPI template
 const openAPITemplate = {
-  openapi: "3.0.0",
+  openapi: '3.0.0',
   info: {
-    title: "API Documentation",
-    version: "1.0.0",
-    description: "Auto-generated API documentation",
+    title: 'API Documentation',
+    version: '1.0.0',
+    description: 'Auto-generated API documentation',
   },
   servers: [],
   paths: {},
@@ -78,32 +78,80 @@ const openAPITemplate = {
  * Parse Express route files to extract API information
  */
 async function parseRouteFile(filePath) {
-  const content = await fs.readFile(filePath, "utf8");
+  const content = await fs.readFile(filePath, 'utf8');
   const ast = parser.parse(content, {
-    sourceType: "module",
-    plugins: ["jsx", "typescript"],
+    sourceType: 'module',
+    plugins: ['jsx', 'typescript'],
   });
 
   const routes = [];
   const routeComments = new Map();
+  const variables = new Map(); // Track variable declarations
 
-  // First pass: collect JSDoc comments
+  // First pass: collect JSDoc comments and variable declarations
   traverse(ast, {
     enter(path) {
       if (path.node.leadingComments) {
-        path.node.leadingComments.forEach((comment) => {
-          if (
-            comment.type === "CommentBlock" &&
-            comment.value.includes("@route")
-          ) {
+        path.node.leadingComments.forEach(comment => {
+          if (comment.type === 'CommentBlock' && comment.value.includes('@route')) {
             const parsedDoc = parseJSDoc(comment.value);
             // Store by line number for easier matching
             routeComments.set(comment.end, parsedDoc);
           }
         });
       }
+
+      // Track variable declarations
+      if (path.node.type === 'VariableDeclarator' && path.node.id?.name && path.node.init?.value) {
+        variables.set(path.node.id.name, path.node.init.value);
+      }
     },
   });
+
+  // Helper function to resolve route path from AST node
+  const resolveRoutePath = node => {
+    if (!node) {
+      return null;
+    }
+
+    // Simple string literal
+    if (node.type === 'StringLiteral') {
+      return node.value;
+    }
+
+    // Template literal
+    if (node.type === 'TemplateLiteral') {
+      let path = '';
+      for (let i = 0; i < node.quasis.length; i++) {
+        path += node.quasis[i].value.raw;
+        if (i < node.expressions.length) {
+          const expr = node.expressions[i];
+          if (expr.type === 'Identifier' && variables.has(expr.name)) {
+            path += variables.get(expr.name);
+          } else {
+            return null; // Can't resolve variable
+          }
+        }
+      }
+      return path;
+    }
+
+    // Binary expression (concatenation)
+    if (node.type === 'BinaryExpression' && node.operator === '+') {
+      const left = resolveRoutePath(node.left);
+      const right = resolveRoutePath(node.right);
+      if (left !== null && right !== null) {
+        return left + right;
+      }
+    }
+
+    // Identifier (variable reference)
+    if (node.type === 'Identifier' && variables.has(node.name)) {
+      return variables.get(node.name);
+    }
+
+    return null;
+  };
 
   // Second pass: extract route definitions
   traverse(ast, {
@@ -112,13 +160,11 @@ async function parseRouteFile(filePath) {
 
       // Check for router.METHOD() or app.METHOD() calls
       if (
-        callee.type === "MemberExpression" &&
-        ["get", "post", "put", "patch", "delete", "options", "head"].includes(
-          callee.property.name,
-        )
+        callee.type === 'MemberExpression' &&
+        ['get', 'post', 'put', 'patch', 'delete', 'options', 'head'].includes(callee.property.name)
       ) {
         const method = callee.property.name.toUpperCase();
-        const routePath = args[0]?.value || args[0]?.quasis?.[0]?.value?.raw;
+        const routePath = resolveRoutePath(args[0]);
 
         if (routePath) {
           const routeInfo = {
@@ -142,15 +188,13 @@ async function parseRouteFile(filePath) {
 
           if (closestComment) {
             Object.assign(routeInfo, closestComment);
-            // If the JSDoc has a different path, prefer it
-            if (closestComment.fullPath) {
-              routeInfo.path = closestComment.fullPath;
-            }
+            // Keep the code path, don't override with JSDoc fullPath
+            // The code path is more accurate
           }
 
           // Extract middleware and handler names
-          args.slice(1).forEach((arg) => {
-            if (arg.type === "Identifier") {
+          args.slice(1).forEach(arg => {
+            if (arg.type === 'Identifier') {
               routeInfo.handlers.push(arg.name);
             }
           });
@@ -169,8 +213,8 @@ async function parseRouteFile(filePath) {
  */
 function parseJSDoc(comment) {
   const info = {
-    summary: "",
-    description: "",
+    summary: '',
+    description: '',
     parameters: [],
     responses: {},
     tags: [],
@@ -178,48 +222,46 @@ function parseJSDoc(comment) {
     fullPath: null,
   };
 
-  const lines = comment
-    .split("\n")
-    .map((line) => line.trim().replace(/^\* ?/, ""));
+  const lines = comment.split('\n').map(line => line.trim().replace(/^\* ?/, ''));
 
-  let currentSection = "description";
-  lines.forEach((line) => {
-    if (line.startsWith("@route")) {
+  let currentSection = 'description';
+  lines.forEach(line => {
+    if (line.startsWith('@route')) {
       const routeMatch = line.match(/@route\s+(\w+)\s+(\/[^\s]+)/);
       if (routeMatch) {
-        info.summary = line.replace("@route", "").trim();
+        info.summary = line.replace('@route', '').trim();
         info.fullPath = routeMatch[2];
       }
-    } else if (line.startsWith("@summary")) {
-      info.summary = line.replace("@summary", "").trim();
-    } else if (line.startsWith("@description")) {
-      currentSection = "description";
-      info.description = line.replace("@description", "").trim();
-    } else if (line.startsWith("@param")) {
-      const match = line.match(/@param\s+{([^}]+)}\s+(\[?)([^\]]+)\]?\s*(.*)/);
+    } else if (line.startsWith('@summary')) {
+      info.summary = line.replace('@summary', '').trim();
+    } else if (line.startsWith('@description')) {
+      currentSection = 'description';
+      info.description = line.replace('@description', '').trim();
+    } else if (line.startsWith('@param')) {
+      // Match both: @param {type} [name=default] - description
+      //         and: @param {type} name - description
+      const match = line.match(
+        /@param\s+{([^}]+)}\s+(?:\[([^\]=]+)(?:=[^\]]*)?]|(\S+))\s*-?\s*(.*)/
+      );
       if (match) {
         info.parameters.push({
-          name: match[3],
+          name: match[2] || match[3], // match[2] for optional, match[3] for required
           type: match[1],
-          required: !match[2],
+          required: !match[2], // If match[2] exists, it was in brackets (optional)
           description: match[4],
         });
       }
-    } else if (line.startsWith("@response")) {
-      const match = line.match(/@response\s+(\d{3})\s+(.*)/);
+    } else if (line.startsWith('@response')) {
+      const match = line.match(/@response\s+(\d{3})\s+-?\s*(.*)/);
       if (match) {
         info.responses[match[1]] = { description: match[2] };
       }
-    } else if (line.startsWith("@tag")) {
-      info.tags.push(line.replace("@tag", "").trim());
-    } else if (line.startsWith("@security")) {
-      info.security.push(line.replace("@security", "").trim());
-    } else if (
-      currentSection === "description" &&
-      line &&
-      !line.startsWith("@")
-    ) {
-      info.description += (info.description ? " " : "") + line;
+    } else if (line.startsWith('@tag')) {
+      info.tags.push(line.replace('@tag', '').trim());
+    } else if (line.startsWith('@security')) {
+      info.security.push(line.replace('@security', '').trim());
+    } else if (currentSection === 'description' && line && !line.startsWith('@')) {
+      info.description += (info.description ? ' ' : '') + line;
     }
   });
 
@@ -229,12 +271,12 @@ function parseJSDoc(comment) {
 /**
  * Scan project for route files
  */
-async function findRouteFiles(projectPath, pattern = "**/routes/**/*.js") {
+async function findRouteFiles(projectPath, pattern = '**/routes/**/*.js') {
   const files = await glob(pattern, {
     cwd: projectPath,
-    ignore: ["**/node_modules/**", "**/test/**", "**/tests/**"],
+    ignore: ['**/node_modules/**', '**/test/**', '**/tests/**'],
   });
-  return files.map((f) => path.join(projectPath, f));
+  return files.map(f => path.join(projectPath, f));
 }
 
 /**
@@ -255,7 +297,7 @@ function generateOpenAPI(routes, config) {
 
   // Group routes by path
   const pathGroups = {};
-  routes.forEach((route) => {
+  routes.forEach(route => {
     if (!pathGroups[route.path]) {
       pathGroups[route.path] = {};
     }
@@ -263,22 +305,22 @@ function generateOpenAPI(routes, config) {
     const operation = {
       summary: route.summary || `${route.method} ${route.path}`,
       description: route.description,
-      operationId: `${route.method.toLowerCase()}${route.path.replace(/[/:]/g, "_")}`,
+      operationId: `${route.method.toLowerCase()}${route.path.replace(/[/:]/g, '_')}`,
       tags: route.tags || [],
       parameters: [],
       responses: route.responses || {
-        200: { description: "Successful response" },
-        400: { description: "Bad request" },
-        500: { description: "Internal server error" },
+        200: { description: 'Successful response' },
+        400: { description: 'Bad request' },
+        500: { description: 'Internal server error' },
       },
     };
 
     // Add parameters
     if (route.parameters) {
-      route.parameters.forEach((param) => {
+      route.parameters.forEach(param => {
         const paramDef = {
           name: param.name,
-          in: route.path.includes(`:${param.name}`) ? "path" : "query",
+          in: route.path.includes(`:${param.name}`) ? 'path' : 'query',
           required: param.required,
           description: param.description,
           schema: { type: param.type.toLowerCase() },
@@ -289,7 +331,7 @@ function generateOpenAPI(routes, config) {
 
     // Add security
     if (route.security && route.security.length > 0) {
-      operation.security = route.security.map((s) => ({ [s]: [] }));
+      operation.security = route.security.map(s => ({ [s]: [] }));
     }
 
     pathGroups[route.path][route.method.toLowerCase()] = operation;
@@ -303,39 +345,42 @@ function generateOpenAPI(routes, config) {
  * Generate Markdown documentation
  */
 function generateMarkdown(routes, config) {
-  let markdown = `# ${config.title || "API Documentation"}\n\n`;
-  markdown += `${config.description || "Auto-generated API documentation"}\n\n`;
-  markdown += `**Version:** ${config.version || "1.0.0"}\n\n`;
+  let markdown = `# ${config.title || 'API Documentation'}\n\n`;
+  markdown += `${config.description || 'Auto-generated API documentation'}\n\n`;
+  markdown += `**Version:** ${config.version || '1.0.0'}\n\n`;
 
   if (config.servers && config.servers.length > 0) {
-    markdown += "## Servers\n\n";
-    config.servers.forEach((server) => {
-      markdown += `- ${server.url}${server.description ? ` - ${server.description}` : ""}\n`;
+    markdown += '## Servers\n\n';
+    config.servers.forEach(server => {
+      markdown += `- ${server.url}${server.description ? ` - ${server.description}` : ''}\n`;
     });
-    markdown += "\n";
+    markdown += '\n';
   }
 
-  markdown += "## Endpoints\n\n";
+  markdown += '## Endpoints\n\n';
 
   // Group by tags
   const tagGroups = { untagged: [] };
-  routes.forEach((route) => {
-    const tags =
-      route.tags && route.tags.length > 0 ? route.tags : ["untagged"];
-    tags.forEach((tag) => {
-      if (!tagGroups[tag]) tagGroups[tag] = [];
+  routes.forEach(route => {
+    const tags = route.tags && route.tags.length > 0 ? route.tags : ['untagged'];
+    tags.forEach(tag => {
+      if (!tagGroups[tag]) {
+        tagGroups[tag] = [];
+      }
       tagGroups[tag].push(route);
     });
   });
 
   Object.entries(tagGroups).forEach(([tag, tagRoutes]) => {
-    if (tagRoutes.length === 0) return;
+    if (tagRoutes.length === 0) {
+      return;
+    }
 
-    if (tag !== "untagged") {
+    if (tag !== 'untagged') {
       markdown += `### ${tag}\n\n`;
     }
 
-    tagRoutes.forEach((route) => {
+    tagRoutes.forEach(route => {
       markdown += `#### ${route.method} ${route.path}\n\n`;
 
       if (route.summary) {
@@ -347,30 +392,30 @@ function generateMarkdown(routes, config) {
       }
 
       if (route.parameters && route.parameters.length > 0) {
-        markdown += "**Parameters:**\n\n";
-        markdown += "| Name | Type | Required | Description |\n";
-        markdown += "|------|------|----------|-------------|\n";
-        route.parameters.forEach((param) => {
-          markdown += `| ${param.name} | ${param.type} | ${param.required ? "Yes" : "No"} | ${param.description || "-"} |\n`;
+        markdown += '**Parameters:**\n\n';
+        markdown += '| Name | Type | Required | Description |\n';
+        markdown += '|------|------|----------|-------------|\n';
+        route.parameters.forEach(param => {
+          markdown += `| ${param.name} | ${param.type} | ${param.required ? 'Yes' : 'No'} | ${param.description || '-'} |\n`;
         });
-        markdown += "\n";
+        markdown += '\n';
       }
 
       if (route.responses) {
-        markdown += "**Responses:**\n\n";
-        markdown += "| Status | Description |\n";
-        markdown += "|--------|-------------|\n";
+        markdown += '**Responses:**\n\n';
+        markdown += '| Status | Description |\n';
+        markdown += '|--------|-------------|\n';
         Object.entries(route.responses).forEach(([status, response]) => {
           markdown += `| ${status} | ${response.description} |\n`;
         });
-        markdown += "\n";
+        markdown += '\n';
       }
 
       if (route.security && route.security.length > 0) {
-        markdown += `**Security:** ${route.security.join(", ")}\n\n`;
+        markdown += `**Security:** ${route.security.join(', ')}\n\n`;
       }
 
-      markdown += "---\n\n";
+      markdown += '---\n\n';
     });
   });
 
@@ -382,7 +427,7 @@ function generateMarkdown(routes, config) {
  */
 function generateHTML(routes, config) {
   const markdown = generateMarkdown(routes, config);
-  const marked = require("marked");
+  const marked = require('marked');
 
   const html = `
 <!DOCTYPE html>
@@ -390,7 +435,7 @@ function generateHTML(routes, config) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${config.title || "API Documentation"}</title>
+    <title>${config.title || 'API Documentation'}</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
@@ -480,7 +525,7 @@ function generateHTML(routes, config) {
       .parse(markdown)
       .replace(
         /<h4>(GET|POST|PUT|PATCH|DELETE)\s+(.+?)<\/h4>/g,
-        '<h4><span class="method method-$1">$1</span> $2</h4>',
+        '<h4><span class="method method-$1">$1</span> $2</h4>'
       )}
 </body>
 </html>
@@ -497,7 +542,7 @@ async function loadConfig(configPath) {
     return {};
   }
 
-  const content = await fs.readFile(configPath, "utf8");
+  const content = await fs.readFile(configPath, 'utf8');
   return JSON.parse(content);
 }
 
@@ -506,51 +551,45 @@ async function loadConfig(configPath) {
  */
 async function main() {
   program
-    .name("api-doc-generator")
-    .description("Generate API documentation from Express routes")
-    .version("1.0.0")
-    .option("-p, --project <path>", "Project path", process.cwd())
-    .option("-o, --output <path>", "Output path", "./api-docs")
-    .option(
-      "-f, --format <format>",
-      "Output format (openapi, markdown, html, all)",
-      "all",
-    )
-    .option("-c, --config <path>", "Configuration file path")
-    .option("--pattern <pattern>", "Route file pattern", "**/routes/**/*.js")
-    .option("--title <title>", "API title")
-    .option("--version <version>", "API version")
-    .option("--server <url>", "Server URL")
+    .name('api-doc-generator')
+    .description('Generate API documentation from Express routes')
+    .version('1.0.0')
+    .option('-p, --project <path>', 'Project path', process.cwd())
+    .option('-o, --output <path>', 'Output path', './api-docs')
+    .option('-f, --format <format>', 'Output format (openapi, markdown, html, all)', 'all')
+    .option('-c, --config <path>', 'Configuration file path')
+    .option('--pattern <pattern>', 'Route file pattern', '**/routes/**/*.js')
+    .option('--title <title>', 'API title')
+    .option('--version <version>', 'API version')
+    .option('--server <url>', 'Server URL')
     .parse(process.argv);
 
   const options = program.opts();
-  const spinner = createSpinner("Generating API documentation...").start();
+  const spinner = createSpinner('Generating API documentation...').start();
 
   try {
     // Load configuration
     const fileConfig = await loadConfig(options.config);
     const config = {
       ...fileConfig,
-      title: options.title || fileConfig.title || "API Documentation",
-      version: options.version || fileConfig.version || "1.0.0",
-      servers: options.server
-        ? [{ url: options.server }]
-        : fileConfig.servers || [],
+      title: options.title || fileConfig.title || 'API Documentation',
+      version: options.version || fileConfig.version || '1.0.0',
+      servers: options.server ? [{ url: options.server }] : fileConfig.servers || [],
     };
 
     // Find route files
-    spinner.text = "Finding route files...";
+    spinner.text = 'Finding route files...';
     const routeFiles = await findRouteFiles(options.project, options.pattern);
 
     if (routeFiles.length === 0) {
-      spinner.fail("No route files found");
+      spinner.fail('No route files found');
       process.exit(1);
     }
 
     spinner.text = `Found ${routeFiles.length} route files`;
 
     // Parse routes
-    spinner.text = "Parsing routes...";
+    spinner.text = 'Parsing routes...';
     const allRoutes = [];
     for (const file of routeFiles) {
       try {
@@ -562,7 +601,7 @@ async function main() {
     }
 
     if (allRoutes.length === 0) {
-      spinner.fail("No routes found");
+      spinner.fail('No routes found');
       process.exit(1);
     }
 
@@ -572,58 +611,51 @@ async function main() {
     await fs.mkdir(options.output, { recursive: true });
 
     // Generate documentation
-    const formats =
-      options.format === "all"
-        ? ["openapi", "markdown", "html"]
-        : [options.format];
+    const formats = options.format === 'all' ? ['openapi', 'markdown', 'html'] : [options.format];
 
     for (const format of formats) {
       spinner.text = `Generating ${format} documentation...`;
 
       switch (format) {
-        case "openapi": {
+        case 'openapi': {
           const openapi = generateOpenAPI(allRoutes, config);
           await fs.writeFile(
-            path.join(options.output, "openapi.json"),
-            JSON.stringify(openapi, null, 2),
+            path.join(options.output, 'openapi.json'),
+            JSON.stringify(openapi, null, 2)
           );
           await fs.writeFile(
-            path.join(options.output, "openapi.yaml"),
-            require("js-yaml").dump(openapi),
+            path.join(options.output, 'openapi.yaml'),
+            require('js-yaml').dump(openapi)
           );
           break;
         }
 
-        case "markdown": {
+        case 'markdown': {
           const markdown = generateMarkdown(allRoutes, config);
-          await fs.writeFile(path.join(options.output, "API.md"), markdown);
+          await fs.writeFile(path.join(options.output, 'API.md'), markdown);
           break;
         }
 
-        case "html": {
+        case 'html': {
           const html = generateHTML(allRoutes, config);
-          await fs.writeFile(path.join(options.output, "index.html"), html);
+          await fs.writeFile(path.join(options.output, 'index.html'), html);
           break;
         }
       }
     }
 
-    spinner.succeed(
-      color.green(
-        `API documentation generated successfully in ${options.output}`,
-      ),
-    );
+    spinner.succeed(color.green(`API documentation generated successfully in ${options.output}`));
 
     // Summary
-    console.log("\n" + color.bold("Summary:"));
-    console.log(color.gray("─".repeat(40)));
+    console.log('\n' + color.bold('Summary:'));
+    console.log(color.gray('─'.repeat(40)));
     console.log(`Routes found: ${color.cyan(allRoutes.length)}`);
     console.log(`Files processed: ${color.cyan(routeFiles.length)}`);
-    console.log(`Output formats: ${color.cyan(formats.join(", "))}`);
+    console.log(`Output formats: ${color.cyan(formats.join(', '))}`);
     console.log(`Output directory: ${color.cyan(options.output)}`);
   } catch (error) {
-    spinner.fail(color.red("Failed to generate documentation"));
-    logger.error("Documentation generation failed:", error);
+    spinner.fail(color.red('Failed to generate documentation'));
+    logger.error('Documentation generation failed:', error);
     process.exit(1);
   }
 }
@@ -639,8 +671,8 @@ module.exports = {
 
 // Run if called directly
 if (require.main === module) {
-  main().catch((error) => {
-    console.error(color.red("Error:"), error.message);
+  main().catch(error => {
+    console.error(color.red('Error:'), error.message);
     process.exit(1);
   });
 }

@@ -16,14 +16,18 @@ const userRooms = new Map(); // Track which rooms each user is in
  */
 const createRoom = async (socket, data, callback) => {
   const { name, description, maxParticipants = 50, isPrivate = false } = data || {};
-  
+
   if (!name || name.trim().length === 0) {
-    if (callback) callback({ error: 'Room name is required' });
+    if (callback) {
+      callback({ error: 'Room name is required' });
+    }
     return;
   }
 
   if (name.length > 100) {
-    if (callback) callback({ error: 'Room name too long (max 100 characters)' });
+    if (callback) {
+      callback({ error: 'Room name too long (max 100 characters)' });
+    }
     return;
   }
 
@@ -37,11 +41,11 @@ const createRoom = async (socket, data, callback) => {
     maxParticipants: Math.min(Math.max(1, maxParticipants), 1000),
     isPrivate: Boolean(isPrivate),
     createdAt: new Date().toISOString(),
-    lastActivity: new Date().toISOString()
+    lastActivity: new Date().toISOString(),
   };
 
   rooms.set(roomId, roomData);
-  
+
   // Track user's rooms
   if (!userRooms.has(socket.userId)) {
     userRooms.set(socket.userId, new Set());
@@ -51,14 +55,17 @@ const createRoom = async (socket, data, callback) => {
   // Join the socket room
   socket.join(`room:${roomId}`);
 
-  logger.info({
-    component: 'room',
-    event: 'create',
-    socketId: socket.id,
-    userId: socket.userId,
-    roomId,
-    roomName: name
-  }, 'Room created');
+  logger.info(
+    {
+      component: 'room',
+      event: 'create',
+      socketId: socket.id,
+      userId: socket.userId,
+      roomId,
+      roomName: name,
+    },
+    'Room created'
+  );
 
   if (callback) {
     callback({
@@ -70,9 +77,9 @@ const createRoom = async (socket, data, callback) => {
         participants: roomData.participants.size,
         maxParticipants: roomData.maxParticipants,
         isPrivate: roomData.isPrivate,
-        createdAt: roomData.createdAt
+        createdAt: roomData.createdAt,
       },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 };
@@ -82,27 +89,35 @@ const createRoom = async (socket, data, callback) => {
  */
 const joinRoom = async (socket, data, callback) => {
   const { roomId } = data || {};
-  
+
   if (!roomId) {
-    if (callback) callback({ error: 'Room ID is required' });
+    if (callback) {
+      callback({ error: 'Room ID is required' });
+    }
     return;
   }
 
   const room = rooms.get(roomId);
   if (!room) {
-    if (callback) callback({ error: 'Room not found' });
+    if (callback) {
+      callback({ error: 'Room not found' });
+    }
     return;
   }
 
   // Check if room is full
   if (room.participants.size >= room.maxParticipants) {
-    if (callback) callback({ error: 'Room is full' });
+    if (callback) {
+      callback({ error: 'Room is full' });
+    }
     return;
   }
 
   // Check if user is already in the room
   if (room.participants.has(socket.userId)) {
-    if (callback) callback({ error: 'Already in this room' });
+    if (callback) {
+      callback({ error: 'Already in this room' });
+    }
     return;
   }
 
@@ -125,17 +140,20 @@ const joinRoom = async (socket, data, callback) => {
     roomId,
     roomName: room.name,
     participants: room.participants.size,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 
-  logger.info({
-    component: 'room',
-    event: 'join',
-    socketId: socket.id,
-    userId: socket.userId,
-    roomId,
-    roomName: room.name
-  }, 'User joined room');
+  logger.info(
+    {
+      component: 'room',
+      event: 'join',
+      socketId: socket.id,
+      userId: socket.userId,
+      roomId,
+      roomName: room.name,
+    },
+    'User joined room'
+  );
 
   if (callback) {
     callback({
@@ -146,9 +164,9 @@ const joinRoom = async (socket, data, callback) => {
         description: room.description,
         participants: room.participants.size,
         maxParticipants: room.maxParticipants,
-        isPrivate: room.isPrivate
+        isPrivate: room.isPrivate,
       },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 };
@@ -158,15 +176,19 @@ const joinRoom = async (socket, data, callback) => {
  */
 const leaveRoom = async (socket, data, callback) => {
   const { roomId } = data || {};
-  
+
   if (!roomId) {
-    if (callback) callback({ error: 'Room ID is required' });
+    if (callback) {
+      callback({ error: 'Room ID is required' });
+    }
     return;
   }
 
   const room = rooms.get(roomId);
   if (!room) {
-    if (callback) callback({ error: 'Room not found' });
+    if (callback) {
+      callback({ error: 'Room not found' });
+    }
     return;
   }
 
@@ -185,13 +207,13 @@ const leaveRoom = async (socket, data, callback) => {
   // If room is empty or owner left, delete the room
   if (room.participants.size === 0 || room.owner === socket.userId) {
     rooms.delete(roomId);
-    
+
     // Notify remaining participants if any
     socket.to(`room:${roomId}`).emit('room:deleted', {
       roomId,
       roomName: room.name,
       reason: room.owner === socket.userId ? 'owner_left' : 'empty',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   } else {
     // Notify other participants
@@ -200,24 +222,27 @@ const leaveRoom = async (socket, data, callback) => {
       roomId,
       roomName: room.name,
       participants: room.participants.size,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 
-  logger.info({
-    component: 'room',
-    event: 'leave',
-    socketId: socket.id,
-    userId: socket.userId,
-    roomId,
-    roomName: room.name
-  }, 'User left room');
+  logger.info(
+    {
+      component: 'room',
+      event: 'leave',
+      socketId: socket.id,
+      userId: socket.userId,
+      roomId,
+      roomName: room.name,
+    },
+    'User left room'
+  );
 
   if (callback) {
     callback({
       success: true,
       roomId,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 };
@@ -227,7 +252,7 @@ const leaveRoom = async (socket, data, callback) => {
  */
 const listRooms = async (socket, data, callback) => {
   const { includePrivate = false, limit = 50, offset = 0 } = data || {};
-  
+
   const roomList = Array.from(rooms.values())
     .filter(room => includePrivate || !room.isPrivate)
     .sort((a, b) => new Date(b.lastActivity) - new Date(a.lastActivity))
@@ -240,16 +265,19 @@ const listRooms = async (socket, data, callback) => {
       maxParticipants: room.maxParticipants,
       isPrivate: room.isPrivate,
       createdAt: room.createdAt,
-      lastActivity: room.lastActivity
+      lastActivity: room.lastActivity,
     }));
 
-  logger.debug({
-    component: 'room',
-    event: 'list',
-    socketId: socket.id,
-    userId: socket.userId,
-    roomsCount: roomList.length
-  }, 'Room list requested');
+  logger.debug(
+    {
+      component: 'room',
+      event: 'list',
+      socketId: socket.id,
+      userId: socket.userId,
+      roomsCount: roomList.length,
+    },
+    'Room list requested'
+  );
 
   if (callback) {
     callback({
@@ -258,7 +286,7 @@ const listRooms = async (socket, data, callback) => {
       total: Array.from(rooms.values()).filter(room => includePrivate || !room.isPrivate).length,
       limit,
       offset,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 };
@@ -268,21 +296,27 @@ const listRooms = async (socket, data, callback) => {
  */
 const getRoomInfo = async (socket, data, callback) => {
   const { roomId } = data || {};
-  
+
   if (!roomId) {
-    if (callback) callback({ error: 'Room ID is required' });
+    if (callback) {
+      callback({ error: 'Room ID is required' });
+    }
     return;
   }
 
   const room = rooms.get(roomId);
   if (!room) {
-    if (callback) callback({ error: 'Room not found' });
+    if (callback) {
+      callback({ error: 'Room not found' });
+    }
     return;
   }
 
   // Check if user has access to private room info
   if (room.isPrivate && !room.participants.has(socket.userId)) {
-    if (callback) callback({ error: 'Access denied to private room' });
+    if (callback) {
+      callback({ error: 'Access denied to private room' });
+    }
     return;
   }
 
@@ -296,22 +330,25 @@ const getRoomInfo = async (socket, data, callback) => {
     isPrivate: room.isPrivate,
     createdAt: room.createdAt,
     lastActivity: room.lastActivity,
-    isParticipant: room.participants.has(socket.userId)
+    isParticipant: room.participants.has(socket.userId),
   };
 
-  logger.debug({
-    component: 'room',
-    event: 'info',
-    socketId: socket.id,
-    userId: socket.userId,
-    roomId
-  }, 'Room info requested');
+  logger.debug(
+    {
+      component: 'room',
+      event: 'info',
+      socketId: socket.id,
+      userId: socket.userId,
+      roomId,
+    },
+    'Room info requested'
+  );
 
   if (callback) {
     callback({
       success: true,
       room: roomInfo,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 };
@@ -319,22 +356,24 @@ const getRoomInfo = async (socket, data, callback) => {
 /**
  * Clean up user's rooms on disconnect
  */
-const cleanupUserRooms = (userId) => {
-  if (!userRooms.has(userId)) return;
+const cleanupUserRooms = userId => {
+  if (!userRooms.has(userId)) {
+    return;
+  }
 
   const userRoomSet = userRooms.get(userId);
   for (const roomId of userRoomSet) {
     const room = rooms.get(roomId);
     if (room) {
       room.participants.delete(userId);
-      
+
       // Delete room if empty or owner left
       if (room.participants.size === 0 || room.owner === userId) {
         rooms.delete(roomId);
       }
     }
   }
-  
+
   userRooms.delete(userId);
 };
 
@@ -344,5 +383,5 @@ module.exports = {
   leaveRoom,
   listRooms,
   getRoomInfo,
-  cleanupUserRooms
+  cleanupUserRooms,
 };

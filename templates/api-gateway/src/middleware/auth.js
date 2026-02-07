@@ -42,14 +42,16 @@ function getTokenFromRequest(req) {
 /**
  * JWKS client for external JWT verification (optional)
  */
-const jwksClientInstance = process.env.JWKS_URI ? jwksClient({
-  jwksUri: process.env.JWKS_URI,
-  requestHeaders: {},
-  timeout: 30000,
-  cache: true,
-  rateLimit: true,
-  jwksRequestsPerMinute: 5,
-}) : null;
+const jwksClientInstance = process.env.JWKS_URI
+  ? jwksClient({
+      jwksUri: process.env.JWKS_URI,
+      requestHeaders: {},
+      timeout: 30000,
+      cache: true,
+      rateLimit: true,
+      jwksRequestsPerMinute: 5,
+    })
+  : null;
 
 /**
  * Get signing key for JWT verification
@@ -130,7 +132,7 @@ export function verifyToken(req, res, next) {
     logger.warn(`JWT verification failed: ${error.message}`);
 
     let errorCode = 'TOKEN_INVALID';
-    let statusCode = 401;
+    const statusCode = 401;
 
     if (error.name === 'TokenExpiredError') {
       errorCode = 'TOKEN_EXPIRED';
@@ -187,8 +189,8 @@ export function requireRoles(requiredRoles) {
  * @returns {Function} Express middleware function
  */
 export function requirePermissions(requiredPermissions) {
-  const permissions = Array.isArray(requiredPermissions) 
-    ? requiredPermissions 
+  const permissions = Array.isArray(requiredPermissions)
+    ? requiredPermissions
     : [requiredPermissions];
 
   return (req, res, next) => {
@@ -200,7 +202,7 @@ export function requirePermissions(requiredPermissions) {
     }
 
     const userPermissions = req.user.permissions || [];
-    const hasRequiredPermission = permissions.every(permission => 
+    const hasRequiredPermission = permissions.every(permission =>
       userPermissions.includes(permission)
     );
 

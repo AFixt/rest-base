@@ -41,7 +41,7 @@ export interface SessionConfig {
     secure: boolean;
     httpOnly: boolean;
     maxAge: number;
-    sameSite: "strict" | "lax" | "none";
+    sameSite: 'strict' | 'lax' | 'none';
   };
 }
 
@@ -186,8 +186,8 @@ export interface ValidationResult {
  * Get secure defaults for a specific component
  */
 export function getSecureDefaults(
-  component: "express" | "database" | "logging" | "auth" | "file" | "api",
-  environment?: "development" | "test" | "production",
+  component: 'express' | 'database' | 'logging' | 'auth' | 'file' | 'api',
+  environment?: 'development' | 'test' | 'production'
 ): any;
 
 /**
@@ -195,7 +195,7 @@ export function getSecureDefaults(
  */
 export function validateConfiguration(
   config: any,
-  component: "express" | "database" | "logging" | "auth" | "file" | "api",
+  component: 'express' | 'database' | 'logging' | 'auth' | 'file' | 'api'
 ): ValidationResult;
 
 export const expressDefaults: ExpressDefaults;

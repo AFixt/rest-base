@@ -78,11 +78,7 @@ export declare function loadConfig(projectDir?: string): RestSpecConfiguration;
 /**
  * Gets a specific configuration value using dot notation
  */
-export declare function getConfigValue(
-  key: string, 
-  defaultValue?: any, 
-  projectDir?: string
-): any;
+export declare function getConfigValue(key: string, defaultValue?: any, projectDir?: string): any;
 
 /**
  * Clears the configuration cache

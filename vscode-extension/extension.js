@@ -5,9 +5,9 @@
  * @author REST-SPEC Team
  */
 
-const vscode = require("vscode");
-const fs = require("fs");
-const path = require("path");
+const vscode = require('vscode');
+const fs = require('fs');
+const path = require('path');
 
 /**
  * Template generators for different file types
@@ -15,16 +15,16 @@ const path = require("path");
 class TemplateGenerator {
   constructor(context) {
     this.context = context;
-    this.config = vscode.workspace.getConfiguration("rest-spec");
+    this.config = vscode.workspace.getConfiguration('rest-spec');
   }
 
   /**
    * Get template variables from user input and configuration
    */
   async getTemplateVariables(type) {
-    const defaultAuthor = this.config.get("defaultAuthor") || "";
-    const useTypeScript = this.config.get("useTypeScript") || false;
-    const includeJSDoc = this.config.get("includeJSDoc") || true;
+    const defaultAuthor = this.config.get('defaultAuthor') || '';
+    const useTypeScript = this.config.get('useTypeScript') || false;
+    const includeJSDoc = this.config.get('includeJSDoc') || true;
 
     const variables = {
       author: defaultAuthor,
@@ -34,51 +34,48 @@ class TemplateGenerator {
     };
 
     switch (type) {
-      case "controller":
-      case "model":
-      case "route":
+      case 'controller':
+      case 'model':
+      case 'route':
         variables.name = await vscode.window.showInputBox({
           prompt: `Enter ${type} name (e.g., User, Product)`,
-          placeHolder: "ModelName",
-          validateInput: (value) => {
+          placeHolder: 'ModelName',
+          validateInput: value => {
             if (!value || value.trim().length === 0) {
-              return "Name is required";
+              return 'Name is required';
             }
             if (!/^[A-Z][a-zA-Z0-9]*$/.test(value.trim())) {
-              return "Name must start with uppercase letter and contain only letters and numbers";
+              return 'Name must start with uppercase letter and contain only letters and numbers';
             }
             return null;
           },
         });
         break;
 
-      case "middleware":
+      case 'middleware':
         variables.name = await vscode.window.showInputBox({
-          prompt: "Enter middleware name (e.g., authenticate, validateInput)",
-          placeHolder: "middlewareName",
-          validateInput: (value) => {
+          prompt: 'Enter middleware name (e.g., authenticate, validateInput)',
+          placeHolder: 'middlewareName',
+          validateInput: value => {
             if (!value || value.trim().length === 0) {
-              return "Name is required";
+              return 'Name is required';
             }
             if (!/^[a-z][a-zA-Z0-9]*$/.test(value.trim())) {
-              return "Name must start with lowercase letter and contain only letters and numbers";
+              return 'Name must start with lowercase letter and contain only letters and numbers';
             }
             return null;
           },
         });
         break;
 
-      case "test":
-        variables.testType = await vscode.window.showQuickPick(
-          ["unit", "integration", "e2e"],
-          {
-            prompt: "Select test type",
-          },
-        );
+      case 'test':
+        variables.testType = await vscode.window.showQuickPick(['unit', 'integration', 'e2e'], {
+          prompt: 'Select test type',
+        });
 
         variables.componentName = await vscode.window.showInputBox({
-          prompt: "Enter component name to test",
-          placeHolder: "ComponentName",
+          prompt: 'Enter component name to test',
+          placeHolder: 'ComponentName',
         });
         break;
     }
@@ -95,9 +92,9 @@ class TemplateGenerator {
    */
   async generateController(variables) {
     const { name, author, useTypeScript, includeJSDoc } = variables;
-    const fileName = `${name.toLowerCase()}Controller.${useTypeScript ? "ts" : "js"}`;
+    const fileName = `${name.toLowerCase()}Controller.${useTypeScript ? 'ts' : 'js'}`;
 
-    let content = "";
+    let content = '';
 
     if (includeJSDoc) {
       content += `/**\n * ${name} Controller\n * \n * Handles HTTP requests for ${name} resources\n * @author ${author}\n */\n\n`;
@@ -125,9 +122,9 @@ class TemplateGenerator {
    */
   async generateMiddleware(variables) {
     const { name, author, useTypeScript, includeJSDoc } = variables;
-    const fileName = `${name}.${useTypeScript ? "ts" : "js"}`;
+    const fileName = `${name}.${useTypeScript ? 'ts' : 'js'}`;
 
-    let content = "";
+    let content = '';
 
     if (includeJSDoc) {
       content += `/**\n * ${name} Middleware\n * \n * @author ${author}\n */\n\n`;
@@ -165,9 +162,9 @@ class TemplateGenerator {
    */
   async generateModel(variables) {
     const { name, author, useTypeScript, includeJSDoc } = variables;
-    const fileName = `${name.toLowerCase()}.${useTypeScript ? "ts" : "js"}`;
+    const fileName = `${name.toLowerCase()}.${useTypeScript ? 'ts' : 'js'}`;
 
-    let content = "";
+    let content = '';
 
     if (includeJSDoc) {
       content += `/**\n * ${name} Model\n * \n * Sequelize model definition for ${name}\n * @author ${author}\n */\n\n`;
@@ -241,9 +238,9 @@ class TemplateGenerator {
    */
   async generateRoute(variables) {
     const { name, author, useTypeScript, includeJSDoc } = variables;
-    const fileName = `${name.toLowerCase()}Routes.${useTypeScript ? "ts" : "js"}`;
+    const fileName = `${name.toLowerCase()}Routes.${useTypeScript ? 'ts' : 'js'}`;
 
-    let content = "";
+    let content = '';
 
     if (includeJSDoc) {
       content += `/**\n * ${name} Routes\n * \n * Defines HTTP routes for ${name} resources\n * @author ${author}\n */\n\n`;
@@ -283,13 +280,13 @@ class TemplateGenerator {
    */
   async generateTest(variables) {
     const { componentName, testType, author, useTypeScript } = variables;
-    const fileName = `${componentName.toLowerCase()}.test.${useTypeScript ? "ts" : "js"}`;
+    const fileName = `${componentName.toLowerCase()}.test.${useTypeScript ? 'ts' : 'js'}`;
 
-    let content = "";
+    let content = '';
 
     content += `/**\n * ${componentName} Tests\n * \n * ${testType} tests for ${componentName}\n * @author ${author}\n */\n\n`;
 
-    if (testType === "unit") {
+    if (testType === 'unit') {
       content += `const ${componentName} = require('../src/${componentName.toLowerCase()}');\n\n`;
     } else {
       content += `const request = require('supertest');\n`;
@@ -323,7 +320,7 @@ class TemplateGenerator {
    * Generate CRUD methods for controllers
    */
   generateCRUDMethods(modelName, useTypeScript, includeJSDoc) {
-    let content = "";
+    let content = '';
     const modelVar = modelName.toLowerCase();
 
     // getAll method
@@ -374,14 +371,14 @@ class TemplateGenerator {
   /**
    * Create file in workspace
    */
-  async createFile(fileName, content, subDir = "") {
+  async createFile(fileName, content, subDir = '') {
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
     if (!workspaceFolder) {
-      vscode.window.showErrorMessage("No workspace folder found");
+      vscode.window.showErrorMessage('No workspace folder found');
       return;
     }
 
-    const dirPath = path.join(workspaceFolder.uri.fsPath, "src", subDir);
+    const dirPath = path.join(workspaceFolder.uri.fsPath, 'src', subDir);
     const filePath = path.join(dirPath, fileName);
 
     // Create directory if it doesn't exist
@@ -393,10 +390,10 @@ class TemplateGenerator {
     if (fs.existsSync(filePath)) {
       const overwrite = await vscode.window.showWarningMessage(
         `File ${fileName} already exists. Overwrite?`,
-        "Yes",
-        "No",
+        'Yes',
+        'No'
       );
-      if (overwrite !== "Yes") {
+      if (overwrite !== 'Yes') {
         return;
       }
     }
@@ -421,74 +418,64 @@ function activate(context) {
   // Register commands
   const commands = [
     {
-      name: "rest-spec.createController",
+      name: 'rest-spec.createController',
       handler: async () => {
-        const variables =
-          await templateGenerator.getTemplateVariables("controller");
+        const variables = await templateGenerator.getTemplateVariables('controller');
         if (variables) {
-          const { fileName, content } =
-            await templateGenerator.generateController(variables);
-          await templateGenerator.createFile(fileName, content, "controllers");
+          const { fileName, content } = await templateGenerator.generateController(variables);
+          await templateGenerator.createFile(fileName, content, 'controllers');
         }
       },
     },
     {
-      name: "rest-spec.createMiddleware",
+      name: 'rest-spec.createMiddleware',
       handler: async () => {
-        const variables =
-          await templateGenerator.getTemplateVariables("middleware");
+        const variables = await templateGenerator.getTemplateVariables('middleware');
         if (variables) {
-          const { fileName, content } =
-            await templateGenerator.generateMiddleware(variables);
-          await templateGenerator.createFile(fileName, content, "middlewares");
+          const { fileName, content } = await templateGenerator.generateMiddleware(variables);
+          await templateGenerator.createFile(fileName, content, 'middlewares');
         }
       },
     },
     {
-      name: "rest-spec.createModel",
+      name: 'rest-spec.createModel',
       handler: async () => {
-        const variables = await templateGenerator.getTemplateVariables("model");
+        const variables = await templateGenerator.getTemplateVariables('model');
         if (variables) {
-          const { fileName, content } =
-            await templateGenerator.generateModel(variables);
-          await templateGenerator.createFile(fileName, content, "models");
+          const { fileName, content } = await templateGenerator.generateModel(variables);
+          await templateGenerator.createFile(fileName, content, 'models');
         }
       },
     },
     {
-      name: "rest-spec.createRoute",
+      name: 'rest-spec.createRoute',
       handler: async () => {
-        const variables = await templateGenerator.getTemplateVariables("route");
+        const variables = await templateGenerator.getTemplateVariables('route');
         if (variables) {
-          const { fileName, content } =
-            await templateGenerator.generateRoute(variables);
-          await templateGenerator.createFile(fileName, content, "routes");
+          const { fileName, content } = await templateGenerator.generateRoute(variables);
+          await templateGenerator.createFile(fileName, content, 'routes');
         }
       },
     },
     {
-      name: "rest-spec.createTest",
+      name: 'rest-spec.createTest',
       handler: async () => {
-        const variables = await templateGenerator.getTemplateVariables("test");
+        const variables = await templateGenerator.getTemplateVariables('test');
         if (variables) {
-          const { fileName, content } =
-            await templateGenerator.generateTest(variables);
-          await templateGenerator.createFile(fileName, content, "../tests");
+          const { fileName, content } = await templateGenerator.generateTest(variables);
+          await templateGenerator.createFile(fileName, content, '../tests');
         }
       },
     },
   ];
 
   // Register all commands
-  commands.forEach((command) => {
-    const disposable = vscode.commands.registerCommand(
-      command.name,
-      command.handler,
-    );
+  commands.forEach(command => {
+    const disposable = vscode.commands.registerCommand(command.name, command.handler);
     context.subscriptions.push(disposable);
   });
 
-  console.log("REST-SPEC extension is now active!");
+  console.log('REST-SPEC extension is now active!');
 }
 
 /**

@@ -16,7 +16,7 @@ let isShuttingDown = false;
  * @param {number} timeout - Shutdown timeout in milliseconds
  */
 export function gracefulShutdown(server, timeout = 30000) {
-  const shutdown = async (signal) => {
+  const shutdown = async signal => {
     if (isShuttingDown) {
       logger.warn('Shutdown already in progress, ignoring signal:', signal);
       return;
@@ -33,7 +33,7 @@ export function gracefulShutdown(server, timeout = 30000) {
 
     try {
       // Stop accepting new connections
-      server.close(async (error) => {
+      server.close(async error => {
         if (error) {
           logger.error('Error closing server:', error);
         } else {
@@ -60,7 +60,6 @@ export function gracefulShutdown(server, timeout = 30000) {
       setTimeout(() => {
         logger.info('No longer accepting new requests');
       }, 1000);
-
     } catch (error) {
       logger.error('Error during shutdown:', error);
       clearTimeout(shutdownTimeout);
@@ -74,7 +73,7 @@ export function gracefulShutdown(server, timeout = 30000) {
   process.on('SIGQUIT', () => shutdown('SIGQUIT'));
 
   // Handle uncaught exceptions and unhandled rejections
-  process.on('uncaughtException', (error) => {
+  process.on('uncaughtException', error => {
     logger.error('Uncaught Exception:', error);
     shutdown('UNCAUGHT_EXCEPTION');
   });

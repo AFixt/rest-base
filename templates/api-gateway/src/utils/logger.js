@@ -101,7 +101,7 @@ export function logRequest(req, message = 'Request', extra = {}) {
  */
 export function logResponse(req, res, message = 'Response', extra = {}) {
   const responseTime = Date.now() - req.startTime;
-  
+
   logger.info({
     msg: message,
     requestId: req.requestId,
@@ -200,18 +200,18 @@ export function logRateLimit(req, limitType = 'general', extra = {}) {
  */
 export function createTimer(operation) {
   const startTime = process.hrtime.bigint();
-  
+
   return (extra = {}) => {
     const endTime = process.hrtime.bigint();
     const duration = Number(endTime - startTime) / 1000000; // Convert to milliseconds
-    
+
     logger.debug({
       msg: 'Performance timing',
       operation,
       duration,
       ...extra,
     });
-    
+
     return duration;
   };
 }

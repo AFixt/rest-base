@@ -6,26 +6,26 @@
 
 ## Table of Contents
 
-* [Overview](#overview)
-* [Terminal Navigation Shortcuts](#terminal-navigation-shortcuts)
-  * [Universal Terminal Shortcuts](#universal-terminal-shortcuts)
-  * [Platform-Specific Shortcuts](#platform-specific-shortcuts)
-* [CLI Tool Shortcuts](#cli-tool-shortcuts)
-  * [Interactive Mode Navigation](#interactive-mode-navigation)
-  * [Selection and Multi-Select](#selection-and-multi-select)
-  * [Text Input](#text-input)
-* [Auto-Completion](#auto-completion)
-  * [Tab Completion](#tab-completion)
-  * [Shell-Specific Completion](#shell-specific-completion)
-* [Accessibility Shortcuts](#accessibility-shortcuts)
-  * [Screen Reader Support](#screen-reader-support)
-  * [High Contrast Mode](#high-contrast-mode)
-  * [Accessibility Mode](#accessibility-mode)
-* [Command History and Search](#command-history-and-search)
-  * [History Navigation](#history-navigation)
-  * [Reverse Search](#reverse-search)
-* [Quick Command Reference](#quick-command-reference)
-* [Tips and Best Practices](#tips-and-best-practices)
+- [Overview](#overview)
+- [Terminal Navigation Shortcuts](#terminal-navigation-shortcuts)
+  - [Universal Terminal Shortcuts](#universal-terminal-shortcuts)
+  - [Platform-Specific Shortcuts](#platform-specific-shortcuts)
+- [CLI Tool Shortcuts](#cli-tool-shortcuts)
+  - [Interactive Mode Navigation](#interactive-mode-navigation)
+  - [Selection and Multi-Select](#selection-and-multi-select)
+  - [Text Input](#text-input)
+- [Auto-Completion](#auto-completion)
+  - [Tab Completion](#tab-completion)
+  - [Shell-Specific Completion](#shell-specific-completion)
+- [Accessibility Shortcuts](#accessibility-shortcuts)
+  - [Screen Reader Support](#screen-reader-support)
+  - [High Contrast Mode](#high-contrast-mode)
+  - [Accessibility Mode](#accessibility-mode)
+- [Command History and Search](#command-history-and-search)
+  - [History Navigation](#history-navigation)
+  - [Reverse Search](#reverse-search)
+- [Quick Command Reference](#quick-command-reference)
+- [Tips and Best Practices](#tips-and-best-practices)
 
 ## Overview
 
@@ -39,51 +39,51 @@ in the CLI tools.
 
 These shortcuts work across most terminal emulators:
 
-| Shortcut | Action | Description |
-|----------|--------|-------------|
-| `Tab` | Auto-complete | Complete commands, file paths, and options |
-| `↑` / `↓` | History navigation | Navigate through command history |
-| `Ctrl+A` | Beginning of line | Move cursor to start of line |
-| `Ctrl+E` | End of line | Move cursor to end of line |
-| `Ctrl+U` | Clear line before cursor | Delete all text before cursor |
-| `Ctrl+K` | Clear line after cursor | Delete all text after cursor |
-| `Ctrl+W` | Delete word | Delete word before cursor |
-| `Ctrl+L` | Clear screen | Clear terminal screen |
-| `Ctrl+C` | Cancel command | Interrupt current command |
-| `Ctrl+D` | Exit/EOF | Exit terminal or send EOF |
-| `Ctrl+R` | Reverse search | Search command history |
-| `Ctrl+Z` | Suspend process | Suspend current process |
+| Shortcut  | Action                   | Description                                |
+| --------- | ------------------------ | ------------------------------------------ |
+| `Tab`     | Auto-complete            | Complete commands, file paths, and options |
+| `↑` / `↓` | History navigation       | Navigate through command history           |
+| `Ctrl+A`  | Beginning of line        | Move cursor to start of line               |
+| `Ctrl+E`  | End of line              | Move cursor to end of line                 |
+| `Ctrl+U`  | Clear line before cursor | Delete all text before cursor              |
+| `Ctrl+K`  | Clear line after cursor  | Delete all text after cursor               |
+| `Ctrl+W`  | Delete word              | Delete word before cursor                  |
+| `Ctrl+L`  | Clear screen             | Clear terminal screen                      |
+| `Ctrl+C`  | Cancel command           | Interrupt current command                  |
+| `Ctrl+D`  | Exit/EOF                 | Exit terminal or send EOF                  |
+| `Ctrl+R`  | Reverse search           | Search command history                     |
+| `Ctrl+Z`  | Suspend process          | Suspend current process                    |
 
 ### Platform-Specific Shortcuts
 
 #### macOS Terminal
 
-| Shortcut | Action | Description |
-|----------|--------|-------------|
-| `Cmd+K` | Clear scrollback | Clear terminal history |
-| `Cmd+T` | New tab | Open new terminal tab |
-| `Cmd+Left/Right` | Word navigation | Jump between words |
-| `Option+Left/Right` | Word navigation | Alternative word jump |
-| `Cmd+Shift+[/]` | Tab navigation | Switch between tabs |
+| Shortcut            | Action           | Description            |
+| ------------------- | ---------------- | ---------------------- |
+| `Cmd+K`             | Clear scrollback | Clear terminal history |
+| `Cmd+T`             | New tab          | Open new terminal tab  |
+| `Cmd+Left/Right`    | Word navigation  | Jump between words     |
+| `Option+Left/Right` | Word navigation  | Alternative word jump  |
+| `Cmd+Shift+[/]`     | Tab navigation   | Switch between tabs    |
 
 #### Windows Terminal
 
-| Shortcut | Action | Description |
-|----------|--------|-------------|
-| `Ctrl+Shift+T` | New tab | Open new terminal tab |
-| `Alt+Left/Right` | Word navigation | Jump between words |
-| `Ctrl+Tab` | Next tab | Switch to next tab |
-| `Ctrl+Shift+Tab` | Previous tab | Switch to previous tab |
-| `Ctrl+Shift+F` | Find | Search in terminal output |
+| Shortcut         | Action          | Description               |
+| ---------------- | --------------- | ------------------------- |
+| `Ctrl+Shift+T`   | New tab         | Open new terminal tab     |
+| `Alt+Left/Right` | Word navigation | Jump between words        |
+| `Ctrl+Tab`       | Next tab        | Switch to next tab        |
+| `Ctrl+Shift+Tab` | Previous tab    | Switch to previous tab    |
+| `Ctrl+Shift+F`   | Find            | Search in terminal output |
 
 #### Linux Terminal
 
-| Shortcut | Action | Description |
-|----------|--------|-------------|
-| `Ctrl+Shift+T` | New tab | Open new terminal tab |
-| `Ctrl+Left/Right` | Word navigation | Jump between words |
-| `Ctrl+PgUp/PgDn` | Tab navigation | Switch between tabs |
-| `Shift+PgUp/PgDn` | Scroll | Scroll terminal output |
+| Shortcut          | Action          | Description            |
+| ----------------- | --------------- | ---------------------- |
+| `Ctrl+Shift+T`    | New tab         | Open new terminal tab  |
+| `Ctrl+Left/Right` | Word navigation | Jump between words     |
+| `Ctrl+PgUp/PgDn`  | Tab navigation  | Switch between tabs    |
+| `Shift+PgUp/PgDn` | Scroll          | Scroll terminal output |
 
 ## CLI Tool Shortcuts
 
@@ -91,38 +91,38 @@ These shortcuts work across most terminal emulators:
 
 When using `--interactive` or `-i` mode with REST-SPEC CLI tools:
 
-| Shortcut | Action | Description |
-|----------|--------|-------------|
-| `↑` / `↓` | Navigate options | Move through menu items |
-| `Space` | Toggle selection | Select/deselect in multi-select |
-| `Enter` | Confirm | Accept current selection |
-| `Esc` | Cancel | Cancel current prompt |
-| `Ctrl+C` | Exit | Exit interactive mode |
-| `Tab` | Next field | Move to next input field |
-| `Shift+Tab` | Previous field | Move to previous input field |
+| Shortcut    | Action           | Description                     |
+| ----------- | ---------------- | ------------------------------- |
+| `↑` / `↓`   | Navigate options | Move through menu items         |
+| `Space`     | Toggle selection | Select/deselect in multi-select |
+| `Enter`     | Confirm          | Accept current selection        |
+| `Esc`       | Cancel           | Cancel current prompt           |
+| `Ctrl+C`    | Exit             | Exit interactive mode           |
+| `Tab`       | Next field       | Move to next input field        |
+| `Shift+Tab` | Previous field   | Move to previous input field    |
 
 ### Selection and Multi-Select
 
 In multi-select prompts:
 
-| Shortcut | Action | Description |
-|----------|--------|-------------|
-| `Space` | Toggle item | Select/deselect current item |
-| `a` | Select all | Select all items |
-| `i` | Invert selection | Invert current selection |
-| `Enter` | Confirm | Accept selections |
+| Shortcut | Action           | Description                  |
+| -------- | ---------------- | ---------------------------- |
+| `Space`  | Toggle item      | Select/deselect current item |
+| `a`      | Select all       | Select all items             |
+| `i`      | Invert selection | Invert current selection     |
+| `Enter`  | Confirm          | Accept selections            |
 
 ### Text Input
 
 In text input fields:
 
-| Shortcut | Action | Description |
-|----------|--------|-------------|
-| `←` / `→` | Character navigation | Move cursor left/right |
-| `Ctrl+←` / `Ctrl+→` | Word navigation | Jump by word |
-| `Home` / `End` | Line navigation | Jump to start/end |
-| `Delete` | Delete forward | Delete character after cursor |
-| `Backspace` | Delete backward | Delete character before cursor |
+| Shortcut            | Action               | Description                    |
+| ------------------- | -------------------- | ------------------------------ |
+| `←` / `→`           | Character navigation | Move cursor left/right         |
+| `Ctrl+←` / `Ctrl+→` | Word navigation      | Jump by word                   |
+| `Home` / `End`      | Line navigation      | Jump to start/end              |
+| `Delete`            | Delete forward       | Delete character after cursor  |
+| `Backspace`         | Delete backward      | Delete character before cursor |
 
 ## Auto-Completion
 
@@ -180,12 +180,12 @@ create-project my-app
 
 Screen reader navigation:
 
-| Action | NVDA | JAWS | VoiceOver |
-|--------|------|------|-----------|
-| Read line | `Insert+↑` | `Insert+↑` | `Ctrl+Opt+L` |
-| Read all | `Insert+↓` | `Insert+↓` | `Ctrl+Opt+A` |
-| Stop reading | `Ctrl` | `Ctrl` | `Ctrl` |
-| Navigate by word | `Ctrl+←/→` | `Ctrl+←/→` | `Opt+←/→` |
+| Action           | NVDA       | JAWS       | VoiceOver    |
+| ---------------- | ---------- | ---------- | ------------ |
+| Read line        | `Insert+↑` | `Insert+↑` | `Ctrl+Opt+L` |
+| Read all         | `Insert+↓` | `Insert+↓` | `Ctrl+Opt+A` |
+| Stop reading     | `Ctrl`     | `Ctrl`     | `Ctrl`       |
+| Navigate by word | `Ctrl+←/→` | `Ctrl+←/→` | `Opt+←/→`    |
 
 ### High Contrast Mode
 
@@ -206,23 +206,23 @@ export REST_SPEC_THEME=monochrome
 
 When accessibility mode is enabled:
 
-* Progress indicators announce at regular intervals
-* All visual elements have text alternatives
-* Status messages include descriptive prefixes
-* No information is conveyed only through color
+- Progress indicators announce at regular intervals
+- All visual elements have text alternatives
+- Status messages include descriptive prefixes
+- No information is conveyed only through color
 
 ## Command History and Search
 
 ### History Navigation
 
-| Shortcut | Action | Description |
-|----------|--------|-------------|
-| `↑` | Previous command | Navigate to previous command |
-| `↓` | Next command | Navigate to next command |
-| `!!` | Last command | Execute last command |
-| `!n` | Command n | Execute command number n |
-| `!-n` | n commands ago | Execute n commands ago |
-| `!string` | Last matching | Execute last command starting with string |
+| Shortcut  | Action           | Description                               |
+| --------- | ---------------- | ----------------------------------------- |
+| `↑`       | Previous command | Navigate to previous command              |
+| `↓`       | Next command     | Navigate to next command                  |
+| `!!`      | Last command     | Execute last command                      |
+| `!n`      | Command n        | Execute command number n                  |
+| `!-n`     | n commands ago   | Execute n commands ago                    |
+| `!string` | Last matching    | Execute last command starting with string |
 
 ### Reverse Search
 
@@ -339,10 +339,10 @@ export REST_SPEC_THEME=high-contrast
 
 Efficient line editing saves time:
 
-* `Ctrl+A` then type to prepend
-* `Ctrl+E` then type to append
-* `Ctrl+W` to quickly delete mistakes
-* `Alt+B/F` or `Ctrl+←/→` to jump words
+- `Ctrl+A` then type to prepend
+- `Ctrl+E` then type to append
+- `Ctrl+W` to quickly delete mistakes
+- `Alt+B/F` or `Ctrl+←/→` to jump words
 
 ### 7. Use Dry Run for Learning
 

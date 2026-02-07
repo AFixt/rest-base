@@ -10,38 +10,38 @@ The REST-SPEC error reporting system provides comprehensive error tracking, cate
 
 Errors are automatically categorized into the following types:
 
-* **USER_ERROR**: User input or usage errors
-* **SYSTEM_ERROR**: System or environment errors
-* **NETWORK_ERROR**: Network related errors
-* **FILE_ERROR**: File system errors
-* **PERMISSION_ERROR**: Permission related errors
-* **DEPENDENCY_ERROR**: Missing or failed dependencies
-* **UNEXPECTED_ERROR**: Unhandled or unknown errors
-* **VALIDATION_ERROR**: Input validation errors
-* **CONFIGURATION_ERROR**: Configuration errors
+- **USER_ERROR**: User input or usage errors
+- **SYSTEM_ERROR**: System or environment errors
+- **NETWORK_ERROR**: Network related errors
+- **FILE_ERROR**: File system errors
+- **PERMISSION_ERROR**: Permission related errors
+- **DEPENDENCY_ERROR**: Missing or failed dependencies
+- **UNEXPECTED_ERROR**: Unhandled or unknown errors
+- **VALIDATION_ERROR**: Input validation errors
+- **CONFIGURATION_ERROR**: Configuration errors
 
 ### Error Severity Levels
 
 Each error is assigned a severity level:
 
-* **LOW**: Minor issues that don't prevent operation
-* **MEDIUM**: Issues that may affect functionality
-* **HIGH**: Critical issues that prevent operation
-* **CRITICAL**: System-wide failures
+- **LOW**: Minor issues that don't prevent operation
+- **MEDIUM**: Issues that may affect functionality
+- **HIGH**: Critical issues that prevent operation
+- **CRITICAL**: System-wide failures
 
 ### Privacy Protection
 
 The error reporter automatically sanitizes sensitive information:
 
-* API keys and tokens
-* Passwords and secrets
-* Email addresses
-* IP addresses
-* File paths containing usernames
-* Database connection strings
-* Credit card numbers
-* Social Security Numbers
-* JWT tokens
+- API keys and tokens
+- Passwords and secrets
+- Email addresses
+- IP addresses
+- File paths containing usernames
+- Database connection strings
+- Credit card numbers
+- Social Security Numbers
+- JWT tokens
 
 ## Usage
 
@@ -56,11 +56,11 @@ try {
 } catch (error) {
   await errorReporter.report(error, {
     command: 'my-command',
-    context: { 
+    context: {
       input: userInput,
-      config: currentConfig 
+      config: currentConfig,
     },
-    fatal: true
+    fatal: true,
   });
 }
 ```
@@ -70,10 +70,7 @@ try {
 Wrap CLI commands with error boundaries for automatic error handling:
 
 ```javascript
-const wrappedCommand = errorReporter.createErrorBoundary(
-  myCommandFunction,
-  'my-command'
-);
+const wrappedCommand = errorReporter.createErrorBoundary(myCommandFunction, 'my-command');
 
 // Execute with automatic error reporting
 await wrappedCommand(args);
@@ -84,10 +81,7 @@ await wrappedCommand(args);
 For individual async functions:
 
 ```javascript
-const wrappedFunction = errorReporter.wrapAsync(
-  myAsyncFunction,
-  'function-name'
-);
+const wrappedFunction = errorReporter.wrapAsync(myAsyncFunction, 'function-name');
 ```
 
 ## Error Dashboard
@@ -118,8 +112,8 @@ node scripts/error-dashboard.js analyze
 
 ### Options
 
-* `--verbose`: Show detailed error information
-* `--help`: Show help message
+- `--verbose`: Show detailed error information
+- `--help`: Show help message
 
 ## Integration Examples
 
@@ -131,7 +125,7 @@ The `create-project-with-error-reporting.js` script demonstrates comprehensive e
 // Validate with error categorization
 function validateProjectName(name) {
   if (!name || name.trim().length === 0) {
-    const error = new Error("Project name cannot be empty");
+    const error = new Error('Project name cannot be empty');
     error.category = ErrorCategory.USER_ERROR;
     throw error;
   }
@@ -153,32 +147,32 @@ await errorReporter.report(error, {
     projectName,
     projectDir,
     phase: 'structure-creation',
-    attemptedOperation: 'mkdir'
+    attemptedOperation: 'mkdir',
   },
-  fatal: true
+  fatal: true,
 });
 ```
 
 ## Environment Variables
 
-* `REST_SPEC_ERROR_REPORTING`: Set to `false` to disable error reporting
-* `NODE_ENV`: Set to `development` for detailed error information
-* `VERBOSE`: Set to `true` for verbose logging
+- `REST_SPEC_ERROR_REPORTING`: Set to `false` to disable error reporting
+- `NODE_ENV`: Set to `development` for detailed error information
+- `VERBOSE`: Set to `true` for verbose logging
 
 ## Error Storage
 
 Error reports are stored in the system's temporary directory:
 
-* Location: `$TMPDIR/rest-spec-errors/`
-* Format: `error-{id}-{timestamp}.json`
-* Retention: Last 100 error reports are kept
+- Location: `$TMPDIR/rest-spec-errors/`
+- Format: `error-{id}-{timestamp}.json`
+- Retention: Last 100 error reports are kept
 
 ## Best Practices
 
 ### 1. Categorize Errors Properly
 
 ```javascript
-const error = new Error("Invalid configuration file");
+const error = new Error('Invalid configuration file');
 error.category = ErrorCategory.CONFIGURATION_ERROR;
 throw error;
 ```
@@ -189,7 +183,7 @@ throw error;
 error.context = {
   configFile: '/path/to/config.json',
   missingField: 'database.host',
-  providedConfig: sanitizedConfig
+  providedConfig: sanitizedConfig,
 };
 ```
 
@@ -207,10 +201,10 @@ try {
   await riskyOperation();
 } catch (error) {
   await errorReporter.report(error, { command: 'my-command' });
-  
+
   // Perform cleanup
   await cleanup();
-  
+
   throw error;
 }
 ```
@@ -220,7 +214,7 @@ try {
 ```javascript
 catch (error) {
   const report = await errorReporter.report(error, options);
-  
+
   if (error.category === ErrorCategory.USER_ERROR) {
     logger.error("Invalid input provided");
     logger.info("Please check the documentation for correct usage");
@@ -295,7 +289,7 @@ The error reporter automatically sanitizes common sensitive patterns. To add cus
 
 ```javascript
 // In error-reporter.js, add to PRIVACY_PATTERNS
-/your-custom-pattern/gi
+/your-custom-pattern/gi;
 ```
 
 ## Contributing
@@ -310,11 +304,11 @@ When adding new CLI tools or commands:
 
 ## Security Considerations
 
-* Error reports never contain raw sensitive data
-* Reports are stored in user-specific temp directories
-* Old reports are automatically cleaned up
-* Error reporting can be completely disabled
-* No data is sent to external services
+- Error reports never contain raw sensitive data
+- Reports are stored in user-specific temp directories
+- Old reports are automatically cleaned up
+- Error reporting can be completely disabled
+- No data is sent to external services
 
 ## Future Enhancements
 

@@ -297,22 +297,22 @@ ALTER TABLE table_name ENGINE=InnoDB;
 
 ```javascript
 // Test database connection
-const { Sequelize } = require("sequelize");
-const config = require("./src/config/database");
+const { Sequelize } = require('sequelize');
+const config = require('./src/config/database');
 
 async function testConnection() {
   const sequelize = new Sequelize(config.development);
 
   try {
     await sequelize.authenticate();
-    console.log("✓ Connection successful");
+    console.log('✓ Connection successful');
 
-    const [results] = await sequelize.query("SELECT VERSION() as version");
-    console.log("✓ MySQL version:", results[0].version);
+    const [results] = await sequelize.query('SELECT VERSION() as version');
+    console.log('✓ MySQL version:', results[0].version);
 
     await sequelize.close();
   } catch (error) {
-    console.error("✗ Connection failed:", error);
+    console.error('✗ Connection failed:', error);
   }
 }
 
@@ -606,7 +606,7 @@ GROUP BY TRIM(column_name);
 
    ```javascript
    await sequelize.authenticate();
-   console.log("Connection successful");
+   console.log('Connection successful');
    ```
 
 ## Additional Resources

@@ -7,18 +7,18 @@
  * @author Karl Groves
  */
 
-const os = require("os");
-const fs = require("fs").promises;
-const { performance } = require("perf_hooks");
+const os = require('os');
+const fs = require('fs').promises;
+const { performance } = require('perf_hooks');
 
 /**
  * Health check status levels
  */
 const HealthStatus = {
-  HEALTHY: "healthy",
-  DEGRADED: "degraded",
-  UNHEALTHY: "unhealthy",
-  CRITICAL: "critical",
+  HEALTHY: 'healthy',
+  DEGRADED: 'degraded',
+  UNHEALTHY: 'unhealthy',
+  CRITICAL: 'critical',
 };
 
 /**
@@ -58,15 +58,48 @@ const DEFAULT_CONFIG = {
  */
 class HealthChecker {
   constructor(config = {}) {
-    this.config = { ...DEFAULT_CONFIG, ...config };
+    this.config = this.deepMerge(DEFAULT_CONFIG, config);
     this.checks = new Map();
     this.lastResults = new Map();
     this.startTime = Date.now();
 
     // Register default system checks
-    this.registerCheck("system", this.checkSystem.bind(this));
-    this.registerCheck("memory", this.checkMemory.bind(this));
-    this.registerCheck("disk", this.checkDisk.bind(this));
+    this.registerCheck('system', this.checkSystem.bind(this));
+    this.registerCheck('memory', this.checkMemory.bind(this));
+    this.registerCheck('disk', this.checkDisk.bind(this));
+  }
+
+  /**
+   * Deep merge two objects
+   * @param {Object} target - Target object
+   * @param {Object} source - Source object
+   * @returns {Object} Merged object
+   */
+  deepMerge(target, source) {
+    const output = { ...target };
+    if (this.isObject(target) && this.isObject(source)) {
+      Object.keys(source).forEach(key => {
+        if (this.isObject(source[key])) {
+          if (!(key in target)) {
+            output[key] = source[key];
+          } else {
+            output[key] = this.deepMerge(target[key], source[key]);
+          }
+        } else {
+          output[key] = source[key];
+        }
+      });
+    }
+    return output;
+  }
+
+  /**
+   * Check if value is an object
+   * @param {*} item - Item to check
+   * @returns {boolean} True if object
+   */
+  isObject(item) {
+    return item && typeof item === 'object' && !Array.isArray(item);
   }
 
   /**
@@ -112,10 +145,7 @@ class HealthChecker {
         const result = await Promise.race([
           check(),
           new Promise((_, reject) =>
-            setTimeout(
-              () => reject(new Error("Health check timeout")),
-              timeout,
-            ),
+            setTimeout(() => reject(new Error('Health check timeout')), timeout)
           ),
         ]);
 
@@ -124,7 +154,7 @@ class HealthChecker {
         return {
           name,
           status: result.status || HealthStatus.HEALTHY,
-          message: result.message || "OK",
+          message: result.message || 'OK',
           data: result.data || {},
           duration: Math.round(duration),
           timestamp: new Date().toISOString(),
@@ -135,9 +165,7 @@ class HealthChecker {
 
         if (attempt < retries) {
           // Wait before retry (exponential backoff)
-          await new Promise((resolve) =>
-            setTimeout(resolve, Math.pow(2, attempt) * 100),
-          );
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 100));
         }
       }
     }
@@ -145,7 +173,7 @@ class HealthChecker {
     return {
       name,
       status: HealthStatus.UNHEALTHY,
-      message: lastError.message || "Health check failed",
+      message: lastError.message || 'Health check failed',
       error: lastError.toString(),
       duration: timeout,
       timestamp: new Date().toISOString(),
@@ -160,17 +188,13 @@ class HealthChecker {
    */
   async checkHealth(specificChecks = null) {
     const checksToRun = specificChecks
-      ? Array.from(this.checks.values()).filter((check) =>
-          specificChecks.includes(check.name),
-        )
-      : Array.from(this.checks.values()).filter((check) => check.enabled);
+      ? Array.from(this.checks.values()).filter(check => specificChecks.includes(check.name))
+      : Array.from(this.checks.values()).filter(check => check.enabled);
 
-    const results = await Promise.all(
-      checksToRun.map((check) => this.runSingleCheck(check)),
-    );
+    const results = await Promise.all(checksToRun.map(check => this.runSingleCheck(check)));
 
     // Store results for history
-    results.forEach((result) => {
+    results.forEach(result => {
       this.lastResults.set(result.name, result);
     });
 
@@ -194,14 +218,10 @@ class HealthChecker {
       }, {}),
       summary: {
         total: results.length,
-        healthy: results.filter((r) => r.status === HealthStatus.HEALTHY)
-          .length,
-        degraded: results.filter((r) => r.status === HealthStatus.DEGRADED)
-          .length,
-        unhealthy: results.filter((r) => r.status === HealthStatus.UNHEALTHY)
-          .length,
-        critical: results.filter((r) => r.status === HealthStatus.CRITICAL)
-          .length,
+        healthy: results.filter(r => r.status === HealthStatus.HEALTHY).length,
+        degraded: results.filter(r => r.status === HealthStatus.DEGRADED).length,
+        unhealthy: results.filter(r => r.status === HealthStatus.UNHEALTHY).length,
+        critical: results.filter(r => r.status === HealthStatus.CRITICAL).length,
       },
     };
   }
@@ -212,31 +232,25 @@ class HealthChecker {
    * @returns {string} Overall status
    */
   determineOverallStatus(results) {
-    const criticalChecks = Array.from(this.checks.values()).filter(
-      (c) => c.critical,
-    );
-    const criticalResults = results.filter((r) =>
-      criticalChecks.some((c) => c.name === r.name),
-    );
+    const criticalChecks = Array.from(this.checks.values()).filter(c => c.critical);
+    const criticalResults = results.filter(r => criticalChecks.some(c => c.name === r.name));
 
     // If any critical check fails, system is critical
     if (
       criticalResults.some(
-        (r) =>
-          r.status === HealthStatus.CRITICAL ||
-          r.status === HealthStatus.UNHEALTHY,
+        r => r.status === HealthStatus.CRITICAL || r.status === HealthStatus.UNHEALTHY
       )
     ) {
       return HealthStatus.CRITICAL;
     }
 
     // Check for any unhealthy services
-    if (results.some((r) => r.status === HealthStatus.UNHEALTHY)) {
+    if (results.some(r => r.status === HealthStatus.UNHEALTHY)) {
       return HealthStatus.UNHEALTHY;
     }
 
     // Check for degraded services
-    if (results.some((r) => r.status === HealthStatus.DEGRADED)) {
+    if (results.some(r => r.status === HealthStatus.DEGRADED)) {
       return HealthStatus.DEGRADED;
     }
 
@@ -254,9 +268,15 @@ class HealthChecker {
     const hours = Math.floor(minutes / 60);
     const days = Math.floor(hours / 24);
 
-    if (days > 0) return `${days}d ${hours % 24}h ${minutes % 60}m`;
-    if (hours > 0) return `${hours}h ${minutes % 60}m ${seconds % 60}s`;
-    if (minutes > 0) return `${minutes}m ${seconds % 60}s`;
+    if (days > 0) {
+      return `${days}d ${hours % 24}h ${minutes % 60}m`;
+    }
+    if (hours > 0) {
+      return `${hours}h ${minutes % 60}m ${seconds % 60}s`;
+    }
+    if (minutes > 0) {
+      return `${minutes}m ${seconds % 60}s`;
+    }
     return `${seconds}s`;
   }
 
@@ -269,18 +289,17 @@ class HealthChecker {
     const uptime = process.uptime();
 
     // Calculate CPU percentage (simplified)
-    const cpuPercent =
-      (cpuUsage.user + cpuUsage.system) / (uptime * 1000 * 1000);
+    const cpuPercent = (cpuUsage.user + cpuUsage.system) / (uptime * 1000 * 1000);
 
     let status = HealthStatus.HEALTHY;
-    let message = "System operating normally";
+    let message = 'System operating normally';
 
     if (cpuPercent > this.config.thresholds.cpu.critical) {
       status = HealthStatus.CRITICAL;
-      message = "Critical CPU usage detected";
+      message = 'Critical CPU usage detected';
     } else if (cpuPercent > this.config.thresholds.cpu.warning) {
       status = HealthStatus.DEGRADED;
-      message = "High CPU usage detected";
+      message = 'High CPU usage detected';
     }
 
     return {
@@ -315,24 +334,23 @@ class HealthChecker {
     };
 
     const heapUsedPercent = memUsage.heapUsed / memUsage.heapTotal;
-    const systemUsedPercent =
-      (systemMem.total - systemMem.free) / systemMem.total;
+    const systemUsedPercent = (systemMem.total - systemMem.free) / systemMem.total;
 
     let status = HealthStatus.HEALTHY;
-    let message = "Memory usage normal";
+    let message = 'Memory usage normal';
 
     if (
       heapUsedPercent > this.config.thresholds.memory.critical ||
       systemUsedPercent > this.config.thresholds.memory.critical
     ) {
       status = HealthStatus.CRITICAL;
-      message = "Critical memory usage";
+      message = 'Critical memory usage';
     } else if (
       heapUsedPercent > this.config.thresholds.memory.warning ||
       systemUsedPercent > this.config.thresholds.memory.warning
     ) {
       status = HealthStatus.DEGRADED;
-      message = "High memory usage";
+      message = 'High memory usage';
     }
 
     return {
@@ -369,7 +387,7 @@ class HealthChecker {
 
       return {
         status: HealthStatus.HEALTHY,
-        message: "Disk space available",
+        message: 'Disk space available',
         data: {
           path: process.cwd(),
           accessible: true,
@@ -379,7 +397,7 @@ class HealthChecker {
     } catch (error) {
       return {
         status: HealthStatus.UNHEALTHY,
-        message: "Cannot access filesystem",
+        message: 'Cannot access filesystem',
         data: {
           error: error.message,
           path: process.cwd(),
@@ -394,33 +412,46 @@ class HealthChecker {
    * @param {string} type - Database type (mysql, mariadb, redis)
    * @returns {Function} Database health check function
    */
-  static createDatabaseCheck(database, type = "mysql") {
+  static createDatabaseCheck(database, type = 'mysql') {
     return async () => {
       try {
         const startTime = performance.now();
 
         // Different checks based on database type
         switch (type.toLowerCase()) {
-          case "mysql":
-          case "mariadb":
+          case 'mysql':
+          case 'mariadb':
             // For Sequelize ORM
             if (database.authenticate) {
               await database.authenticate();
             }
             // For raw MySQL connection
             else if (database.execute) {
-              await database.execute("SELECT 1");
+              await database.execute('SELECT 1');
             }
             // For mysql2 promise connection
             else if (database.query) {
-              await database.query("SELECT 1");
+              await database.query('SELECT 1');
             }
             break;
-          case "redis":
+          case 'postgres':
+          case 'postgresql':
+            // For Sequelize ORM
+            if (database.authenticate) {
+              await database.authenticate();
+            }
+            // For pg connection pool or client
+            else if (database.query) {
+              await database.query('SELECT 1');
+            }
+            break;
+          case 'redis':
             await database.ping();
             break;
           default:
-            throw new Error(`Unsupported database type: ${type}. Use 'mysql', 'mariadb', or 'redis'`);
+            throw new Error(
+              `Unsupported database type: ${type}. Use 'mysql', 'mariadb', 'postgres', 'postgresql', or 'redis'`
+            );
         }
 
         const duration = performance.now() - startTime;
@@ -461,7 +492,7 @@ class HealthChecker {
 
         // Use fetch or http module to check external service
         const response = await fetch(url, {
-          method: options.method || "GET",
+          method: options.method || 'GET',
           timeout: options.timeout || 5000,
           headers: options.headers || {},
         });
@@ -469,13 +500,10 @@ class HealthChecker {
         const duration = performance.now() - startTime;
 
         let status = HealthStatus.HEALTHY;
-        let message = "External service accessible";
+        let message = 'External service accessible';
 
         if (!response.ok) {
-          status =
-            response.status >= 500
-              ? HealthStatus.UNHEALTHY
-              : HealthStatus.DEGRADED;
+          status = response.status >= 500 ? HealthStatus.UNHEALTHY : HealthStatus.DEGRADED;
           message = `External service returned ${response.status}`;
         }
 
@@ -492,7 +520,7 @@ class HealthChecker {
       } catch (error) {
         return {
           status: HealthStatus.UNHEALTHY,
-          message: "External service unreachable",
+          message: 'External service unreachable',
           data: {
             url,
             error: error.message,
@@ -515,7 +543,7 @@ class HealthChecker {
    * @returns {Array} Check information
    */
   getCheckInfo() {
-    return Array.from(this.checks.values()).map((check) => ({
+    return Array.from(this.checks.values()).map(check => ({
       name: check.name,
       enabled: check.enabled,
       critical: check.critical,

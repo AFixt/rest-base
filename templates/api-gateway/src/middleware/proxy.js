@@ -7,6 +7,7 @@
  */
 
 import { createProxyMiddleware } from 'http-proxy-middleware';
+// eslint-disable-next-line no-unused-vars
 import config from '../config/index.js';
 import logger from '../utils/logger.js';
 
@@ -17,7 +18,10 @@ import logger from '../utils/logger.js';
 const serviceRegistry = new Map([
   ['auth', { url: process.env.AUTH_SERVICE_URL || 'http://localhost:3001', timeout: 30000 }],
   ['users', { url: process.env.USERS_SERVICE_URL || 'http://localhost:3002', timeout: 30000 }],
-  ['products', { url: process.env.PRODUCTS_SERVICE_URL || 'http://localhost:3003', timeout: 30000 }],
+  [
+    'products',
+    { url: process.env.PRODUCTS_SERVICE_URL || 'http://localhost:3003', timeout: 30000 },
+  ],
   ['orders', { url: process.env.ORDERS_SERVICE_URL || 'http://localhost:3004', timeout: 30000 }],
 ]);
 
@@ -38,7 +42,7 @@ function getServiceConfig(serviceName) {
  */
 export function createServiceProxy(serviceName, options = {}) {
   const serviceConfig = getServiceConfig(serviceName);
-  
+
   if (!serviceConfig) {
     throw new Error(`Service '${serviceName}' not found in registry`);
   }
@@ -66,11 +70,11 @@ export function createServiceProxy(serviceName, options = {}) {
         });
       }
     },
-    onProxyReq: (proxyReq, req, res) => {
+    onProxyReq: (proxyReq, req, _res) => {
       // Add custom headers
       proxyReq.setHeader('X-Gateway-Source', '{{projectName}}');
       proxyReq.setHeader('X-Request-ID', req.requestId || generateRequestId());
-      
+
       // Forward user information if available
       if (req.user) {
         proxyReq.setHeader('X-User-ID', req.user.id);
@@ -83,7 +87,7 @@ export function createServiceProxy(serviceName, options = {}) {
         target: `${serviceConfig.url}${proxyReq.path}`,
       });
     },
-    onProxyRes: (proxyRes, req, res) => {
+    onProxyRes: (proxyRes, req, _res) => {
       // Add response headers
       proxyRes.headers['X-Gateway-Service'] = serviceName;
       proxyRes.headers['X-Response-Time'] = Date.now() - req.startTime;
@@ -106,7 +110,7 @@ export function createServiceProxy(serviceName, options = {}) {
  */
 export function createHealthCheckProxy(serviceName) {
   const serviceConfig = getServiceConfig(serviceName);
-  
+
   if (!serviceConfig) {
     return (req, res) => {
       res.status(404).json({
@@ -125,7 +129,7 @@ export function createHealthCheckProxy(serviceName) {
     timeout: 5000,
     onError: (err, req, res) => {
       logger.warn(`Health check failed for service '${serviceName}':`, err.message);
-      
+
       if (!res.headersSent) {
         res.status(503).json({
           service: serviceName,

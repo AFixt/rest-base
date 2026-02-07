@@ -89,11 +89,13 @@ function handleJwtError(error) {
  * @returns {Object} Formatted error response
  */
 function handleValidationError(error) {
-  const details = error.details ? error.details.map(detail => ({
-    field: detail.path?.join('.'),
-    message: detail.message,
-    value: detail.context?.value,
-  })) : [];
+  const details = error.details
+    ? error.details.map(detail => ({
+        field: detail.path?.join('.'),
+        message: detail.message,
+        value: detail.context?.value,
+      }))
+    : [];
 
   return {
     statusCode: 400,

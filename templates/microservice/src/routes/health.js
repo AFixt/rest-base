@@ -18,8 +18,8 @@ const healthChecker = new HealthChecker({
   thresholds: {
     memory: { warning: 0.8, critical: 0.95 },
     cpu: { warning: 0.7, critical: 0.9 },
-    responseTime: { warning: 1000, critical: 3000 }
-  }
+    responseTime: { warning: 1000, critical: 3000 },
+  },
 });
 
 // Register database health check if configured
@@ -32,16 +32,15 @@ if (config.database.url || config.database.host) {
       database: config.database.name,
       user: config.database.user,
       password: config.database.password,
-      ssl: config.database.ssl
+      ssl: config.database.ssl,
     },
-    ...config.database.pool
+    ...config.database.pool,
   });
 
-  healthChecker.registerCheck(
-    'database',
-    HealthChecker.createDatabaseCheck(pool, 'postgresql'),
-    { critical: true, timeout: 3000 }
-  );
+  healthChecker.registerCheck('database', HealthChecker.createDatabaseCheck(pool, 'postgresql'), {
+    critical: true,
+    timeout: 3000,
+  });
 }
 
 // Register Redis health check if configured
@@ -50,14 +49,13 @@ if (config.redis.url || config.redis.host) {
   const client = redis.createClient({
     url: config.redis.url || `redis://${config.redis.host}:${config.redis.port}`,
     password: config.redis.password,
-    database: config.redis.db
+    database: config.redis.db,
   });
 
-  healthChecker.registerCheck(
-    'redis',
-    HealthChecker.createDatabaseCheck(client, 'redis'),
-    { critical: false, timeout: 2000 }
-  );
+  healthChecker.registerCheck('redis', HealthChecker.createDatabaseCheck(client, 'redis'), {
+    critical: false,
+    timeout: 2000,
+  });
 }
 
 // Register external service health checks
@@ -109,7 +107,7 @@ Object.entries(config.services).forEach(([serviceName, serviceUrl]) => {
 router.get('/', async (req, res) => {
   try {
     const health = await healthChecker.checkHealth();
-    
+
     let statusCode = 200;
     switch (health.status) {
       case HealthStatus.HEALTHY:
@@ -130,14 +128,14 @@ router.get('/', async (req, res) => {
       uptime: health.uptime,
       service: '{{projectName}}',
       version: '1.0.0',
-      environment: config.server.environment
+      environment: config.server.environment,
     });
   } catch (error) {
     res.status(503).json({
       status: HealthStatus.CRITICAL,
       message: 'Health check failed',
       error: error.message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 });
@@ -158,7 +156,7 @@ router.get('/', async (req, res) => {
 router.get('/detailed', async (req, res) => {
   try {
     const health = await healthChecker.checkHealth();
-    
+
     let statusCode = 200;
     if (health.status === HealthStatus.UNHEALTHY || health.status === HealthStatus.CRITICAL) {
       statusCode = 503;
@@ -171,14 +169,14 @@ router.get('/detailed', async (req, res) => {
       environment: config.server.environment,
       hostname: require('os').hostname(),
       pid: process.pid,
-      nodeVersion: process.version
+      nodeVersion: process.version,
     });
   } catch (error) {
     res.status(503).json({
       status: HealthStatus.CRITICAL,
       message: 'Detailed health check failed',
       error: error.message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 });
@@ -200,7 +198,7 @@ router.get('/live', (req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     service: '{{projectName}}',
-    pid: process.pid
+    pid: process.pid,
   });
 });
 
@@ -220,26 +218,27 @@ router.get('/live', (req, res) => {
 router.get('/ready', async (req, res) => {
   try {
     // Check only critical components for readiness
-    const criticalChecks = healthChecker.getCheckInfo()
+    const criticalChecks = healthChecker
+      .getCheckInfo()
       .filter(check => check.critical)
       .map(check => check.name);
 
     const health = await healthChecker.checkHealth(criticalChecks);
-    
+
     const ready = health.status === HealthStatus.HEALTHY || health.status === HealthStatus.DEGRADED;
-    
+
     res.status(ready ? 200 : 503).json({
       status: ready ? 'ready' : 'not-ready',
       timestamp: health.timestamp,
       checks: health.checks,
-      criticalServices: criticalChecks.length
+      criticalServices: criticalChecks.length,
     });
   } catch (error) {
     res.status(503).json({
       status: 'not-ready',
       message: 'Readiness check failed',
       error: error.message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 });
@@ -261,21 +260,21 @@ router.get('/startup', async (req, res) => {
   try {
     const startupChecks = ['system', 'memory'];
     const health = await healthChecker.checkHealth(startupChecks);
-    
+
     const started = health.status !== HealthStatus.CRITICAL;
-    
+
     res.status(started ? 200 : 503).json({
       status: started ? 'started' : 'starting',
       timestamp: health.timestamp,
       uptime: health.uptime,
-      checks: health.checks
+      checks: health.checks,
     });
   } catch (error) {
     res.status(503).json({
       status: 'starting',
       message: 'Startup check failed',
       error: error.message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 });

@@ -6,76 +6,76 @@
 
 ## Table of Contents
 
-* [On the Applicability of these Standards](#on-the-applicability-of-these-standards)
-* [Readability Comes Before Anything](#readability-comes-before-anything)
-* [JavaScript Code Style](#javascript-code-style)
-* [Comments](#comments)
-  * [File Level Document Block](#file-level-document-block)
-  * [Function Level Documentation Block](#function-level-documentation-block)
-  * [Inline Comments](#inline-comments)
-  * [Comment Your "Gotchas"](#comment-your-gotchas)
-* [Editor Settings](#editor-settings)
-  * [Tabs vs. Spaces](#tabs-vs-spaces)
-  * [Line Length](#line-length)
-  * [Linefeeds](#linefeeds)
-  * [Always Use Braces](#always-use-braces)
-  * [Placement of Braces](#placement-of-braces)
-  * [Spaces Between Tokens](#spaces-between-tokens)
-  * [Operator Precedence (parens)](#operator-precedence-parens)
-* [Variables](#variables)
-  * [Variable Naming](#variable-naming)
-  * [Exception: Loops](#exception-loops)
-  * [Abbreviations and Acronyms](#abbreviations-and-acronyms)
-  * [Private Variables and Methods](#private-variables-and-methods)
-  * [Initialize Variables](#initialize-variables)
-  * [Variable Declaration](#variable-declaration)
-  * [Uppercase For Constants](#uppercase-for-constants)
-  * [Boolean Variable Values](#boolean-variable-values)
-* [Object-Oriented JavaScript](#object-oriented-javascript)
-  * [Naming Classes](#naming-classes)
-  * [One Class Per File](#one-class-per-file)
-  * [Do Not Do Real Work With Constructors](#do-not-do-real-work-with-constructors)
-* [Functions](#functions)
-  * [Naming](#naming)
-  * [Arguments](#arguments)
-  * [Be wary of writing functions without a return value](#be-wary-of-writing-functions-without-a-return-value)
-* [Control Structures](#control-structures)
-  * [Switch Statements](#switch-statements)
-  * [if/else/elseif](#ifelseelseif)
-  * [Ternary Operators](#ternary-operators)
-  * [Loops and Iteration](#loops-and-iteration)
-  * [Condition Format](#condition-format)
-* [Strings](#strings)
-  * [String Literals](#string-literals)
-  * [Variable Strings](#variable-strings)
-  * [String Concatenation](#string-concatenation)
-  * [Concatenating Long Strings](#concatenating-long-strings)
-* [Arrays](#arrays)
-  * [Declaring Arrays](#declaring-arrays)
-  * [Array Methods](#array-methods)
-  * [Numerically Indexed Arrays](#numerically-indexed-arrays)
-  * [Objects (Associative Arrays)](#objects-associative-arrays)
-* [Debugging](#debugging)
-  * [Error Handling](#error-handling)
-  * [Logging](#logging)
-  * [Validation](#validation)
-* [File Formats](#file-formats)
-  * [Extensions for files](#extensions-for-files)
-  * [Naming Conventions for files and directories](#naming-conventions-for-files-and-directories)
-  * [File and directory naming casing](#file-and-directory-naming-casing)
-  * [Delimiters](#delimiters)
-* [Directory structure](#directory-structure)
-  * [Like Items With Like Items](#like-items-with-like-items)
-  * [Grouped Together According To Topic](#grouped-together-according-to-topic)
-  * [Node.js Project Structure](#nodejs-project-structure)
-  * [Assets: Grouped Together According To Purpose](#assets-grouped-together-according-to-purpose)
-  * [Exception: Assets That Aren't Used Globally](#exception-assets-that-arent-used-globally)
-* [Security](#security)
-  * [Directory Security](#directory-security)
-  * [Filter All External Data](#filter-all-external-data)
-  * [Validate All External Data](#validate-all-external-data)
-  * [Environment Variables](#environment-variables)
-  * [Error Handling and Logging](#error-handling-and-logging)
+- [On the Applicability of these Standards](#on-the-applicability-of-these-standards)
+- [Readability Comes Before Anything](#readability-comes-before-anything)
+- [JavaScript Code Style](#javascript-code-style)
+- [Comments](#comments)
+  - [File Level Document Block](#file-level-document-block)
+  - [Function Level Documentation Block](#function-level-documentation-block)
+  - [Inline Comments](#inline-comments)
+  - [Comment Your "Gotchas"](#comment-your-gotchas)
+- [Editor Settings](#editor-settings)
+  - [Tabs vs. Spaces](#tabs-vs-spaces)
+  - [Line Length](#line-length)
+  - [Linefeeds](#linefeeds)
+  - [Always Use Braces](#always-use-braces)
+  - [Placement of Braces](#placement-of-braces)
+  - [Spaces Between Tokens](#spaces-between-tokens)
+  - [Operator Precedence (parens)](#operator-precedence-parens)
+- [Variables](#variables)
+  - [Variable Naming](#variable-naming)
+  - [Exception: Loops](#exception-loops)
+  - [Abbreviations and Acronyms](#abbreviations-and-acronyms)
+  - [Private Variables and Methods](#private-variables-and-methods)
+  - [Initialize Variables](#initialize-variables)
+  - [Variable Declaration](#variable-declaration)
+  - [Uppercase For Constants](#uppercase-for-constants)
+  - [Boolean Variable Values](#boolean-variable-values)
+- [Object-Oriented JavaScript](#object-oriented-javascript)
+  - [Naming Classes](#naming-classes)
+  - [One Class Per File](#one-class-per-file)
+  - [Do Not Do Real Work With Constructors](#do-not-do-real-work-with-constructors)
+- [Functions](#functions)
+  - [Naming](#naming)
+  - [Arguments](#arguments)
+  - [Be wary of writing functions without a return value](#be-wary-of-writing-functions-without-a-return-value)
+- [Control Structures](#control-structures)
+  - [Switch Statements](#switch-statements)
+  - [if/else/elseif](#ifelseelseif)
+  - [Ternary Operators](#ternary-operators)
+  - [Loops and Iteration](#loops-and-iteration)
+  - [Condition Format](#condition-format)
+- [Strings](#strings)
+  - [String Literals](#string-literals)
+  - [Variable Strings](#variable-strings)
+  - [String Concatenation](#string-concatenation)
+  - [Concatenating Long Strings](#concatenating-long-strings)
+- [Arrays](#arrays)
+  - [Declaring Arrays](#declaring-arrays)
+  - [Array Methods](#array-methods)
+  - [Numerically Indexed Arrays](#numerically-indexed-arrays)
+  - [Objects (Associative Arrays)](#objects-associative-arrays)
+- [Debugging](#debugging)
+  - [Error Handling](#error-handling)
+  - [Logging](#logging)
+  - [Validation](#validation)
+- [File Formats](#file-formats)
+  - [Extensions for files](#extensions-for-files)
+  - [Naming Conventions for files and directories](#naming-conventions-for-files-and-directories)
+  - [File and directory naming casing](#file-and-directory-naming-casing)
+  - [Delimiters](#delimiters)
+- [Directory structure](#directory-structure)
+  - [Like Items With Like Items](#like-items-with-like-items)
+  - [Grouped Together According To Topic](#grouped-together-according-to-topic)
+  - [Node.js Project Structure](#nodejs-project-structure)
+  - [Assets: Grouped Together According To Purpose](#assets-grouped-together-according-to-purpose)
+  - [Exception: Assets That Aren't Used Globally](#exception-assets-that-arent-used-globally)
+- [Security](#security)
+  - [Directory Security](#directory-security)
+  - [Filter All External Data](#filter-all-external-data)
+  - [Validate All External Data](#validate-all-external-data)
+  - [Environment Variables](#environment-variables)
+  - [Error Handling and Logging](#error-handling-and-logging)
 
 ## On the Applicability of these Standards
 
@@ -95,11 +95,11 @@ understand what's happening, something is wrong.
 JavaScript code should follow modern ES6+ standards with consistent styling. When working with Node.js, leveraging
 modern JavaScript features is encouraged, including:
 
-* Arrow functions
-* Destructuring assignments
-* Template literals
-* Async/await for asynchronous operations
-* ES modules (where supported by your Node version)
+- Arrow functions
+- Destructuring assignments
+- Template literals
+- Async/await for asynchronous operations
+- ES modules (where supported by your Node version)
 
 For compatibility reasons, always be aware of which Node.js version you're targeting, as some features may require
 transpilation for older versions.
@@ -120,9 +120,9 @@ beyond the scope of this document. For more information, visit: <https://jsdoc.a
 Every file that contains JavaScript code must have a header block at the top of the file. The header block should
 contain these items, at minimum:
 
-* Short description for the file
-* Long description of the file
-* JSDoc for author
+- Short description for the file
+- Long description of the file
+- JSDoc for author
 
 ```js
 /**
@@ -130,7 +130,7 @@ contain these items, at minimum:
  *
  * (optional) Long description for file ...
  *
- * @author  author name 
+ * @author  author name
  */
 ```
 
@@ -139,13 +139,13 @@ contain these items, at minimum:
 Every function definition must have a documentation block above the function. The documentation block should contain
 these items, at a minimum:
 
-* Description of the function
-* Any external dependencies used
-* Parameters
-* Return value
+- Description of the function
+- Any external dependencies used
+- Parameters
+- Return value
 
 ```js
-/** 
+/**
  * abusive language filter, replaces bad words in a string with '****'
  * @param {string} string - string of text to be cleaned
  * @returns {string} the same input string is redisplayed with the curse words converted
@@ -165,7 +165,7 @@ multi-line comment).
 // single line comment
 
 /**
- * This is a 
+ * This is a
  * multi-line
  * comment
  */
@@ -176,14 +176,14 @@ multi-line comment).
 Developers should ensure that all those places where something happens which may trip up future developers has been
 commented clearly and that you make these comments much easier to notice by others than normal comments.
 
-* @TODO means there's more to be done to finish/ improve/ repair that section.
-* :BUG: means there's a known bug in that section of code.
-* :KLUDGE: means you've done something ugly, inefficient, or inideal. Explain how you would do it differently next
+- @TODO means there's more to be done to finish/ improve/ repair that section.
+- :BUG: means there's a known bug in that section of code.
+- :KLUDGE: means you've done something ugly, inefficient, or inideal. Explain how you would do it differently next
   time if you had more time.
-* :WARNING: Tells others that the following code is very tricky so don't go changing it without thinking.
+- :WARNING: Tells others that the following code is very tricky so don't go changing it without thinking.
 
-*Committing @TODO code to master is a pretty terrible idea and should be avoided if possible. If you have a @TODO
-comment, it **must** also have a JIRA ticket associated with it. i.e.:*
+_Committing @TODO code to master is a pretty terrible idea and should be avoided if possible. If you have a @TODO
+comment, it **must** also have a JIRA ticket associated with it. i.e.:_
 
 ```js
 // @TODO Jira ticket XYZ-123 add param foo to indicate whether bar applies
@@ -218,7 +218,7 @@ please add that to the comments as "FIXED"
  * Data being posted to the form causes SQL error whenever
  * it contains quotes, double-quotes, or apostrophes.
  *
- * FIXED klg 07-11-09: use of validation middleware escapes these 
+ * FIXED klg 07-11-09: use of validation middleware escapes these
  * characters. Increased security and avoids SQL errors
  */
 ```
@@ -264,8 +264,7 @@ if (condition) {
 NOT
 
 ```js
-if (condition)
-{
+if (condition) {
   // do something
 }
 ```
@@ -291,7 +290,7 @@ foo(a, b, c);
 Ternary Operator:
 
 ```js
-const i = (j < 5) ? j : 5;
+const i = j < 5 ? j : 5;
 ```
 
 Loop:
@@ -344,8 +343,8 @@ Object.entries(myObject).forEach(([key, value]) => {
 
 There are, however certain conventions to consider when naming variables within loops:
 
-* `i`, `j`, and `k` are often used as generic names for integer variables in nested loops
-* When working with arrays, `item` or a descriptive singular noun is preferable as the iterated value
+- `i`, `j`, and `k` are often used as generic names for integer variables in nested loops
+- When working with arrays, `item` or a descriptive singular noun is preferable as the iterated value
 
 Do not use the variable `l` (lowercase 'L') in any of your code as it looks too much like the number 'one'.
 
@@ -365,15 +364,15 @@ preceding private members with an underscore (`_`) if the code must support olde
 class MyClass {
   // Private field (modern approach)
   #privateField = 'private';
-  
+
   // Private method (modern approach)
   #privateMethod() {
     // implementation
   }
-  
+
   // Legacy convention for older Node versions
   _legacyPrivateField = 'private';
-  
+
   _legacyPrivateMethod() {
     // implementation
   }
@@ -385,8 +384,8 @@ class MyClass {
 Always initialize variables before using them. Use `const` for variables that won't be reassigned, and `let` for variables that will change. Avoid using `var` which has problematic scoping behavior.
 
 ```js
-const user = '';  // Preferred for constants
-let count = 0;    // For variables that will change
+const user = ''; // Preferred for constants
+let count = 0; // For variables that will change
 ```
 
 ### Variable Declaration
@@ -461,13 +460,13 @@ object instantiation. The conventional name for this method tends to be `init()`
 Like variables, functions and methods should be named in a way that is clear and concise. In general that means the
 name of the function should be as accurate a description of what the function does as possible:
 
-* If a function prints user information to the screen the name of the function should be `printUserInformation`.
-* If a function validates that an e-mail address is formatted properly it should be called `isValidEmail()`.
-* In general functions that return a boolean value should start with `is` or `has`
-* Functions should use camelCase (first letter lowercase, subsequent words capitalized)
-* Functions should be stateless and as a general rule *never* rely on global information not directly passed to the
+- If a function prints user information to the screen the name of the function should be `printUserInformation`.
+- If a function validates that an e-mail address is formatted properly it should be called `isValidEmail()`.
+- In general functions that return a boolean value should start with `is` or `has`
+- Functions should use camelCase (first letter lowercase, subsequent words capitalized)
+- Functions should be stateless and as a general rule _never_ rely on global information not directly passed to the
   function
-* Private functions or methods (not exported) should begin with underscore `_calculateTotal()`
+- Private functions or methods (not exported) should begin with underscore `_calculateTotal()`
 
 ### Arguments
 
@@ -497,14 +496,14 @@ this can limit reusability. Consider the following:
 ```js
 function mySum(numX, numY) {
   const total = numX + numY;
-  console.log(total); 
+  console.log(total);
 }
 ```
 
 In the case of the example above, there's only one thing the `mySum` function can do: log the results of a simple addition. While, on the surface, that might not be a big deal, it creates two problems:
 
-* It keeps the function from being able to be included as part of another function or bigger process.
-* Any remediation to this function (to make it return, rather than log its result) will break all already-existing code which uses this function.
+- It keeps the function from being able to be included as part of another function or bigger process.
+- Any remediation to this function (to make it return, rather than log its result) will break all already-existing code which uses this function.
 
 A better approach would be to ensure all functions return some value, even if that value is a primitive or a boolean.
 Doing so makes for much more robust & reusable code which also enables you to do better error handling and provide
@@ -513,7 +512,7 @@ greater usability for the end user. The example function can be modified as foll
 ```js
 function mySum(numX, numY) {
   const total = numX + numY;
-  return total; 
+  return total;
 }
 ```
 
@@ -634,7 +633,9 @@ Object.keys(obj).forEach(key => {
 When comparing a variable to a literal value, put the variable on the left hand side:
 
 ```js
-if (userId === 6) { /* do stuff */ }
+if (userId === 6) {
+  /* do stuff */
+}
 ```
 
 This is the opposite of some languages like PHP where putting constants on the left can catch assignment typos. In JavaScript, the strict equality operator (`===`) prevents this issue.
@@ -683,9 +684,7 @@ const name = 'Karl' + ' ' + 'Groves';
 When concatenating strings with the `+` operator, it is permitted to break the statement into multiple lines to improve readability. In these cases, each successive line should be padded with whitespace such that the `+` operator is aligned under the `=` operator:
 
 ```js
-const query = "SELECT id, name FROM people "
-             + "WHERE name = 'Karl' "
-             + "ORDER BY name ASC ";
+const query = 'SELECT id, name FROM people ' + "WHERE name = 'Karl' " + 'ORDER BY name ASC ';
 ```
 
 However, template literals are usually a better choice for multiline strings:
@@ -743,15 +742,13 @@ An indexed array may be started with any non-negative number, however this is di
 When declaring arrays with the literal syntax, a trailing space must be added after each comma delimiter to improve readability:
 
 ```js
-const sampleArray = ["Foo", "Bar", "Bat", "Baz"];
+const sampleArray = ['Foo', 'Bar', 'Bat', 'Baz'];
 ```
 
 It is also permitted to declare multiline indexed arrays. In this case, each successive line must be padded with spaces such that beginning of each line aligns as shown below:
 
 ```js
-const sampleArray = [1, 2, 3, "Foo", "Bar",
-                    a, b, c,
-                    56.44, d, 500];
+const sampleArray = [1, 2, 3, 'Foo', 'Bar', a, b, c, 56.44, d, 500];
 ```
 
 ### Objects (Associative Arrays)
@@ -760,8 +757,8 @@ When declaring objects with the literal syntax, it is encouraged to break the st
 
 ```js
 const sampleObject = {
-  firstKey:  'firstValue',
-  secondKey: 'secondValue'
+  firstKey: 'firstValue',
+  secondKey: 'secondValue',
 };
 ```
 
@@ -832,7 +829,7 @@ logger.info('User logged in', {
   userId: user.id,
   email: user.email,
   ip: req.ip,
-  timestamp: new Date().toISOString()
+  timestamp: new Date().toISOString(),
 });
 ```
 
@@ -844,19 +841,17 @@ Validate all inputs, especially from HTTP requests. Use validation libraries lik
 // Example with express-validator
 const { body, validationResult } = require('express-validator');
 
-app.post('/user',
+app.post(
+  '/user',
   // Validation middleware
-  [
-    body('email').isEmail(),
-    body('password').isLength({ min: 6 })
-  ],
+  [body('email').isEmail(), body('password').isLength({ min: 6 })],
   // Request handler
   (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    
+
     // Process validated request
   }
 );
@@ -866,21 +861,21 @@ app.post('/user',
 
 All files must:
 
-* Be stored as UTF-8 encoded text files
-* Be Unix formatted "Unix formatted" means lines must end only with a line feed (LF). Line feeds are represented as ordinal 10, octal 012 and hex 0A. Do not use carriage returns (CR) like Macintosh computers do or the carriage return/line feed combination (CRLF) like Windows computers do.
+- Be stored as UTF-8 encoded text files
+- Be Unix formatted "Unix formatted" means lines must end only with a line feed (LF). Line feeds are represented as ordinal 10, octal 012 and hex 0A. Do not use carriage returns (CR) like Macintosh computers do or the carriage return/line feed combination (CRLF) like Windows computers do.
 
 ### Extensions for files
 
-* `.js` for JavaScript files
-* `.mjs` for ES modules (if used)
-* `.cjs` for CommonJS modules (if explicit)
-* `.jsx` for React JSX files
-* `.ts` for TypeScript files
-* `.tsx` for TypeScript React files
-* `.json` for JSON configuration files
-* `.html` for HTML files
-* `.css` for CSS files
-* `.test.js` or `.spec.js` for test files
+- `.js` for JavaScript files
+- `.mjs` for ES modules (if used)
+- `.cjs` for CommonJS modules (if explicit)
+- `.jsx` for React JSX files
+- `.ts` for TypeScript files
+- `.tsx` for TypeScript React files
+- `.json` for JSON configuration files
+- `.html` for HTML files
+- `.css` for CSS files
+- `.test.js` or `.spec.js` for test files
 
 ### Naming Conventions for files and directories
 
@@ -890,11 +885,11 @@ All names for files and directories must make sense when read. Ensure that the n
 
 For Node.js projects, follow these conventions:
 
-* Use kebab-case (lowercase with hyphens) for directories and most files: `user-authentication/`
-* Use camelCase for JavaScript files that export a single function or object: `userService.js`
-* Use PascalCase for files that export a class or React component: `UserController.js`, `LoginForm.jsx`
-* Use UPPER_SNAKE_CASE for constants files: `DEFAULT_CONSTANTS.js`
-* Use lowercase for configuration files: `package.json`, `.eslintrc.js`
+- Use kebab-case (lowercase with hyphens) for directories and most files: `user-authentication/`
+- Use camelCase for JavaScript files that export a single function or object: `userService.js`
+- Use PascalCase for files that export a class or React component: `UserController.js`, `LoginForm.jsx`
+- Use UPPER_SNAKE_CASE for constants files: `DEFAULT_CONSTANTS.js`
+- Use lowercase for configuration files: `package.json`, `.eslintrc.js`
 
 Exception: Files containing classes should mirror the casing of the class. For instance, a `UserService` class file would be `UserService.js`.
 
@@ -924,8 +919,8 @@ When it comes to publicly viewable pages, they should be placed in a directory s
 
 For instance:
 
-* <http://www.example.com/newsletters/2023/> - good
-* <http://www.example.com/newsletters/2023/january/> - bad, if the '2023' folder will only hold 12 files (one for each month), or good, if each month's folder contains multiple files, such as newsletter assets or if newsletters are published weekly.
+- <http://www.example.com/newsletters/2023/> - good
+- <http://www.example.com/newsletters/2023/january/> - bad, if the '2023' folder will only hold 12 files (one for each month), or good, if each month's folder contains multiple files, such as newsletter assets or if newsletters are published weekly.
 
 ### Node.js Project Structure
 
@@ -964,10 +959,10 @@ project-root/
 
 As stated above, all site assets should be grouped together according to their purpose.
 
-* All images in a `public/images` directory
-* All style sheets in a `public/styles` directory
-* All client-side JavaScript files in a `public/scripts` directory
-* All server modules in appropriately named directories under `src/`
+- All images in a `public/images` directory
+- All style sheets in a `public/styles` directory
+- All client-side JavaScript files in a `public/scripts` directory
+- All server modules in appropriately named directories under `src/`
 
 ### Exception: Assets That Aren't Used Globally
 
@@ -977,27 +972,27 @@ One exception to the above is when site assets are not shared throughout the mos
 
 ### Code Organization
 
-* **Small, Focused Functions**: Generate small, focused functions that do one thing well
-* **Pure Functions**: Prefer pure functions when possible (no side effects)
-* **Separation of Concerns**: Encourage separation of concerns (e.g., business logic separate from I/O)
-* **Design Patterns**: Use appropriate design patterns (e.g., Factory, Singleton) where justified
-* **Module Boundaries**: Keep clear boundaries between modules - each module should have a single, well-defined purpose
+- **Small, Focused Functions**: Generate small, focused functions that do one thing well
+- **Pure Functions**: Prefer pure functions when possible (no side effects)
+- **Separation of Concerns**: Encourage separation of concerns (e.g., business logic separate from I/O)
+- **Design Patterns**: Use appropriate design patterns (e.g., Factory, Singleton) where justified
+- **Module Boundaries**: Keep clear boundaries between modules - each module should have a single, well-defined purpose
 
 ### Dependencies Management
 
-* **Minimize Dependencies**: Minimize external dependencies; justify when adding a dependency
-* **Well-Maintained Libraries**: Prefer well-maintained, popular libraries with permissive licenses
-* **Pin Versions**: Always pin dependency versions in generated package files
-* **Security Updates**: Regularly audit dependencies for security vulnerabilities
-* **Peer Dependencies**: Clearly document peer dependencies and version requirements
+- **Minimize Dependencies**: Minimize external dependencies; justify when adding a dependency
+- **Well-Maintained Libraries**: Prefer well-maintained, popular libraries with permissive licenses
+- **Pin Versions**: Always pin dependency versions in generated package files
+- **Security Updates**: Regularly audit dependencies for security vulnerabilities
+- **Peer Dependencies**: Clearly document peer dependencies and version requirements
 
 ### Versioning & Compatibility
 
-* **Runtime Compatibility**: Ensure generated code is compatible with the specified runtime (e.g., Node.js 22.x as per .nvmrc)
-* **Framework Versions**: Clearly indicate framework version requirements (e.g., Express 4.x)
-* **Environment Requirements**: Clearly indicate if code requires a specific environment or toolchain
-* **Breaking Changes**: Follow semantic versioning principles - major version for breaking changes
-* **Backward Compatibility**: Maintain backward compatibility within minor versions
+- **Runtime Compatibility**: Ensure generated code is compatible with the specified runtime (e.g., Node.js 22.x as per .nvmrc)
+- **Framework Versions**: Clearly indicate framework version requirements (e.g., Express 4.x)
+- **Environment Requirements**: Clearly indicate if code requires a specific environment or toolchain
+- **Breaking Changes**: Follow semantic versioning principles - major version for breaking changes
+- **Backward Compatibility**: Maintain backward compatibility within minor versions
 
 ## Security
 
@@ -1031,17 +1026,15 @@ app.use(helmet());
 app.use(express.json());
 
 // Example route with validation
-app.post('/user',
-  [
-    body('email').isEmail().normalizeEmail(),
-    body('name').trim().escape()
-  ],
+app.post(
+  '/user',
+  [body('email').isEmail().normalizeEmail(), body('name').trim().escape()],
   (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    
+
     // Process validated and sanitized request
   }
 );
@@ -1055,20 +1048,15 @@ For example, if the page in question has a URL like '<http://www.example.com/use
 
 ```js
 // Route parameter validation
-app.get('/users', 
-  [
-    query('id').isInt()
-  ],
-  (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    
-    // Process with validated id
-    const userId = parseInt(req.query.id, 10);
+app.get('/users', [query('id').isInt()], (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
   }
-);
+
+  // Process with validated id
+  const userId = parseInt(req.query.id, 10);
+});
 ```
 
 ### Environment Variables
@@ -1084,7 +1072,7 @@ const dbConnection = {
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME
+  database: process.env.DB_NAME,
 };
 ```
 
@@ -1101,13 +1089,13 @@ app.use((err, req, res, next) => {
   logger.error('Error occurred:', {
     message: err.message,
     stack: err.stack,
-    requestId: req.id
+    requestId: req.id,
   });
-  
+
   // Client-facing error (don't expose internals)
   res.status(500).json({
     error: 'An unexpected error occurred',
-    requestId: req.id // For support reference
+    requestId: req.id, // For support reference
   });
 });
 ```

@@ -1,14 +1,11 @@
 /**
  * Error Reporter Unit Tests
- * 
+ *
  * @jest-environment node
  */
 
 const errorReporter = require('../../shared/error-reporter');
 const { ErrorCategory, ErrorSeverity } = require('../../shared/error-reporter');
-const fs = require('fs').promises;
-const path = require('path');
-const os = require('os');
 
 // Mock logger to prevent console output during tests
 jest.mock('../../shared/logger', () => ({
@@ -21,7 +18,7 @@ jest.mock('../../shared/logger', () => ({
   subheading: jest.fn(),
   labelValue: jest.fn(),
   highlight: jest.fn(),
-  muted: jest.fn()
+  muted: jest.fn(),
 }));
 
 describe('Error Reporter', () => {
@@ -155,7 +152,8 @@ describe('Error Reporter', () => {
     });
 
     test('should sanitize JWT tokens', () => {
-      const data = 'token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U';
+      const data =
+        'token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U';
       const sanitized = errorReporter.sanitizeData(data);
       expect(sanitized).toBe('token=[REDACTED_TOKEN]');
     });
@@ -164,7 +162,7 @@ describe('Error Reporter', () => {
       const data = {
         apiKey: 'secret123',
         email: 'test@example.com',
-        safe: 'this is fine'
+        safe: 'this is fine',
       };
       const sanitized = errorReporter.sanitizeData(data);
       expect(sanitized.apiKey).toBe('[REDACTED]');
@@ -182,11 +180,11 @@ describe('Error Reporter', () => {
     test('should create error report with all fields', async () => {
       const error = new Error('Test error');
       error.code = 'TEST_ERROR';
-      
+
       const report = await errorReporter.report(error, {
         command: 'test-command',
         context: { foo: 'bar' },
-        fatal: false
+        fatal: false,
       });
 
       expect(report).toMatchObject({
@@ -197,23 +195,23 @@ describe('Error Reporter', () => {
         command: 'test-command',
         context: { foo: 'bar' },
         timestamp: expect.any(String),
-        id: expect.any(String)
+        id: expect.any(String),
       });
     });
 
     test('should increment error count', async () => {
       const initialCount = errorReporter.errorCount;
-      
+
       await errorReporter.report(new Error('Test 1'), { command: 'test' });
       await errorReporter.report(new Error('Test 2'), { command: 'test' });
-      
+
       expect(errorReporter.errorCount).toBe(initialCount + 2);
     });
 
     test('should update error summary', async () => {
       await errorReporter.report(new Error('Test error'), { command: 'test' });
       await errorReporter.report(new Error('Test error'), { command: 'test' });
-      
+
       const summary = errorReporter.getErrorSummary();
       expect(summary.totalErrors).toBe(2);
       expect(summary.topErrors[0].count).toBe(2);
@@ -221,19 +219,19 @@ describe('Error Reporter', () => {
 
     test('should exclude stack trace in production', async () => {
       errorReporter.isDevelopment = false;
-      
+
       const error = new Error('Test error');
       const report = await errorReporter.report(error, { command: 'test' });
-      
+
       expect(report.stack).toBeUndefined();
     });
 
     test('should include stack trace in development', async () => {
       errorReporter.isDevelopment = true;
-      
+
       const error = new Error('Test error');
       const report = await errorReporter.report(error, { command: 'test' });
-      
+
       expect(report.stack).toBeDefined();
     });
   });
@@ -244,9 +242,9 @@ describe('Error Reporter', () => {
       await errorReporter.report(new Error('File not found'), { command: 'read' });
       await errorReporter.report(new Error('Permission denied'), { command: 'write' });
       await errorReporter.report(new Error('File not found'), { command: 'read' });
-      
+
       const summary = errorReporter.getErrorSummary();
-      
+
       expect(summary.totalErrors).toBe(3);
       expect(summary.sessionId).toBeDefined();
       expect(summary.errorsByCategory).toBeDefined();
@@ -256,7 +254,7 @@ describe('Error Reporter', () => {
 
     test('should handle empty summary', () => {
       const summary = errorReporter.getErrorSummary();
-      
+
       expect(summary.totalErrors).toBe(0);
       expect(summary.errorsByCategory).toEqual({});
       expect(summary.topErrors).toEqual([]);
@@ -267,9 +265,9 @@ describe('Error Reporter', () => {
     test('should wrap async function successfully', async () => {
       const testFn = jest.fn().mockResolvedValue('success');
       const wrapped = errorReporter.wrapAsync(testFn, 'test-fn');
-      
+
       const result = await wrapped('arg1', 'arg2');
-      
+
       expect(result).toBe('success');
       expect(testFn).toHaveBeenCalledWith('arg1', 'arg2');
     });
@@ -278,9 +276,9 @@ describe('Error Reporter', () => {
       const testError = new Error('Async error');
       const testFn = jest.fn().mockRejectedValue(testError);
       const wrapped = errorReporter.wrapAsync(testFn, 'test-fn');
-      
+
       await expect(wrapped('arg1')).rejects.toThrow('Async error');
-      
+
       const summary = errorReporter.getErrorSummary();
       expect(summary.totalErrors).toBe(1);
     });
@@ -290,15 +288,15 @@ describe('Error Reporter', () => {
     test('should handle successful execution', async () => {
       const testFn = jest.fn().mockResolvedValue('success');
       const wrapped = errorReporter.createErrorBoundary(testFn, 'test-command');
-      
+
       // Mock process.exit
       const mockExit = jest.spyOn(process, 'exit').mockImplementation(() => {});
-      
+
       await wrapped('arg1');
-      
+
       expect(testFn).toHaveBeenCalledWith('arg1');
       expect(mockExit).not.toHaveBeenCalled();
-      
+
       mockExit.mockRestore();
     });
 
@@ -306,17 +304,17 @@ describe('Error Reporter', () => {
       const testError = new Error('Command error');
       const testFn = jest.fn().mockRejectedValue(testError);
       const wrapped = errorReporter.createErrorBoundary(testFn, 'test-command');
-      
+
       // Mock process.exit
       const mockExit = jest.spyOn(process, 'exit').mockImplementation(() => {});
-      
+
       await wrapped('arg1');
-      
+
       expect(mockExit).toHaveBeenCalledWith(1);
-      
+
       const summary = errorReporter.getErrorSummary();
       expect(summary.totalErrors).toBe(1);
-      
+
       mockExit.mockRestore();
     });
 
@@ -325,14 +323,14 @@ describe('Error Reporter', () => {
       testError.code = 'EACCES';
       const testFn = jest.fn().mockRejectedValue(testError);
       const wrapped = errorReporter.createErrorBoundary(testFn, 'test-command');
-      
+
       // Mock process.exit
       const mockExit = jest.spyOn(process, 'exit').mockImplementation(() => {});
-      
+
       await wrapped();
-      
+
       expect(mockExit).toHaveBeenCalledWith(126);
-      
+
       mockExit.mockRestore();
     });
   });
@@ -342,9 +340,9 @@ describe('Error Reporter', () => {
       // Add some test errors
       await errorReporter.report(new Error('Test error 1'), { command: 'test1' });
       await errorReporter.report(new Error('Test error 2'), { command: 'test2' });
-      
+
       const dashboard = await errorReporter.generateDashboard();
-      
+
       expect(dashboard).toContain('REST-SPEC Error Report Dashboard');
       expect(dashboard).toContain('Summary');
       expect(dashboard).toContain('Total Errors: 2');
@@ -356,10 +354,10 @@ describe('Error Reporter', () => {
     test('should handle missing error directory gracefully', async () => {
       // Disable error reporting to test graceful failure
       errorReporter.isEnabled = false;
-      
+
       const error = new Error('Test error');
       const report = await errorReporter.report(error, { command: 'test' });
-      
+
       // Should still generate report even if can't save
       expect(report).toBeDefined();
       expect(report.message).toBe('Test error');
@@ -368,7 +366,7 @@ describe('Error Reporter', () => {
     test('should get recent errors', async () => {
       // This test would require mocking file system operations
       const recentErrors = await errorReporter.getRecentErrors();
-      
+
       // Should return array (empty if no files)
       expect(Array.isArray(recentErrors)).toBe(true);
     });

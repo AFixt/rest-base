@@ -21,10 +21,10 @@ import logger from '../utils/logger.js';
  * @param {Function} next - Express next function
  */
 export function requestId(req, res, next) {
-  req.requestId = req.get('X-Request-ID') || 
-    `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  req.requestId =
+    req.get('X-Request-ID') || `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   req.startTime = Date.now();
-  
+
   res.setHeader('X-Request-ID', req.requestId);
   next();
 }
@@ -47,9 +47,9 @@ export function requestLogger(req, res, next) {
 
   // Log response when request finishes
   const originalSend = res.send;
-  res.send = function(data) {
+  res.send = function (data) {
     const responseTime = Date.now() - req.startTime;
-    
+
     logger.info('Request completed:', {
       requestId: req.requestId,
       method: req.method,
@@ -78,10 +78,10 @@ export function securityHeaders(req, res, next) {
   res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('X-Gateway', '{{projectName}}');
-  
+
   // Remove server identification
   res.removeHeader('X-Powered-By');
-  
+
   next();
 }
 
@@ -95,10 +95,10 @@ export function apiVersion(req, res, next) {
   // Extract API version from path or header
   const pathVersion = req.path.match(/^\/api\/v(\d+)/)?.[1];
   const headerVersion = req.get('API-Version');
-  
+
   req.apiVersion = pathVersion || headerVersion || '1';
   res.setHeader('API-Version', req.apiVersion);
-  
+
   next();
 }
 
@@ -112,7 +112,7 @@ export function requestValidation(req, res, next) {
   // Validate content type for POST/PUT requests
   if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
     const contentType = req.get('Content-Type');
-    
+
     if (!contentType) {
       return res.status(400).json({
         error: 'Content-Type header is required',
@@ -120,17 +120,15 @@ export function requestValidation(req, res, next) {
       });
     }
 
-    if (!contentType.includes('application/json') && 
-        !contentType.includes('application/x-www-form-urlencoded') &&
-        !contentType.includes('multipart/form-data')) {
+    if (
+      !contentType.includes('application/json') &&
+      !contentType.includes('application/x-www-form-urlencoded') &&
+      !contentType.includes('multipart/form-data')
+    ) {
       return res.status(400).json({
         error: 'Unsupported Content-Type',
         code: 'UNSUPPORTED_CONTENT_TYPE',
-        supported: [
-          'application/json',
-          'application/x-www-form-urlencoded',
-          'multipart/form-data',
-        ],
+        supported: ['application/json', 'application/x-www-form-urlencoded', 'multipart/form-data'],
       });
     }
   }
@@ -160,21 +158,21 @@ export async function setupMiddleware(app) {
     // Request tracking and logging
     app.use(requestId);
     app.use(requestLogger);
-    
+
     // Security middleware
     app.use(securityHeaders);
-    
+
     // API version handling
     app.use(apiVersion);
-    
+
     // Request validation
     app.use(requestValidation);
-    
+
     // Rate limiting based on route type
     app.use('/api/v1/auth', authRateLimit);
     app.use('/api/v1/public', publicRateLimit);
     app.use('/api/v1', generalRateLimit);
-    
+
     // Service health checking
     app.use(serviceHealthCheck);
 

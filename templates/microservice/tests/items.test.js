@@ -13,9 +13,7 @@ describe('Items API', () => {
 
   describe('GET /api/items', () => {
     it('should return list of items', async () => {
-      const response = await request(app)
-        .get('/api/items')
-        .expect(200);
+      const response = await request(app).get('/api/items').expect(200);
 
       expect(response.body).toHaveProperty('data');
       expect(response.body).toHaveProperty('meta');
@@ -26,9 +24,7 @@ describe('Items API', () => {
     });
 
     it('should support pagination', async () => {
-      const response = await request(app)
-        .get('/api/items?limit=1&offset=0')
-        .expect(200);
+      const response = await request(app).get('/api/items?limit=1&offset=0').expect(200);
 
       expect(response.body.meta.limit).toBe(1);
       expect(response.body.meta.offset).toBe(0);
@@ -36,18 +32,14 @@ describe('Items API', () => {
     });
 
     it('should support search', async () => {
-      const response = await request(app)
-        .get('/api/items?search=sample')
-        .expect(200);
+      const response = await request(app).get('/api/items?search=sample').expect(200);
 
       expect(response.body).toHaveProperty('data');
       expect(Array.isArray(response.body.data)).toBe(true);
     });
 
     it('should validate query parameters', async () => {
-      const response = await request(app)
-        .get('/api/items?limit=invalid')
-        .expect(400);
+      const response = await request(app).get('/api/items?limit=invalid').expect(400);
 
       expect(response.body).toHaveProperty('error', 'Invalid query parameters');
       expect(response.body).toHaveProperty('details');
@@ -58,13 +50,10 @@ describe('Items API', () => {
     it('should create a new item', async () => {
       const newItem = {
         name: 'Test Item',
-        description: 'This is a test item'
+        description: 'This is a test item',
       };
 
-      const response = await request(app)
-        .post('/api/items')
-        .send(newItem)
-        .expect(201);
+      const response = await request(app).post('/api/items').send(newItem).expect(201);
 
       expect(response.body).toHaveProperty('data');
       expect(response.body.data).toHaveProperty('id');
@@ -78,23 +67,17 @@ describe('Items API', () => {
 
     it('should create item without description', async () => {
       const newItem = {
-        name: 'Test Item Without Description'
+        name: 'Test Item Without Description',
       };
 
-      const response = await request(app)
-        .post('/api/items')
-        .send(newItem)
-        .expect(201);
+      const response = await request(app).post('/api/items').send(newItem).expect(201);
 
       expect(response.body.data.name).toBe(newItem.name);
       expect(response.body.data.description).toBeNull();
     });
 
     it('should validate required fields', async () => {
-      const response = await request(app)
-        .post('/api/items')
-        .send({})
-        .expect(400);
+      const response = await request(app).post('/api/items').send({}).expect(400);
 
       expect(response.body).toHaveProperty('error', 'Validation failed');
       expect(response.body).toHaveProperty('details');
@@ -102,10 +85,7 @@ describe('Items API', () => {
 
     it('should validate field lengths', async () => {
       const longName = 'a'.repeat(101);
-      const response = await request(app)
-        .post('/api/items')
-        .send({ name: longName })
-        .expect(400);
+      const response = await request(app).post('/api/items').send({ name: longName }).expect(400);
 
       expect(response.body).toHaveProperty('error', 'Validation failed');
     });
@@ -113,13 +93,10 @@ describe('Items API', () => {
     it('should trim whitespace from fields', async () => {
       const newItem = {
         name: '  Test Item with Spaces  ',
-        description: '  Description with spaces  '
+        description: '  Description with spaces  ',
       };
 
-      const response = await request(app)
-        .post('/api/items')
-        .send(newItem)
-        .expect(201);
+      const response = await request(app).post('/api/items').send(newItem).expect(201);
 
       expect(response.body.data.name).toBe('Test Item with Spaces');
       expect(response.body.data.description).toBe('Description with spaces');
@@ -128,9 +105,7 @@ describe('Items API', () => {
 
   describe('GET /api/items/:id', () => {
     it('should return item by ID', async () => {
-      const response = await request(app)
-        .get('/api/items/1')
-        .expect(200);
+      const response = await request(app).get('/api/items/1').expect(200);
 
       expect(response.body).toHaveProperty('data');
       expect(response.body.data).toHaveProperty('id', 1);
@@ -138,18 +113,14 @@ describe('Items API', () => {
     });
 
     it('should return 404 for non-existent item', async () => {
-      const response = await request(app)
-        .get('/api/items/99999')
-        .expect(404);
+      const response = await request(app).get('/api/items/99999').expect(404);
 
       expect(response.body).toHaveProperty('error', 'Item not found');
       expect(response.body).toHaveProperty('message');
     });
 
     it('should validate ID parameter', async () => {
-      const response = await request(app)
-        .get('/api/items/invalid')
-        .expect(400);
+      const response = await request(app).get('/api/items/invalid').expect(400);
 
       expect(response.body).toHaveProperty('error', 'Invalid ID parameter');
     });
@@ -159,13 +130,10 @@ describe('Items API', () => {
     it('should update an existing item', async () => {
       const updatedItem = {
         name: 'Updated Test Item',
-        description: 'Updated description'
+        description: 'Updated description',
       };
 
-      const response = await request(app)
-        .put('/api/items/1')
-        .send(updatedItem)
-        .expect(200);
+      const response = await request(app).put('/api/items/1').send(updatedItem).expect(200);
 
       expect(response.body).toHaveProperty('data');
       expect(response.body.data.name).toBe(updatedItem.name);
@@ -184,10 +152,7 @@ describe('Items API', () => {
     });
 
     it('should validate update data', async () => {
-      const response = await request(app)
-        .put('/api/items/1')
-        .send({ name: '' })
-        .expect(400);
+      const response = await request(app).put('/api/items/1').send({ name: '' }).expect(400);
 
       expect(response.body).toHaveProperty('error', 'Validation failed');
     });
@@ -212,32 +177,24 @@ describe('Items API', () => {
         createdItemId = createResponse.body.data.id;
       }
 
-      const response = await request(app)
-        .delete(`/api/items/${createdItemId}`)
-        .expect(200);
+      const response = await request(app).delete(`/api/items/${createdItemId}`).expect(200);
 
       expect(response.body).toHaveProperty('data');
       expect(response.body.data.id).toBe(createdItemId);
       expect(response.body).toHaveProperty('message', 'Item deleted successfully');
 
       // Verify item is actually deleted
-      await request(app)
-        .get(`/api/items/${createdItemId}`)
-        .expect(404);
+      await request(app).get(`/api/items/${createdItemId}`).expect(404);
     });
 
     it('should return 404 for non-existent item', async () => {
-      const response = await request(app)
-        .delete('/api/items/99999')
-        .expect(404);
+      const response = await request(app).delete('/api/items/99999').expect(404);
 
       expect(response.body).toHaveProperty('error', 'Item not found');
     });
 
     it('should validate ID parameter for deletion', async () => {
-      const response = await request(app)
-        .delete('/api/items/invalid')
-        .expect(400);
+      const response = await request(app).delete('/api/items/invalid').expect(400);
 
       expect(response.body).toHaveProperty('error', 'Invalid ID parameter');
     });
@@ -268,10 +225,7 @@ describe('Items API', () => {
   describe('Boundary Testing', () => {
     it('should handle maximum valid name length', async () => {
       const maxName = 'a'.repeat(100);
-      const response = await request(app)
-        .post('/api/items')
-        .send({ name: maxName })
-        .expect(201);
+      const response = await request(app).post('/api/items').send({ name: maxName }).expect(201);
 
       expect(response.body.data.name).toBe(maxName);
     });
@@ -280,9 +234,9 @@ describe('Items API', () => {
       const maxDescription = 'a'.repeat(500);
       const response = await request(app)
         .post('/api/items')
-        .send({ 
+        .send({
           name: 'Test Item',
-          description: maxDescription 
+          description: maxDescription,
         })
         .expect(201);
 
@@ -290,17 +244,13 @@ describe('Items API', () => {
     });
 
     it('should handle minimum valid limit', async () => {
-      const response = await request(app)
-        .get('/api/items?limit=1')
-        .expect(200);
+      const response = await request(app).get('/api/items?limit=1').expect(200);
 
       expect(response.body.meta.limit).toBe(1);
     });
 
     it('should handle maximum valid limit', async () => {
-      const response = await request(app)
-        .get('/api/items?limit=100')
-        .expect(200);
+      const response = await request(app).get('/api/items?limit=100').expect(200);
 
       expect(response.body.meta.limit).toBe(100);
     });

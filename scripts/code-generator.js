@@ -2,10 +2,10 @@
 
 /**
  * Code Generator for Common Patterns
- * 
+ *
  * Generates boilerplate code for common Node.js/Express patterns
  * following REST-SPEC conventions and best practices
- * 
+ *
  * @author REST-SPEC
  */
 
@@ -15,20 +15,20 @@ const { program } = require('commander');
 
 // Simple color functions for output
 const color = {
-  green: (text) => `\x1b[32m${text}\x1b[0m`,
-  red: (text) => `\x1b[31m${text}\x1b[0m`,
-  cyan: (text) => `\x1b[36m${text}\x1b[0m`,
-  yellow: (text) => `\x1b[33m${text}\x1b[0m`,
-  gray: (text) => `\x1b[90m${text}\x1b[0m`,
-  bold: (text) => `\x1b[1m${text}\x1b[0m`
+  green: text => `\x1b[32m${text}\x1b[0m`,
+  red: text => `\x1b[31m${text}\x1b[0m`,
+  cyan: text => `\x1b[36m${text}\x1b[0m`,
+  yellow: text => `\x1b[33m${text}\x1b[0m`,
+  gray: text => `\x1b[90m${text}\x1b[0m`,
+  bold: text => `\x1b[1m${text}\x1b[0m`,
 };
 
 // Simple spinner implementation
-const createSpinner = (text) => {
+const createSpinner = text => {
   let interval;
   const frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
   let i = 0;
-  
+
   const spinner = {
     start() {
       process.stdout.write(`\r${frames[i]} ${text}`);
@@ -46,9 +46,9 @@ const createSpinner = (text) => {
       clearInterval(interval);
       process.stdout.write(`\r✗ ${msg}\n`);
     },
-    text: text
+    text: text,
   };
-  
+
   return spinner;
 };
 
@@ -65,12 +65,20 @@ function renderTemplate(template, variables) {
  * Convert string to different cases
  */
 const caseConverter = {
-  camelCase: (str) => str.replace(/-([a-z])/g, (g) => g[1].toUpperCase()),
-  pascalCase: (str) => caseConverter.camelCase(str).replace(/^[a-z]/, c => c.toUpperCase()),
-  kebabCase: (str) => str.replace(/([A-Z])/g, '-$1').toLowerCase().replace(/^-/, ''),
-  snakeCase: (str) => str.replace(/([A-Z])/g, '_$1').toLowerCase().replace(/^_/, ''),
-  constantCase: (str) => caseConverter.snakeCase(str).toUpperCase(),
-  pluralize: (str) => str.endsWith('s') ? str : str + 's'
+  camelCase: str => str.replace(/-([a-z])/g, g => g[1].toUpperCase()),
+  pascalCase: str => caseConverter.camelCase(str).replace(/^[a-z]/, c => c.toUpperCase()),
+  kebabCase: str =>
+    str
+      .replace(/([A-Z])/g, '-$1')
+      .toLowerCase()
+      .replace(/^-/, ''),
+  snakeCase: str =>
+    str
+      .replace(/([A-Z])/g, '_$1')
+      .toLowerCase()
+      .replace(/^_/, ''),
+  constantCase: str => caseConverter.snakeCase(str).toUpperCase(),
+  pluralize: str => (str.endsWith('s') ? str : str + 's'),
 };
 
 /**
@@ -284,7 +292,7 @@ router.get('/me',
   authController.getProfile
 );
 
-module.exports = router;`
+module.exports = router;`,
 };
 
 /**
@@ -871,7 +879,7 @@ module.exports = {
   refresh,
   resetPassword,
   getProfile
-};`
+};`,
 };
 
 /**
@@ -1030,7 +1038,7 @@ const {{entityPascalCase}} = sequelize.define('{{entityPascalCase}}', {
   });
 };
 
-module.exports = {{entityPascalCase}};`
+module.exports = {{entityPascalCase}};`,
 };
 
 /**
@@ -1380,7 +1388,7 @@ module.exports = {
   authorize,
   authorizeOwnerOrAdmin,
   rateLimit
-};`
+};`,
 };
 
 /**
@@ -1637,7 +1645,7 @@ describe('{{entityName}} Controller', () => {
         .expect(401);
     });
   });
-});`
+});`,
 };
 
 /**
@@ -1645,7 +1653,7 @@ describe('{{entityName}} Controller', () => {
  */
 async function generateCode(type, template, entityName, options = {}) {
   const spinner = createSpinner(`Generating ${type}...`).start();
-  
+
   try {
     // Generate all case variations
     const variables = {
@@ -1657,7 +1665,7 @@ async function generateCode(type, template, entityName, options = {}) {
       entityConstantCase: caseConverter.constantCase(entityName),
       entityPlural: caseConverter.pluralize(caseConverter.kebabCase(entityName)),
       author: options.author || process.env.USER || 'Developer',
-      ...options
+      ...options,
     };
 
     // Get template content
@@ -1695,13 +1703,13 @@ async function generateCode(type, template, entityName, options = {}) {
     await fs.writeFile(outputPath, renderedContent);
 
     spinner.succeed(color.green(`${type} generated: ${outputPath}`));
-    
+
     return {
       type,
       template,
       entityName,
       outputPath,
-      content: renderedContent
+      content: renderedContent,
     };
   } catch (error) {
     spinner.fail(color.red(`Failed to generate ${type}: ${error.message}`));
@@ -1716,7 +1724,7 @@ function generateOutputPath(type, template, entityName, options) {
   const basePath = options.outputDir || process.cwd();
   const kebabCase = caseConverter.kebabCase(entityName);
   const pascalCase = caseConverter.pascalCase(entityName);
-  
+
   switch (type) {
     case 'route':
       return path.join(basePath, 'src', 'routes', `${kebabCase}.js`);
@@ -1741,17 +1749,17 @@ function generateOutputPath(type, template, entityName, options) {
  */
 async function generateCRUD(entityName, options = {}) {
   const spinner = createSpinner(`Generating complete CRUD for ${entityName}...`).start();
-  
+
   try {
     const results = [];
-    
+
     // Generate in order: model, controller, routes, validation, tests
     const generators = [
       { type: 'model', template: 'sequelize' },
       { type: 'controller', template: 'crud' },
       { type: 'route', template: 'crud' },
       { type: 'middleware', template: 'validation' },
-      { type: 'test', template: 'controller' }
+      { type: 'test', template: 'controller' },
     ];
 
     for (const gen of generators) {
@@ -1760,14 +1768,14 @@ async function generateCRUD(entityName, options = {}) {
     }
 
     spinner.succeed(color.green(`Complete CRUD generated for ${entityName}`));
-    
+
     // Summary
     console.log('\n' + color.bold('Generated Files:'));
     console.log(color.gray('─'.repeat(50)));
     results.forEach(result => {
       console.log(`${color.cyan(result.type.padEnd(12))} ${result.outputPath}`);
     });
-    
+
     return results;
   } catch (error) {
     spinner.fail(color.red(`Failed to generate CRUD: ${error.message}`));
@@ -1878,7 +1886,7 @@ module.exports = {
   generateCode,
   generateCRUD,
   caseConverter,
-  renderTemplate
+  renderTemplate,
 };
 
 // Run if called directly

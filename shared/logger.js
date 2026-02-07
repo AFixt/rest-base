@@ -1,6 +1,6 @@
 /**
  * Logger utility for CLI tools with high contrast support
- * 
+ *
  * @module shared/logger
  * @author Karl Groves
  */
@@ -9,7 +9,7 @@ const { getColorTheme, formatLabelValue } = require('./color-themes');
 
 class Logger {
   constructor() {
-    this.verbose = process.env.VERBOSE === "true";
+    this.verbose = process.env.VERBOSE === 'true';
     this.theme = getColorTheme();
   }
 
@@ -21,30 +21,30 @@ class Logger {
   }
 
   info(message, data = null) {
-    console.log(this.theme.info("[INFO]"), message);
+    console.log(this.theme.info('[INFO]'), message);
     if (data && this.verbose) {
-      console.log(this.theme.muted("  Data:"), data);
+      console.log(this.theme.muted('  Data:'), data);
     }
   }
 
   success(message, data = null) {
-    console.log(this.theme.success("[SUCCESS]"), message);
+    console.log(this.theme.success('[SUCCESS]'), message);
     if (data && this.verbose) {
-      console.log(this.theme.muted("  Data:"), data);
+      console.log(this.theme.muted('  Data:'), data);
     }
   }
 
   warn(message, data = null) {
-    console.log(this.theme.warning("[WARNING]"), message);
+    console.log(this.theme.warning('[WARNING]'), message);
     if (data && this.verbose) {
-      console.log(this.theme.muted("  Data:"), data);
+      console.log(this.theme.muted('  Data:'), data);
     }
   }
 
   error(message, error = null) {
-    console.error(this.theme.error("[ERROR]"), message);
+    console.error(this.theme.error('[ERROR]'), message);
     if (error) {
-      console.error(this.theme.error("  Error:"), error.message || error);
+      console.error(this.theme.error('  Error:'), error.message || error);
       if (error.stack && this.verbose) {
         console.error(this.theme.muted(error.stack));
       }
@@ -53,16 +53,16 @@ class Logger {
 
   debug(message, data = null) {
     if (this.verbose) {
-      console.log(this.theme.debug("[DEBUG]"), message);
+      console.log(this.theme.debug('[DEBUG]'), message);
       if (data) {
-        console.log(this.theme.debug("  Data:"), data);
+        console.log(this.theme.debug('  Data:'), data);
       }
     }
   }
 
   /**
    * Logs a heading with appropriate styling
-   * 
+   *
    * @param {string} text - Heading text
    */
   heading(text) {
@@ -71,7 +71,7 @@ class Logger {
 
   /**
    * Logs a subheading with appropriate styling
-   * 
+   *
    * @param {string} text - Subheading text
    */
   subheading(text) {
@@ -80,7 +80,7 @@ class Logger {
 
   /**
    * Logs a label-value pair with appropriate styling
-   * 
+   *
    * @param {string} label - Label text
    * @param {string} value - Value text
    */
@@ -90,7 +90,7 @@ class Logger {
 
   /**
    * Logs a highlighted message
-   * 
+   *
    * @param {string} message - Message to highlight
    */
   highlight(message) {
@@ -99,7 +99,7 @@ class Logger {
 
   /**
    * Logs a muted/secondary message
-   * 
+   *
    * @param {string} message - Message to display muted
    */
   muted(message) {

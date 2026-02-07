@@ -16,9 +16,11 @@ const chatHistory = new Map();
  */
 const joinChat = async (socket, data, callback) => {
   const { roomId } = data || {};
-  
+
   if (!roomId) {
-    if (callback) callback({ error: 'Room ID is required' });
+    if (callback) {
+      callback({ error: 'Room ID is required' });
+    }
     return;
   }
 
@@ -36,23 +38,26 @@ const joinChat = async (socket, data, callback) => {
   socket.to(`chat:${roomId}`).emit('chat:user_joined', {
     userId: socket.userId,
     roomId,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 
-  logger.info({
-    component: 'chat',
-    event: 'join',
-    socketId: socket.id,
-    userId: socket.userId,
-    roomId
-  }, 'User joined chat room');
+  logger.info(
+    {
+      component: 'chat',
+      event: 'join',
+      socketId: socket.id,
+      userId: socket.userId,
+      roomId,
+    },
+    'User joined chat room'
+  );
 
   if (callback) {
     callback({
       success: true,
       roomId,
       participants: chatRooms.get(roomId).size,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 };
@@ -62,18 +67,20 @@ const joinChat = async (socket, data, callback) => {
  */
 const leaveChat = async (socket, data, callback) => {
   const { roomId } = data || {};
-  
+
   if (!roomId) {
-    if (callback) callback({ error: 'Room ID is required' });
+    if (callback) {
+      callback({ error: 'Room ID is required' });
+    }
     return;
   }
 
   // Leave socket room
   socket.leave(`chat:${roomId}`);
-  
+
   if (chatRooms.has(roomId)) {
     chatRooms.get(roomId).delete(socket.id);
-    
+
     // Clean up empty rooms
     if (chatRooms.get(roomId).size === 0) {
       chatRooms.delete(roomId);
@@ -84,22 +91,25 @@ const leaveChat = async (socket, data, callback) => {
   socket.to(`chat:${roomId}`).emit('chat:user_left', {
     userId: socket.userId,
     roomId,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 
-  logger.info({
-    component: 'chat',
-    event: 'leave',
-    socketId: socket.id,
-    userId: socket.userId,
-    roomId
-  }, 'User left chat room');
+  logger.info(
+    {
+      component: 'chat',
+      event: 'leave',
+      socketId: socket.id,
+      userId: socket.userId,
+      roomId,
+    },
+    'User left chat room'
+  );
 
   if (callback) {
     callback({
       success: true,
       roomId,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 };
@@ -109,20 +119,26 @@ const leaveChat = async (socket, data, callback) => {
  */
 const sendMessage = async (socket, data, callback) => {
   const { roomId, message, type = 'text' } = data || {};
-  
+
   if (!roomId || !message) {
-    if (callback) callback({ error: 'Room ID and message are required' });
+    if (callback) {
+      callback({ error: 'Room ID and message are required' });
+    }
     return;
   }
 
   if (message.length > 1000) {
-    if (callback) callback({ error: 'Message too long (max 1000 characters)' });
+    if (callback) {
+      callback({ error: 'Message too long (max 1000 characters)' });
+    }
     return;
   }
 
   // Validate message type
   if (!['text', 'image', 'file', 'code'].includes(type)) {
-    if (callback) callback({ error: 'Invalid message type' });
+    if (callback) {
+      callback({ error: 'Invalid message type' });
+    }
     return;
   }
 
@@ -132,17 +148,17 @@ const sendMessage = async (socket, data, callback) => {
     roomId,
     message: message.trim(),
     type,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
 
   // Store message in history
   if (!chatHistory.has(roomId)) {
     chatHistory.set(roomId, []);
   }
-  
+
   const history = chatHistory.get(roomId);
   history.push(messageData);
-  
+
   // Keep only last 100 messages per room
   if (history.length > 100) {
     history.splice(0, history.length - 100);
@@ -151,21 +167,24 @@ const sendMessage = async (socket, data, callback) => {
   // Broadcast message to room
   socket.to(`chat:${roomId}`).emit('chat:message', messageData);
 
-  logger.info({
-    component: 'chat',
-    event: 'message',
-    socketId: socket.id,
-    userId: socket.userId,
-    roomId,
-    messageType: type,
-    messageLength: message.length
-  }, 'Chat message sent');
+  logger.info(
+    {
+      component: 'chat',
+      event: 'message',
+      socketId: socket.id,
+      userId: socket.userId,
+      roomId,
+      messageType: type,
+      messageLength: message.length,
+    },
+    'Chat message sent'
+  );
 
   if (callback) {
     callback({
       success: true,
       message: messageData,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 };
@@ -175,9 +194,11 @@ const sendMessage = async (socket, data, callback) => {
  */
 const handleTyping = async (socket, data, callback) => {
   const { roomId, isTyping } = data || {};
-  
+
   if (!roomId) {
-    if (callback) callback({ error: 'Room ID is required' });
+    if (callback) {
+      callback({ error: 'Room ID is required' });
+    }
     return;
   }
 
@@ -186,13 +207,13 @@ const handleTyping = async (socket, data, callback) => {
     userId: socket.userId,
     roomId,
     isTyping: Boolean(isTyping),
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 
   if (callback) {
     callback({
       success: true,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 };
@@ -202,9 +223,11 @@ const handleTyping = async (socket, data, callback) => {
  */
 const getChatHistory = async (socket, data, callback) => {
   const { roomId, limit = 50, offset = 0 } = data || {};
-  
+
   if (!roomId) {
-    if (callback) callback({ error: 'Room ID is required' });
+    if (callback) {
+      callback({ error: 'Room ID is required' });
+    }
     return;
   }
 
@@ -213,14 +236,17 @@ const getChatHistory = async (socket, data, callback) => {
   const endIndex = Math.max(0, history.length - offset);
   const messages = history.slice(startIndex, endIndex);
 
-  logger.debug({
-    component: 'chat',
-    event: 'history',
-    socketId: socket.id,
-    userId: socket.userId,
-    roomId,
-    messagesCount: messages.length
-  }, 'Chat history requested');
+  logger.debug(
+    {
+      component: 'chat',
+      event: 'history',
+      socketId: socket.id,
+      userId: socket.userId,
+      roomId,
+      messagesCount: messages.length,
+    },
+    'Chat history requested'
+  );
 
   if (callback) {
     callback({
@@ -230,7 +256,7 @@ const getChatHistory = async (socket, data, callback) => {
       total: history.length,
       limit,
       offset,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 };
@@ -240,5 +266,5 @@ module.exports = {
   leaveChat,
   sendMessage,
   handleTyping,
-  getChatHistory
+  getChatHistory,
 };

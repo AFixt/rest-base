@@ -24,11 +24,11 @@ jest.mock('../src/services/redis.js', () => ({
   isRedisConnected: jest.fn().mockReturnValue(false),
   disconnectRedis: jest.fn().mockResolvedValue(true),
   RedisKeys: {
-    rateLimit: (id) => `test_rate_limit:${id}`,
-    session: (id) => `test_session:${id}`,
-    cache: (id) => `test_cache:${id}`,
-    lock: (id) => `test_lock:${id}`,
-    serviceHealth: (id) => `test_health:${id}`,
+    rateLimit: id => `test_rate_limit:${id}`,
+    session: id => `test_session:${id}`,
+    cache: id => `test_cache:${id}`,
+    lock: id => `test_lock:${id}`,
+    serviceHealth: id => `test_health:${id}`,
   },
   RedisCache: {
     set: jest.fn().mockResolvedValue(true),

@@ -32,25 +32,10 @@
       "@tests/*": ["tests/*"],
       "@types/*": ["types/*"]
     },
-    "typeRoots": [
-      "./node_modules/@types",
-      "./types"
-    ]
+    "typeRoots": ["./node_modules/@types", "./types"]
   },
-  "include": [
-    "scripts/**/*",
-    "shared/**/*",
-    "tests/**/*",
-    "types/**/*",
-    "*.js",
-    "*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "coverage",
-    "**/node_modules/**"
-  ],
+  "include": ["scripts/**/*", "shared/**/*", "tests/**/*", "types/**/*", "*.js", "*.ts"],
+  "exclude": ["node_modules", "dist", "coverage", "**/node_modules/**"],
   "ts-node": {
     "esm": false,
     "experimentalSpecifierResolution": "node"

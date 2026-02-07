@@ -41,7 +41,7 @@ const expressDefaults = {
   rateLimit: {
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100, // Limit each IP to 100 requests per windowMs
-    message: "Too many requests from this IP, please try again later.",
+    message: 'Too many requests from this IP, please try again later.',
     standardHeaders: true,
     legacyHeaders: false,
   },
@@ -55,14 +55,14 @@ const expressDefaults = {
       secure: true, // HTTPS only
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      sameSite: "strict",
+      sameSite: 'strict',
     },
   },
 
   // Body parser limits
   bodyParser: {
-    json: { limit: "10mb" },
-    urlencoded: { limit: "10mb", extended: false },
+    json: { limit: '10mb' },
+    urlencoded: { limit: '10mb', extended: false },
   },
 };
 
@@ -72,7 +72,7 @@ const expressDefaults = {
 const databaseDefaults = {
   // MySQL/MariaDB defaults
   mysql: {
-    host: "localhost",
+    host: 'localhost',
     port: 3306,
     ssl: {
       rejectUnauthorized: true,
@@ -81,12 +81,12 @@ const databaseDefaults = {
     acquireTimeout: 60000,
     timeout: 60000,
     reconnect: true,
-    charset: "utf8mb4",
+    charset: 'utf8mb4',
   },
 
   // Sequelize ORM defaults
   sequelize: {
-    dialect: "mysql",
+    dialect: 'mysql',
     dialectOptions: {
       ssl: {
         require: true,
@@ -111,37 +111,41 @@ const databaseDefaults = {
 
 /**
  * Secure defaults for logging
+ * @param {string} environment - Environment (development, test, production)
+ * @returns {Object} Logging defaults
  */
-const loggingDefaults = {
-  bunyan: {
-    level: process.env.NODE_ENV === "production" ? "info" : "debug",
-    name: "rest-base",
-    streams: [
-      {
-        level: "info",
-        stream: process.stdout,
-      },
-      {
-        level: "error",
-        path: "logs/error.log",
-      },
-      {
-        level: "info",
-        path: "logs/combined.log",
-      },
-    ],
-  },
-};
+function getLoggingDefaults(environment = process.env.NODE_ENV || 'development') {
+  return {
+    bunyan: {
+      level: environment === 'production' ? 'info' : 'debug',
+      name: 'rest-base',
+      streams: [
+        {
+          level: 'info',
+          stream: process.stdout,
+        },
+        {
+          level: 'error',
+          path: 'logs/error.log',
+        },
+        {
+          level: 'info',
+          path: 'logs/combined.log',
+        },
+      ],
+    },
+  };
+}
 
 /**
  * Secure defaults for authentication and authorization
  */
 const authDefaults = {
   jwt: {
-    algorithm: "HS256",
-    expiresIn: "1h",
-    issuer: "rest-base",
-    audience: "rest-base-client",
+    algorithm: 'HS256',
+    expiresIn: '1h',
+    issuer: 'rest-base',
+    audience: 'rest-base-client',
   },
 
   bcrypt: {
@@ -165,15 +169,15 @@ const fileDefaults = {
   upload: {
     maxFileSize: 10 * 1024 * 1024, // 10MB
     allowedMimeTypes: [
-      "image/jpeg",
-      "image/png",
-      "image/gif",
-      "image/webp",
-      "application/pdf",
-      "text/plain",
-      "application/json",
+      'image/jpeg',
+      'image/png',
+      'image/gif',
+      'image/webp',
+      'application/pdf',
+      'text/plain',
+      'application/json',
     ],
-    destination: "./uploads/",
+    destination: './uploads/',
     limits: {
       fileSize: 10 * 1024 * 1024,
       files: 5,
@@ -181,8 +185,8 @@ const fileDefaults = {
   },
 
   paths: {
-    allowedDirectories: ["./uploads/", "./temp/", "./public/"],
-    forbiddenDirectories: ["./node_modules/", "./.git/", "./config/"],
+    allowedDirectories: ['./uploads/', './temp/', './public/'],
+    forbiddenDirectories: ['./node_modules/', './.git/', './config/'],
   },
 };
 
@@ -191,13 +195,13 @@ const fileDefaults = {
  */
 const apiDefaults = {
   response: {
-    removeStackTrace: process.env.NODE_ENV === "production",
+    removeStackTrace: process.env.NODE_ENV === 'production',
     maxResponseSize: 10 * 1024 * 1024, // 10MB
     defaultHeaders: {
-      "X-Content-Type-Options": "nosniff",
-      "X-Frame-Options": "DENY",
-      "X-XSS-Protection": "1; mode=block",
-      "Referrer-Policy": "strict-origin-when-cross-origin",
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'DENY',
+      'X-XSS-Protection': '1; mode=block',
+      'Referrer-Policy': 'strict-origin-when-cross-origin',
     },
   },
 
@@ -214,7 +218,7 @@ const apiDefaults = {
 const environmentDefaults = {
   development: {
     logging: {
-      level: "debug",
+      level: 'debug',
     },
     database: {
       logging: console.log,
@@ -223,7 +227,7 @@ const environmentDefaults = {
 
   test: {
     logging: {
-      level: "error",
+      level: 'error',
     },
     database: {
       logging: false,
@@ -232,7 +236,7 @@ const environmentDefaults = {
 
   production: {
     logging: {
-      level: "info",
+      level: 'info',
     },
     session: {
       cookie: {
@@ -248,14 +252,11 @@ const environmentDefaults = {
  * @param {string} environment - Environment (development, test, production)
  * @returns {Object} Secure defaults configuration
  */
-function getSecureDefaults(
-  component,
-  environment = process.env.NODE_ENV || "development",
-) {
+function getSecureDefaults(component, environment = process.env.NODE_ENV || 'development') {
   const defaults = {
     express: expressDefaults,
     database: databaseDefaults,
-    logging: loggingDefaults,
+    logging: getLoggingDefaults(environment),
     auth: authDefaults,
     file: fileDefaults,
     api: apiDefaults,
@@ -264,10 +265,7 @@ function getSecureDefaults(
   let config = defaults[component] || {};
 
   // Apply environment-specific overrides
-  if (
-    environmentDefaults[environment] &&
-    environmentDefaults[environment][component]
-  ) {
+  if (environmentDefaults[environment] && environmentDefaults[environment][component]) {
     config = mergeDeep(config, environmentDefaults[environment][component]);
   }
 
@@ -284,7 +282,7 @@ function mergeDeep(target, source) {
   const output = Object.assign({}, target);
 
   if (isObject(target) && isObject(source)) {
-    Object.keys(source).forEach((key) => {
+    Object.keys(source).forEach(key => {
       if (isObject(source[key])) {
         if (!(key in target)) {
           Object.assign(output, { [key]: source[key] });
@@ -306,7 +304,7 @@ function mergeDeep(target, source) {
  * @returns {boolean} True if item is an object
  */
 function isObject(item) {
-  return item && typeof item === "object" && !Array.isArray(item);
+  return item && typeof item === 'object' && !Array.isArray(item);
 }
 
 /**
@@ -320,24 +318,24 @@ function validateConfiguration(config, component) {
   const issues = [];
 
   // Check for missing critical security settings
-  if (component === "express") {
+  if (component === 'express') {
     if (!config.helmet) {
-      issues.push("Missing Helmet security middleware configuration");
+      issues.push('Missing Helmet security middleware configuration');
     }
     if (!config.rateLimit) {
-      issues.push("Missing rate limiting configuration");
+      issues.push('Missing rate limiting configuration');
     }
   }
 
-  if (component === "database") {
+  if (component === 'database') {
     if (!config.ssl) {
-      issues.push("SSL not configured for database connection");
+      issues.push('SSL not configured for database connection');
     }
   }
 
-  if (component === "auth") {
+  if (component === 'auth') {
     if (!config.jwt || !config.jwt.secret) {
-      issues.push("JWT secret not configured");
+      issues.push('JWT secret not configured');
     }
   }
 
@@ -353,7 +351,7 @@ module.exports = {
   validateConfiguration,
   expressDefaults,
   databaseDefaults,
-  loggingDefaults,
+  loggingDefaults: getLoggingDefaults(),
   authDefaults,
   fileDefaults,
   apiDefaults,

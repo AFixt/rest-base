@@ -153,44 +153,35 @@ Content-Type: image/jpeg
 #### Server-Side Validation
 
 ```javascript
-const multer = require("multer");
-const crypto = require("crypto");
+const multer = require('multer');
+const crypto = require('crypto');
 
 // File validation middleware
 const fileValidation = {
   // MIME type validation
   allowedMimeTypes: [
-    "image/jpeg",
-    "image/png",
-    "image/gif",
-    "image/webp",
-    "application/pdf",
-    "text/plain",
-    "application/msword",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'application/pdf',
+    'text/plain',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   ],
 
   // File size limits by type
   sizeLimits: {
-    "image/*": 10 * 1024 * 1024, // 10MB for images
-    "application/pdf": 50 * 1024 * 1024, // 50MB for PDFs
+    'image/*': 10 * 1024 * 1024, // 10MB for images
+    'application/pdf': 50 * 1024 * 1024, // 50MB for PDFs
     default: 5 * 1024 * 1024, // 5MB default
   },
 
   // File extension validation
-  allowedExtensions: [
-    ".jpg",
-    ".jpeg",
-    ".png",
-    ".gif",
-    ".pdf",
-    ".txt",
-    ".doc",
-    ".docx",
-  ],
+  allowedExtensions: ['.jpg', '.jpeg', '.png', '.gif', '.pdf', '.txt', '.doc', '.docx'],
 
   // Validate file
-  validateFile: (file) => {
+  validateFile: file => {
     const errors = [];
 
     // Check MIME type
@@ -207,43 +198,35 @@ const fileValidation = {
     // Check file size
     const sizeLimit = fileValidation.getSizeLimit(file.mimetype);
     if (file.size > sizeLimit) {
-      errors.push(
-        `File size exceeds maximum limit of ${sizeLimit / 1024 / 1024}MB`,
-      );
+      errors.push(`File size exceeds maximum limit of ${sizeLimit / 1024 / 1024}MB`);
     }
 
     // Check for malicious content (basic check)
     if (fileValidation.containsMaliciousContent(file)) {
-      errors.push("File contains potentially malicious content");
+      errors.push('File contains potentially malicious content');
     }
 
     return errors;
   },
 
-  getSizeLimit: (mimeType) => {
+  getSizeLimit: mimeType => {
     for (const pattern in fileValidation.sizeLimits) {
-      if (pattern === "default") continue;
-      if (mimeType.match(new RegExp(pattern.replace("*", ".*")))) {
+      if (pattern === 'default') continue;
+      if (mimeType.match(new RegExp(pattern.replace('*', '.*')))) {
         return fileValidation.sizeLimits[pattern];
       }
     }
     return fileValidation.sizeLimits.default;
   },
 
-  containsMaliciousContent: (file) => {
+  containsMaliciousContent: file => {
     // Basic malicious content detection
-    const maliciousPatterns = [
-      /<script/i,
-      /javascript:/i,
-      /vbscript:/i,
-      /onload=/i,
-      /onerror=/i,
-    ];
+    const maliciousPatterns = [/<script/i, /javascript:/i, /vbscript:/i, /onload=/i, /onerror=/i];
 
     // For text files, check content
-    if (file.mimetype.startsWith("text/")) {
-      const content = file.buffer?.toString() || "";
-      return maliciousPatterns.some((pattern) => pattern.test(content));
+    if (file.mimetype.startsWith('text/')) {
+      const content = file.buffer?.toString() || '';
+      return maliciousPatterns.some(pattern => pattern.test(content));
     }
 
     return false;
@@ -254,7 +237,7 @@ const fileValidation = {
 #### Content-Based Validation
 
 ```javascript
-const fileType = require("file-type");
+const fileType = require('file-type');
 
 // Validate file content matches extension
 const validateFileContent = async (buffer, filename) => {
@@ -262,11 +245,11 @@ const validateFileContent = async (buffer, filename) => {
   const extension = path.extname(filename).toLowerCase();
 
   const extensionMimeMap = {
-    ".jpg": "image/jpeg",
-    ".jpeg": "image/jpeg",
-    ".png": "image/png",
-    ".gif": "image/gif",
-    ".pdf": "application/pdf",
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.png': 'image/png',
+    '.gif': 'image/gif',
+    '.pdf': 'application/pdf',
   };
 
   const expectedMime = extensionMimeMap[extension];
@@ -274,7 +257,7 @@ const validateFileContent = async (buffer, filename) => {
   if (expectedMime && detectedType?.mime !== expectedMime) {
     throw new ValidationError(
       `File content does not match extension. Expected ${expectedMime}, ` +
-        `got ${detectedType?.mime}`,
+        `got ${detectedType?.mime}`
     );
   }
 
@@ -287,17 +270,13 @@ const validateFileContent = async (buffer, filename) => {
 #### Local File Storage
 
 ```javascript
-const multer = require("multer");
-const path = require("path");
+const multer = require('multer');
+const path = require('path');
 
 // Local storage configuration
 const localStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadPath = path.join(
-      __dirname,
-      "../uploads",
-      new Date().getFullYear().toString(),
-    );
+    const uploadPath = path.join(__dirname, '../uploads', new Date().getFullYear().toString());
     fs.mkdirSync(uploadPath, { recursive: true });
     cb(null, uploadPath);
   },
@@ -319,7 +298,7 @@ const upload = multer({
   fileFilter: (req, file, cb) => {
     const errors = fileValidation.validateFile(file);
     if (errors.length > 0) {
-      return cb(new ValidationError(errors.join(", ")));
+      return cb(new ValidationError(errors.join(', ')));
     }
     cb(null, true);
   },
@@ -329,9 +308,9 @@ const upload = multer({
 #### Cloud Storage (AWS S3)
 
 ```javascript
-const AWS = require("aws-sdk");
-const multer = require("multer");
-const multerS3 = require("multer-s3");
+const AWS = require('aws-sdk');
+const multer = require('multer');
+const multerS3 = require('multer-s3');
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -370,7 +349,7 @@ const s3Upload = multer({
   fileFilter: (req, file, cb) => {
     const errors = fileValidation.validateFile(file);
     if (errors.length > 0) {
-      return cb(new ValidationError(errors.join(", ")));
+      return cb(new ValidationError(errors.join(', ')));
     }
     cb(null, true);
   },
@@ -382,18 +361,15 @@ const s3Upload = multer({
 #### Single File Upload Handler
 
 ```javascript
-app.post("/api/files", upload.single("file"), async (req, res, next) => {
+app.post('/api/files', upload.single('file'), async (req, res, next) => {
   try {
     const file = req.file;
     if (!file) {
-      throw new ValidationError("No file provided");
+      throw new ValidationError('No file provided');
     }
 
     // Additional content validation
-    const detectedType = await validateFileContent(
-      file.buffer,
-      file.originalname,
-    );
+    const detectedType = await validateFileContent(file.buffer, file.originalname);
 
     // Save file metadata to database
     const fileRecord = await File.create({
@@ -409,7 +385,7 @@ app.post("/api/files", upload.single("file"), async (req, res, next) => {
     });
 
     // Generate thumbnail for images
-    if (file.mimetype.startsWith("image/")) {
+    if (file.mimetype.startsWith('image/')) {
       const thumbnailUrl = await generateThumbnail(file);
       await fileRecord.update({ thumbnailUrl });
     }
@@ -437,14 +413,14 @@ app.post("/api/files", upload.single("file"), async (req, res, next) => {
 
 ```javascript
 // Initialize chunked upload
-app.post("/api/files/chunked/init", async (req, res) => {
+app.post('/api/files/chunked/init', async (req, res) => {
   try {
     const { filename, totalSize, chunkCount } = req.body;
 
     // Validate total size
     if (totalSize > 100 * 1024 * 1024) {
       // 100MB limit
-      throw new ValidationError("File too large for chunked upload");
+      throw new ValidationError('File too large for chunked upload');
     }
 
     const uploadSession = await UploadSession.create({
@@ -453,7 +429,7 @@ app.post("/api/files/chunked/init", async (req, res) => {
       totalSize,
       chunkCount,
       uploadedBy: req.user.id,
-      status: "initialized",
+      status: 'initialized',
     });
 
     res.status(201).json({
@@ -470,8 +446,8 @@ app.post("/api/files/chunked/init", async (req, res) => {
 
 // Upload individual chunk
 app.post(
-  "/api/files/chunked/:sessionId/chunks/:chunkNumber",
-  upload.single("chunk"),
+  '/api/files/chunked/:sessionId/chunks/:chunkNumber',
+  upload.single('chunk'),
   async (req, res) => {
     try {
       const { sessionId, chunkNumber } = req.params;
@@ -479,7 +455,7 @@ app.post(
 
       const session = await UploadSession.findByPk(sessionId);
       if (!session) {
-        throw new NotFoundError("Upload session not found");
+        throw new NotFoundError('Upload session not found');
       }
 
       // Save chunk
@@ -496,7 +472,7 @@ app.post(
         // Assemble file from chunks
         const assembledFile = await assembleChunkedFile(session);
         await session.update({
-          status: "completed",
+          status: 'completed',
           filePath: assembledFile.path,
         });
       }
@@ -512,7 +488,7 @@ app.post(
     } catch (error) {
       next(error);
     }
-  },
+  }
 );
 ```
 
@@ -548,37 +524,37 @@ Range: bytes=0-1048575
 #### Secure File Download
 
 ```javascript
-app.get("/api/files/:fileId/download", async (req, res, next) => {
+app.get('/api/files/:fileId/download', async (req, res, next) => {
   try {
     const { fileId } = req.params;
 
     // Find file record
     const file = await File.findByPk(fileId);
     if (!file) {
-      throw new NotFoundError("File not found");
+      throw new NotFoundError('File not found');
     }
 
     // Check permissions
     if (!(await hasFileAccess(req.user, file))) {
-      throw new UnauthorizedError("Insufficient permissions to download file");
+      throw new UnauthorizedError('Insufficient permissions to download file');
     }
 
     // Check if file exists on disk/storage
     if (!(await fileExists(file.path))) {
-      throw new NotFoundError("File content not found");
+      throw new NotFoundError('File content not found');
     }
 
     // Set appropriate headers
     res.set({
-      "Content-Type": file.mimeType,
-      "Content-Length": file.size,
-      "Content-Disposition": `attachment; filename="${file.originalName}"`,
-      "Cache-Control": "private, max-age=3600",
-      "X-File-ID": file.id,
+      'Content-Type': file.mimeType,
+      'Content-Length': file.size,
+      'Content-Disposition': `attachment; filename="${file.originalName}"`,
+      'Cache-Control': 'private, max-age=3600',
+      'X-File-ID': file.id,
     });
 
     // Log download activity
-    logger.info("File downloaded", {
+    logger.info('File downloaded', {
       correlationId: req.correlationId,
       fileId: file.id,
       userId: req.user.id,
@@ -591,8 +567,8 @@ app.get("/api/files/:fileId/download", async (req, res, next) => {
     fileStream.pipe(res);
 
     // Handle stream errors
-    fileStream.on("error", (error) => {
-      logger.error("File stream error", {
+    fileStream.on('error', error => {
+      logger.error('File stream error', {
         correlationId: req.correlationId,
         fileId: file.id,
         error: error.message,
@@ -600,8 +576,8 @@ app.get("/api/files/:fileId/download", async (req, res, next) => {
       if (!res.headersSent) {
         res.status(500).json({
           error: {
-            code: "download_failed",
-            message: "Failed to download file",
+            code: 'download_failed',
+            message: 'Failed to download file',
           },
         });
       }
@@ -615,13 +591,13 @@ app.get("/api/files/:fileId/download", async (req, res, next) => {
 #### Range-Based Download (Resumable)
 
 ```javascript
-app.get("/api/files/:fileId/stream", async (req, res, next) => {
+app.get('/api/files/:fileId/stream', async (req, res, next) => {
   try {
     const { fileId } = req.params;
     const file = await File.findByPk(fileId);
 
     if (!file || !(await hasFileAccess(req.user, file))) {
-      throw new NotFoundError("File not found");
+      throw new NotFoundError('File not found');
     }
 
     const fileSize = file.size;
@@ -629,17 +605,17 @@ app.get("/api/files/:fileId/stream", async (req, res, next) => {
 
     if (range) {
       // Parse range header
-      const parts = range.replace(/bytes=/, "").split("-");
+      const parts = range.replace(/bytes=/, '').split('-');
       const start = parseInt(parts[0], 10);
       const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
       const chunkSize = end - start + 1;
 
       // Set partial content headers
       res.status(206).set({
-        "Content-Range": `bytes ${start}-${end}/${fileSize}`,
-        "Accept-Ranges": "bytes",
-        "Content-Length": chunkSize,
-        "Content-Type": file.mimeType,
+        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+        'Accept-Ranges': 'bytes',
+        'Content-Length': chunkSize,
+        'Content-Type': file.mimeType,
       });
 
       // Create readable stream with range
@@ -648,8 +624,8 @@ app.get("/api/files/:fileId/stream", async (req, res, next) => {
     } else {
       // Full file download
       res.set({
-        "Content-Length": fileSize,
-        "Content-Type": file.mimeType,
+        'Content-Length': fileSize,
+        'Content-Type': file.mimeType,
       });
 
       const fileStream = fs.createReadStream(file.path);
@@ -665,14 +641,14 @@ app.get("/api/files/:fileId/stream", async (req, res, next) => {
 
 ```javascript
 // Generate temporary download URL
-app.post("/api/files/:fileId/download-url", async (req, res, next) => {
+app.post('/api/files/:fileId/download-url', async (req, res, next) => {
   try {
     const { fileId } = req.params;
     const { expiresIn = 3600 } = req.body; // Default 1 hour
 
     const file = await File.findByPk(fileId);
     if (!file || !(await hasFileAccess(req.user, file))) {
-      throw new NotFoundError("File not found");
+      throw new NotFoundError('File not found');
     }
 
     // Generate temporary token
@@ -680,13 +656,13 @@ app.post("/api/files/:fileId/download-url", async (req, res, next) => {
       {
         fileId: file.id,
         userId: req.user.id,
-        type: "download",
+        type: 'download',
       },
       process.env.DOWNLOAD_TOKEN_SECRET,
-      { expiresIn },
+      { expiresIn }
     );
 
-    const downloadUrl = `${req.protocol}://${req.get("host")}/api/files/${fileId}/download?token=${downloadToken}`;
+    const downloadUrl = `${req.protocol}://${req.get('host')}/api/files/${fileId}/download?token=${downloadToken}`;
 
     res.json({
       data: {
@@ -702,7 +678,7 @@ app.post("/api/files/:fileId/download-url", async (req, res, next) => {
 });
 
 // Download with temporary token
-app.get("/api/files/:fileId/download", async (req, res, next) => {
+app.get('/api/files/:fileId/download', async (req, res, next) => {
   try {
     const { fileId } = req.params;
     const { token } = req.query;
@@ -710,8 +686,8 @@ app.get("/api/files/:fileId/download", async (req, res, next) => {
     if (token) {
       // Verify temporary download token
       const decoded = jwt.verify(token, process.env.DOWNLOAD_TOKEN_SECRET);
-      if (decoded.fileId !== fileId || decoded.type !== "download") {
-        throw new UnauthorizedError("Invalid download token");
+      if (decoded.fileId !== fileId || decoded.type !== 'download') {
+        throw new UnauthorizedError('Invalid download token');
       }
       req.user = { id: decoded.userId }; // Set user from token
     }

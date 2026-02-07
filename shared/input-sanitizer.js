@@ -16,8 +16,8 @@
  * @returns {object} { isValid: boolean, sanitized: string, error?: string }
  */
 function sanitizeProjectName(name) {
-  if (!name || typeof name !== "string") {
-    return { isValid: false, error: "Project name must be a non-empty string" };
+  if (!name || typeof name !== 'string') {
+    return { isValid: false, error: 'Project name must be a non-empty string' };
   }
 
   // Remove leading/trailing whitespace
@@ -25,18 +25,11 @@ function sanitizeProjectName(name) {
 
   // Check for empty string after trimming
   if (!trimmed) {
-    return { isValid: false, error: "Project name cannot be empty" };
+    return { isValid: false, error: 'Project name cannot be empty' };
   }
 
   // Reserved names that shouldn't be used
-  const reserved = [
-    "node_modules",
-    ".git",
-    "test",
-    "tests",
-    "__tests__",
-    "coverage",
-  ];
+  const reserved = ['node_modules', '.git', 'test', 'tests', '__tests__', 'coverage'];
   if (reserved.includes(trimmed.toLowerCase())) {
     return { isValid: false, error: `"${trimmed}" is a reserved name` };
   }
@@ -50,7 +43,7 @@ function sanitizeProjectName(name) {
   if (dangerous.test(trimmed)) {
     return {
       isValid: false,
-      error: "Project name contains invalid characters",
+      error: 'Project name contains invalid characters',
     };
   }
 
@@ -65,7 +58,7 @@ function sanitizeProjectName(name) {
   if (commandChars.test(trimmed)) {
     return {
       isValid: false,
-      error: "Project name contains shell command characters",
+      error: 'Project name contains shell command characters',
     };
   }
 
@@ -74,8 +67,7 @@ function sanitizeProjectName(name) {
   if (!validPattern.test(trimmed)) {
     return {
       isValid: false,
-      error:
-        "Project name can only contain letters, numbers, hyphens, and underscores",
+      error: 'Project name can only contain letters, numbers, hyphens, and underscores',
     };
   }
 
@@ -84,7 +76,7 @@ function sanitizeProjectName(name) {
     // npm package name limit
     return {
       isValid: false,
-      error: "Project name is too long (max 214 characters)",
+      error: 'Project name is too long (max 214 characters)',
     };
   }
 
@@ -100,23 +92,35 @@ function sanitizeProjectName(name) {
  * @returns {object} { isValid: boolean, sanitized: string, error?: string }
  */
 function sanitizeFilePath(path, basePath = process.cwd()) {
-  if (!path || typeof path !== "string") {
-    return { isValid: false, error: "Path must be a non-empty string" };
+  if (!path || typeof path !== 'string') {
+    return { isValid: false, error: 'Path must be a non-empty string' };
   }
 
-  const pathModule = require("path");
+  const pathModule = require('path');
+
+  // Check for null bytes first
+  if (path.includes('\0')) {
+    return { isValid: false, error: 'Path contains null bytes' };
+  }
+
+  // Check for Windows-style path separators on Unix (potential traversal attempt)
+  if (process.platform !== 'win32' && path.includes('\\')) {
+    return { isValid: false, error: 'Invalid path separators' };
+  }
+
+  // Reject absolute paths when basePath is provided
+  if (pathModule.isAbsolute(path) && basePath) {
+    return { isValid: false, error: 'Absolute paths are not allowed' };
+  }
 
   // Resolve to absolute path
   const resolved = pathModule.resolve(basePath, path);
+  const normalizedBase = pathModule.resolve(basePath);
 
   // Ensure the resolved path is within the base directory
-  if (!resolved.startsWith(pathModule.resolve(basePath))) {
-    return { isValid: false, error: "Path traversal detected" };
-  }
-
-  // Check for null bytes
-  if (path.includes("\0")) {
-    return { isValid: false, error: "Path contains null bytes" };
+  // The resolved path must either be the base itself or start with base + separator
+  if (!resolved.startsWith(normalizedBase + pathModule.sep) && resolved !== normalizedBase) {
+    return { isValid: false, error: 'Path traversal detected' };
   }
 
   return { isValid: true, sanitized: resolved };
@@ -129,20 +133,19 @@ function sanitizeFilePath(path, basePath = process.cwd()) {
  * @returns {object} { isValid: boolean, sanitized: string, error?: string }
  */
 function sanitizePackageName(packageName) {
-  if (!packageName || typeof packageName !== "string") {
-    return { isValid: false, error: "Package name must be a non-empty string" };
+  if (!packageName || typeof packageName !== 'string') {
+    return { isValid: false, error: 'Package name must be a non-empty string' };
   }
 
   const trimmed = packageName.trim();
 
   // npm package name rules
-  const validPackageNameRegex =
-    /^(@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/;
+  const validPackageNameRegex = /^(@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/;
 
   if (!validPackageNameRegex.test(trimmed)) {
     return {
       isValid: false,
-      error: "Invalid npm package name format",
+      error: 'Invalid npm package name format',
     };
   }
 
@@ -151,7 +154,7 @@ function sanitizePackageName(packageName) {
   if (dangerousChars.test(trimmed)) {
     return {
       isValid: false,
-      error: "Package name contains dangerous characters",
+      error: 'Package name contains dangerous characters',
     };
   }
 
@@ -165,19 +168,19 @@ function sanitizePackageName(packageName) {
  * @returns {object} { isValid: boolean, sanitized: string, error?: string }
  */
 function sanitizeCliArg(arg) {
-  if (typeof arg !== "string") {
-    return { isValid: false, error: "Argument must be a string" };
+  if (typeof arg !== 'string') {
+    return { isValid: false, error: 'Argument must be a string' };
   }
 
   // Remove any shell metacharacters
   const dangerous = /[;&|`$(){}[\]<>"'\\]/g;
-  const sanitized = arg.replace(dangerous, "");
+  const sanitized = arg.replace(dangerous, '');
 
   if (sanitized !== arg) {
     return {
       isValid: true,
       sanitized,
-      warning: "Dangerous characters were removed from the argument",
+      warning: 'Dangerous characters were removed from the argument',
     };
   }
 
@@ -191,16 +194,18 @@ function sanitizeCliArg(arg) {
  * @returns {string} Escaped argument
  */
 function escapeShellArg(arg) {
-  if (typeof arg !== "string") {
-    throw new TypeError("Argument must be a string");
+  if (typeof arg !== 'string') {
+    throw new TypeError('Argument must be a string');
   }
 
   // For Windows
-  if (process.platform === "win32") {
+  if (process.platform === 'win32') {
     return '"' + arg.replace(/"/g, '""') + '"';
   }
 
-  // For Unix-like systems
+  // For Unix-like systems - use the standard approach:
+  // Wrap in single quotes and escape any single quotes by:
+  // ending the quote, adding an escaped single quote, then starting a new quote
   return "'" + arg.replace(/'/g, "'\\''") + "'";
 }
 
@@ -211,34 +216,34 @@ function escapeShellArg(arg) {
  * @returns {object} { isValid: boolean, sanitized: string, error?: string }
  */
 function sanitizeUrl(url) {
-  if (!url || typeof url !== "string") {
-    return { isValid: false, error: "URL must be a non-empty string" };
+  if (!url || typeof url !== 'string') {
+    return { isValid: false, error: 'URL must be a non-empty string' };
   }
 
   try {
     const parsed = new URL(url);
 
     // Only allow http and https protocols
-    if (!["http:", "https:"].includes(parsed.protocol)) {
+    if (!['http:', 'https:'].includes(parsed.protocol)) {
       return {
         isValid: false,
-        error: "Only HTTP and HTTPS protocols are allowed",
+        error: 'Only HTTP and HTTPS protocols are allowed',
       };
     }
 
     // Check for localhost/private IPs (optional, depends on requirements)
     const hostname = parsed.hostname.toLowerCase();
     const privatePatterns = [
-      "localhost",
-      "127.0.0.1",
-      "0.0.0.0",
+      'localhost',
+      '127.0.0.1',
+      '0.0.0.0',
       /^10\./,
       /^172\.(1[6-9]|2[0-9]|3[0-1])\./,
       /^192\.168\./,
     ];
 
-    const isPrivate = privatePatterns.some((pattern) => {
-      if (typeof pattern === "string") {
+    const isPrivate = privatePatterns.some(pattern => {
+      if (typeof pattern === 'string') {
         return hostname === pattern;
       }
       return pattern.test(hostname);
@@ -250,7 +255,7 @@ function sanitizeUrl(url) {
       isPrivate,
     };
   } catch (e) {
-    return { isValid: false, error: "Invalid URL format" };
+    return { isValid: false, error: 'Invalid URL format' };
   }
 }
 

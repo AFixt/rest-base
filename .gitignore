@@ -120,3 +120,9 @@ public
 # Windows
 Thumbs.db
 desktop.ini
+
+# Project-specific backups
+.rest-base-backups/
+
+# jscpd reports
+reports/

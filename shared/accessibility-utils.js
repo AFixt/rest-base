@@ -5,13 +5,13 @@
  * @author Karl Groves
  */
 
-const readline = require("readline");
+const readline = require('readline');
 
 class AccessibleProgress {
   constructor() {
     this.currentStep = 0;
     this.totalSteps = 0;
-    this.lastMessage = "";
+    this.lastMessage = '';
   }
 
   /**
@@ -36,7 +36,7 @@ class AccessibleProgress {
       readline.clearLine(process.stdout, 0);
       readline.cursorTo(process.stdout, 0);
     }
-    
+
     const progressText = `Step ${this.currentStep} of ${this.totalSteps}: ${message}`;
     console.log(progressText);
     this.lastMessage = message;
@@ -46,7 +46,7 @@ class AccessibleProgress {
    * Complete the progress indicator
    * @param {string} message - Completion message
    */
-  complete(message = "Task completed") {
+  complete(message = 'Task completed') {
     console.log(`Success: ${message}`);
   }
 
@@ -57,13 +57,13 @@ class AccessibleProgress {
   isScreenReaderActive() {
     // Check common screen reader environment variables
     return (
-      process.env.SCREEN_READER === "1" ||
-      process.env.NVDA_RUNNING === "1" ||
-      process.env.JAWS_RUNNING === "1" ||
-      process.env.VOICEOVER_RUNNING === "1" ||
+      process.env.SCREEN_READER === '1' ||
+      process.env.NVDA_RUNNING === '1' ||
+      process.env.JAWS_RUNNING === '1' ||
+      process.env.VOICEOVER_RUNNING === '1' ||
       // Check for accessibility mode flag
-      process.env.A11Y_MODE === "1" ||
-      process.env.ACCESSIBLE_MODE === "1"
+      process.env.A11Y_MODE === '1' ||
+      process.env.ACCESSIBLE_MODE === '1'
     );
   }
 }
@@ -76,7 +76,7 @@ class AccessibleProgress {
  */
 function formatAccessibleList(title, items, numbered = false) {
   let output = `${title} (${items.length} items):\n`;
-  
+
   items.forEach((item, index) => {
     if (numbered) {
       output += `  ${index + 1}. ${item}\n`;
@@ -84,7 +84,7 @@ function formatAccessibleList(title, items, numbered = false) {
       output += `  - ${item}\n`;
     }
   });
-  
+
   return output;
 }
 
@@ -96,7 +96,7 @@ function formatAccessibleList(title, items, numbered = false) {
  */
 function formatAccessibleTable(title, rows, columns) {
   let output = `${title} (${rows.length} rows):\n\n`;
-  
+
   rows.forEach((row, index) => {
     output += `Row ${index + 1}:\n`;
     columns.forEach(col => {
@@ -104,7 +104,7 @@ function formatAccessibleTable(title, rows, columns) {
     });
     output += '\n';
   });
-  
+
   return output;
 }
 
@@ -115,13 +115,13 @@ function formatAccessibleTable(title, rows, columns) {
  */
 function formatStatusMessage(type, message) {
   const prefixes = {
-    success: "Success:",
-    error: "Error:",
-    warning: "Warning:",
-    info: "Information:",
-    debug: "Debug:"
+    success: 'Success:',
+    error: 'Error:',
+    warning: 'Warning:',
+    info: 'Information:',
+    debug: 'Debug:',
   };
-  
+
   return `${prefixes[type] || ''} ${message}`.trim();
 }
 
@@ -141,7 +141,7 @@ class AccessibleSpinner {
     this.isSpinning = true;
     this.startTime = Date.now();
     console.log(`Processing: ${this.message}`);
-    
+
     // Announce progress every 5 seconds for screen readers
     this.announceInterval = setInterval(() => {
       if (this.isSpinning) {
@@ -156,10 +156,12 @@ class AccessibleSpinner {
     if (this.announceInterval) {
       clearInterval(this.announceInterval);
     }
-    
+
     const elapsed = Math.round((Date.now() - this.startTime) / 1000);
     const status = success ? 'completed successfully' : 'failed';
-    console.log(`${formatStatusMessage(success ? 'success' : 'error', `${this.message} ${status} (${elapsed} seconds)`)}}`);
+    console.log(
+      `${formatStatusMessage(success ? 'success' : 'error', `${this.message} ${status} (${elapsed} seconds)`)}}`
+    );
   }
 }
 
@@ -168,5 +170,5 @@ module.exports = {
   AccessibleSpinner,
   formatAccessibleList,
   formatAccessibleTable,
-  formatStatusMessage
+  formatStatusMessage,
 };

@@ -6,41 +6,41 @@
 
 ## Table of Contents
 
-* [Purpose](#purpose)
-* [Versioning Philosophy](#versioning-philosophy)
-  * [Core Principles](#core-principles)
-  * [Version Significance](#version-significance)
-* [Versioning Methods](#versioning-methods)
-  * [1. URL Path Versioning (Recommended)](#1-url-path-versioning-recommended)
-  * [2. Header Versioning (Alternative)](#2-header-versioning-alternative)
-  * [3. Content Negotiation (Specialized Use Cases)](#3-content-negotiation-specialized-use-cases)
-* [Version Lifecycle Management](#version-lifecycle-management)
-  * [Version States](#version-states)
-  * [Lifecycle Timeline](#lifecycle-timeline)
-  * [Version Support Policy](#version-support-policy)
-* [Breaking Changes Management](#breaking-changes-management)
-  * [What Constitutes a Breaking Change](#what-constitutes-a-breaking-change)
-  * [Non-Breaking Changes](#non-breaking-changes)
-  * [Breaking Change Process](#breaking-change-process)
-* [Versioning Implementation Patterns](#versioning-implementation-patterns)
-  * [Route Organization](#route-organization)
-  * [Shared Logic Management](#shared-logic-management)
-  * [Database Schema Evolution](#database-schema-evolution)
-* [Deprecation Strategy](#deprecation-strategy)
-  * [Deprecation Headers](#deprecation-headers)
-  * [Deprecation Response Format](#deprecation-response-format)
-  * [Communication Timeline](#communication-timeline)
-* [Client Communication Strategy](#client-communication-strategy)
-  * [Version Discovery](#version-discovery)
-  * [Migration Guides](#migration-guides)
-  * [Testing Version Compatibility](#testing-version-compatibility)
-* [Monitoring and Analytics](#monitoring-and-analytics)
-  * [Version Usage Tracking](#version-usage-tracking)
-  * [Deprecation Metrics](#deprecation-metrics)
-* [Best Practices Summary](#best-practices-summary)
-  * [DO](#do)
-  * [DON'T](#dont)
-* [Resources](#resources)
+- [Purpose](#purpose)
+- [Versioning Philosophy](#versioning-philosophy)
+  - [Core Principles](#core-principles)
+  - [Version Significance](#version-significance)
+- [Versioning Methods](#versioning-methods)
+  - [1. URL Path Versioning (Recommended)](#1-url-path-versioning-recommended)
+  - [2. Header Versioning (Alternative)](#2-header-versioning-alternative)
+  - [3. Content Negotiation (Specialized Use Cases)](#3-content-negotiation-specialized-use-cases)
+- [Version Lifecycle Management](#version-lifecycle-management)
+  - [Version States](#version-states)
+  - [Lifecycle Timeline](#lifecycle-timeline)
+  - [Version Support Policy](#version-support-policy)
+- [Breaking Changes Management](#breaking-changes-management)
+  - [What Constitutes a Breaking Change](#what-constitutes-a-breaking-change)
+  - [Non-Breaking Changes](#non-breaking-changes)
+  - [Breaking Change Process](#breaking-change-process)
+- [Versioning Implementation Patterns](#versioning-implementation-patterns)
+  - [Route Organization](#route-organization)
+  - [Shared Logic Management](#shared-logic-management)
+  - [Database Schema Evolution](#database-schema-evolution)
+- [Deprecation Strategy](#deprecation-strategy)
+  - [Deprecation Headers](#deprecation-headers)
+  - [Deprecation Response Format](#deprecation-response-format)
+  - [Communication Timeline](#communication-timeline)
+- [Client Communication Strategy](#client-communication-strategy)
+  - [Version Discovery](#version-discovery)
+  - [Migration Guides](#migration-guides)
+  - [Testing Version Compatibility](#testing-version-compatibility)
+- [Monitoring and Analytics](#monitoring-and-analytics)
+  - [Version Usage Tracking](#version-usage-tracking)
+  - [Deprecation Metrics](#deprecation-metrics)
+- [Best Practices Summary](#best-practices-summary)
+  - [DO](#do)
+  - [DON'T](#dont)
+- [Resources](#resources)
 
 ## Purpose
 
@@ -52,17 +52,17 @@ maintainable APIs.
 
 ### Core Principles
 
-* **Semantic Versioning**: Follow semver principles for API versions
-* **Backward Compatibility**: Maintain compatibility within major versions
-* **Graceful Deprecation**: Provide clear deprecation timelines and migration paths
-* **Consumer-Focused**: Minimize breaking changes and disruption to API consumers
-* **Documentation-Driven**: Maintain comprehensive version documentation
+- **Semantic Versioning**: Follow semver principles for API versions
+- **Backward Compatibility**: Maintain compatibility within major versions
+- **Graceful Deprecation**: Provide clear deprecation timelines and migration paths
+- **Consumer-Focused**: Minimize breaking changes and disruption to API consumers
+- **Documentation-Driven**: Maintain comprehensive version documentation
 
 ### Version Significance
 
-* **Major Version (v1, v2, v3)**: Breaking changes that require consumer updates
-* **Minor Version (v1.1, v1.2)**: New features that are backward compatible
-* **Patch Version (v1.1.1, v1.1.2)**: Bug fixes and security updates
+- **Major Version (v1, v2, v3)**: Breaking changes that require consumer updates
+- **Minor Version (v1.1, v1.2)**: New features that are backward compatible
+- **Patch Version (v1.1.1, v1.1.2)**: Bug fixes and security updates
 
 ## Versioning Methods
 
@@ -78,10 +78,10 @@ GET /api/v1.2/users
 
 **Advantages:**
 
-* Clear and explicit
-* Easy to implement
-* Cacheable
-* RESTful
+- Clear and explicit
+- Easy to implement
+- Cacheable
+- RESTful
 
 **Implementation:**
 
@@ -131,8 +131,8 @@ const getUsers = (req, res) => {
       return res.status(400).json({
         error: {
           code: 'invalid_version',
-          message: 'Unsupported API version'
-        }
+          message: 'Unsupported API version',
+        },
       });
   }
 };
@@ -168,30 +168,30 @@ Development → Active (6-12 months) → Maintenance (12-18 months) → Deprecat
 
 ### Version Support Policy
 
-* **Active Versions**: 1-2 major versions maximum
-* **Maintenance Period**: Minimum 12 months for major versions
-* **Deprecation Notice**: Minimum 6 months before retirement
-* **Security Updates**: Provided for all non-retired versions
+- **Active Versions**: 1-2 major versions maximum
+- **Maintenance Period**: Minimum 12 months for major versions
+- **Deprecation Notice**: Minimum 6 months before retirement
+- **Security Updates**: Provided for all non-retired versions
 
 ## Breaking Changes Management
 
 ### What Constitutes a Breaking Change
 
-* Removing endpoints or fields
-* Changing data types
-* Modifying authentication requirements
-* Altering error response formats
-* Changing required parameters
-* Modifying URL structures
+- Removing endpoints or fields
+- Changing data types
+- Modifying authentication requirements
+- Altering error response formats
+- Changing required parameters
+- Modifying URL structures
 
 ### Non-Breaking Changes
 
-* Adding new endpoints
-* Adding optional parameters
-* Adding new response fields
-* Improving error messages
-* Performance optimizations
-* Bug fixes
+- Adding new endpoints
+- Adding optional parameters
+- Adding new response fields
+- Improving error messages
+- Performance optimizations
+- Bug fixes
 
 ### Breaking Change Process
 
@@ -279,7 +279,7 @@ class UserServiceV1 extends BaseUserService {
     return {
       id: user.id,
       email: user.email,
-      name: user.name
+      name: user.name,
     };
   }
 }
@@ -303,7 +303,7 @@ class UserServiceV2 extends BaseUserService {
       firstName: user.firstName,
       lastName: user.lastName,
       fullName: `${user.firstName} ${user.lastName}`,
-      createdAt: user.createdAt
+      createdAt: user.createdAt,
     };
   }
 }
@@ -319,31 +319,31 @@ module.exports = {
       id: {
         type: Sequelize.UUID,
         primaryKey: true,
-        defaultValue: Sequelize.UUIDV4
+        defaultValue: Sequelize.UUIDV4,
       },
       email: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true
+        unique: true,
       },
       name: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
       },
       created_at: {
         type: Sequelize.DATE,
-        allowNull: false
+        allowNull: false,
       },
       updated_at: {
         type: Sequelize.DATE,
-        allowNull: false
-      }
+        allowNull: false,
+      },
     });
   },
 
-  down: async (queryInterface) => {
+  down: async queryInterface => {
     await queryInterface.dropTable('users');
-  }
+  },
 };
 
 // migrations/20231201000002-update-users-v2.js
@@ -352,12 +352,12 @@ module.exports = {
     // Add new columns for v2
     await queryInterface.addColumn('users', 'first_name', {
       type: Sequelize.STRING,
-      allowNull: true // Allow null during transition
+      allowNull: true, // Allow null during transition
     });
-    
+
     await queryInterface.addColumn('users', 'last_name', {
       type: Sequelize.STRING,
-      allowNull: true
+      allowNull: true,
     });
 
     // Migrate existing data
@@ -369,10 +369,10 @@ module.exports = {
     `);
   },
 
-  down: async (queryInterface) => {
+  down: async queryInterface => {
     await queryInterface.removeColumn('users', 'first_name');
     await queryInterface.removeColumn('users', 'last_name');
-  }
+  },
 };
 ```
 
@@ -385,10 +385,10 @@ module.exports = {
 const deprecationMiddleware = (version, sunset) => {
   return (req, res, next) => {
     res.set({
-      'Deprecation': 'true',
-      'Sunset': sunset, // RFC 8594 format: Wed, 11 Nov 2024 07:28:00 GMT
-      'Link': '</api/v2/users>; rel="successor-version"',
-      'Warning': '299 - "This API version is deprecated"'
+      Deprecation: 'true',
+      Sunset: sunset, // RFC 8594 format: Wed, 11 Nov 2024 07:28:00 GMT
+      Link: '</api/v2/users>; rel="successor-version"',
+      Warning: '299 - "This API version is deprecated"',
     });
     next();
   };
@@ -418,10 +418,10 @@ v1Router.use(deprecationMiddleware('v1', 'Wed, 11 Nov 2024 07:28:00 GMT'));
 
 ### Communication Timeline
 
-* **T-6 months**: Initial deprecation announcement
-* **T-4 months**: Add deprecation headers to responses
-* **T-2 months**: Final migration reminder
-* **T-0**: Version retirement
+- **T-6 months**: Initial deprecation announcement
+- **T-4 months**: Add deprecation headers to responses
+- **T-2 months**: Final migration reminder
+- **T-0**: Version retirement
 
 ## Client Communication Strategy
 
@@ -449,16 +449,19 @@ v1Router.use(deprecationMiddleware('v1', 'Wed, 11 Nov 2024 07:28:00 GMT'));
 
 ### Migration Guides
 
-```markdown
+````markdown
 # Migration Guide: v1 to v2
 
 ## Overview
+
 API v2 introduces improved user data structure and enhanced authentication.
 
 ## Breaking Changes
 
 ### User Object Structure
+
 **v1 Response:**
+
 ```json
 {
   "id": "123",
@@ -466,6 +469,7 @@ API v2 introduces improved user data structure and enhanced authentication.
   "name": "John Doe"
 }
 ```
+````
 
 **v2 Response:**
 
@@ -506,13 +510,9 @@ const lastName = user.lastName;
 describe('API Version Compatibility', () => {
   describe('v1 to v2 migration', () => {
     it('should maintain backward compatibility for existing fields', async () => {
-      const v1Response = await request(app)
-        .get('/api/v1/users/123')
-        .expect(200);
+      const v1Response = await request(app).get('/api/v1/users/123').expect(200);
 
-      const v2Response = await request(app)
-        .get('/api/v2/users/123')
-        .expect(200);
+      const v2Response = await request(app).get('/api/v2/users/123').expect(200);
 
       // v1 fields should be derivable from v2 response
       expect(v2Response.body.data.fullName).toBeDefined();
@@ -521,9 +521,7 @@ describe('API Version Compatibility', () => {
     });
 
     it('should include deprecation headers in v1 responses', async () => {
-      const response = await request(app)
-        .get('/api/v1/users/123')
-        .expect(200);
+      const response = await request(app).get('/api/v1/users/123').expect(200);
 
       expect(response.headers).toHaveProperty('deprecation');
       expect(response.headers).toHaveProperty('sunset');
@@ -540,19 +538,19 @@ describe('API Version Compatibility', () => {
 // Middleware to track version usage
 const versionAnalytics = (req, res, next) => {
   const version = req.baseUrl.match(/v(\d+)/)?.[1] || 'unknown';
-  
+
   // Log version usage
   logger.info('API version used', {
     version,
     endpoint: req.originalUrl,
     userAgent: req.get('User-Agent'),
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 
   // Increment metrics
   metrics.increment('api.version.usage', {
     version,
-    endpoint: req.route?.path || req.originalUrl
+    endpoint: req.route?.path || req.originalUrl,
   });
 
   next();
@@ -565,11 +563,12 @@ const versionAnalytics = (req, res, next) => {
 // Track deprecation warnings
 const deprecationMetrics = (req, res, next) => {
   const version = req.baseUrl.match(/v(\d+)/)?.[1];
-  
-  if (version === '1') { // v1 is deprecated
+
+  if (version === '1') {
+    // v1 is deprecated
     metrics.increment('api.deprecation.usage', {
       version: 'v1',
-      endpoint: req.originalUrl
+      endpoint: req.originalUrl,
     });
 
     // Log for analysis
@@ -577,7 +576,7 @@ const deprecationMetrics = (req, res, next) => {
       version: 'v1',
       endpoint: req.originalUrl,
       userAgent: req.get('User-Agent'),
-      ip: req.ip
+      ip: req.ip,
     });
   }
 
@@ -611,8 +610,8 @@ const deprecationMetrics = (req, res, next) => {
 
 ## Resources
 
-* [Semantic Versioning Specification](https://semver.org/)
-* [RFC 8594 - Sunset Header](https://tools.ietf.org/html/rfc8594)
-* [API Versioning Best Practices](https://restfulapi.net/versioning/)
-* [Breaking Changes in APIs](https://nordicapis.com/what-are-breaking-changes-and-how-do-you-avoid-them/)
-* [API Deprecation Best Practices](https://zapier.com/engineering/api-geriatrics/)
+- [Semantic Versioning Specification](https://semver.org/)
+- [RFC 8594 - Sunset Header](https://tools.ietf.org/html/rfc8594)
+- [API Versioning Best Practices](https://restfulapi.net/versioning/)
+- [Breaking Changes in APIs](https://nordicapis.com/what-are-breaking-changes-and-how-do-you-avoid-them/)
+- [API Deprecation Best Practices](https://zapier.com/engineering/api-geriatrics/)

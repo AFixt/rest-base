@@ -9,59 +9,53 @@
  * @author REST-Base Team
  */
 
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
 
 /**
  * CLI Commands and their options
  */
 const CLI_COMMANDS = {
-  "create-project": {
+  'create-project': {
     options: [
-      "--dry-run",
-      "-d",
-      "--interactive",
-      "-i",
-      "--config",
-      "-c",
-      "--verbose",
-      "-v",
-      "--template",
-      "-t",
-      "--no-backup",
-      "--force",
-      "-f",
-      "--help",
-      "-h",
+      '--dry-run',
+      '-d',
+      '--interactive',
+      '-i',
+      '--config',
+      '-c',
+      '--verbose',
+      '-v',
+      '--template',
+      '-t',
+      '--no-backup',
+      '--force',
+      '-f',
+      '--help',
+      '-h',
     ],
-    templates: [
-      "default",
-      "microservice",
-      "api-gateway",
-      "graphql",
-      "websocket",
-    ],
-    description: "Create a new REST API project with standards",
+    templates: ['default', 'microservice', 'api-gateway', 'graphql', 'websocket'],
+    description: 'Create a new REST API project with standards',
   },
-  "setup-standards": {
+  'setup-standards': {
     options: [
-      "--dry-run",
-      "-d",
-      "--interactive",
-      "-i",
-      "--config",
-      "-c",
-      "--verbose",
-      "-v",
-      "--rollback",
-      "-r",
-      "--no-backup",
-      "--force",
-      "-f",
-      "--help",
-      "-h",
+      '--dry-run',
+      '-d',
+      '--interactive',
+      '-i',
+      '--config',
+      '-c',
+      '--verbose',
+      '-v',
+      '--rollback',
+      '-r',
+      '--no-backup',
+      '--force',
+      '-f',
+      '--help',
+      '-h',
     ],
-    description: "Apply REST-SPEC standards to existing project",
+    description: 'Apply REST-SPEC standards to existing project',
   },
 };
 
@@ -301,8 +295,8 @@ complete -c rest-spec-setup -xa '(__fish_complete_directories)'
  */
 class CompletionInstaller {
   constructor() {
-    this.homeDir = require("os").homedir();
-    this.completionsDir = path.join(__dirname, "..", "completions");
+    this.homeDir = require('os').homedir();
+    this.completionsDir = path.join(__dirname, '..', 'completions');
   }
 
   /**
@@ -322,23 +316,17 @@ class CompletionInstaller {
 
     // Generate bash completion
     const bashScript = generateBashCompletion();
-    fs.writeFileSync(
-      path.join(this.completionsDir, "rest-spec-completion.bash"),
-      bashScript,
-    );
+    fs.writeFileSync(path.join(this.completionsDir, 'rest-spec-completion.bash'), bashScript);
 
     // Generate zsh completion
     const zshScript = generateZshCompletion();
-    fs.writeFileSync(path.join(this.completionsDir, "_rest-spec"), zshScript);
+    fs.writeFileSync(path.join(this.completionsDir, '_rest-spec'), zshScript);
 
     // Generate fish completion
     const fishScript = generateFishCompletion();
-    fs.writeFileSync(
-      path.join(this.completionsDir, "rest-spec.fish"),
-      fishScript,
-    );
+    fs.writeFileSync(path.join(this.completionsDir, 'rest-spec.fish'), fishScript);
 
-    console.log("✓ Auto-completion scripts generated successfully!");
+    console.log('✓ Auto-completion scripts generated successfully!');
     console.log(`Location: ${this.completionsDir}`);
   }
 
@@ -346,7 +334,7 @@ class CompletionInstaller {
    * Install completions for the current user
    * @param {string} shell - Shell type (bash, zsh, fish)
    */
-  async installCompletion(shell = "bash") {
+  async installCompletion(shell = 'bash') {
     await this.generateCompletions();
 
     const instructions = this.getInstallationInstructions(shell);
@@ -360,15 +348,12 @@ class CompletionInstaller {
    * @returns {string} Installation instructions
    */
   getInstallationInstructions(shell) {
-    const bashScript = path.join(
-      this.completionsDir,
-      "rest-spec-completion.bash",
-    );
-    const zshScript = path.join(this.completionsDir, "_rest-spec");
-    const fishScript = path.join(this.completionsDir, "rest-spec.fish");
+    const bashScript = path.join(this.completionsDir, 'rest-spec-completion.bash');
+    const zshScript = path.join(this.completionsDir, '_rest-spec');
+    const fishScript = path.join(this.completionsDir, 'rest-spec.fish');
 
     switch (shell.toLowerCase()) {
-      case "bash":
+      case 'bash':
         return `
 1. Add this line to your ~/.bashrc or ~/.bash_profile:
    source ${bashScript}
@@ -380,7 +365,7 @@ class CompletionInstaller {
    create-project [TAB]
         `;
 
-      case "zsh":
+      case 'zsh':
         return `
 1. Create zsh completions directory (if not exists):
    mkdir -p ~/.zsh/completions
@@ -399,7 +384,7 @@ class CompletionInstaller {
    create-project [TAB]
         `;
 
-      case "fish":
+      case 'fish':
         return `
 1. Create fish completions directory (if not exists):
    mkdir -p ~/.config/fish/completions
@@ -458,19 +443,19 @@ async function main() {
   }
 
   const command = args[0];
-  const shell = args[1] || "bash";
+  const shell = args[1] || 'bash';
 
   try {
     switch (command) {
-      case "generate":
+      case 'generate':
         await installer.generateCompletions();
         break;
 
-      case "install":
+      case 'install':
         await installer.installCompletion(shell);
         break;
 
-      case "instructions": {
+      case 'instructions': {
         await installer.generateCompletions();
         const instructions = installer.getInstallationInstructions(shell);
         console.log(instructions);
@@ -483,7 +468,7 @@ async function main() {
         process.exit(1);
     }
   } catch (error) {
-    console.error("Error:", error.message);
+    console.error('Error:', error.message);
     process.exit(1);
   }
 }
@@ -499,8 +484,8 @@ module.exports = {
 
 // Run if called directly
 if (require.main === module) {
-  main().catch((error) => {
-    console.error("Fatal error:", error);
+  main().catch(error => {
+    console.error('Fatal error:', error);
     process.exit(1);
   });
 }

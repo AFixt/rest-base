@@ -41,10 +41,10 @@ router.get('/', (req, res) => {
     documentation: '/api-docs',
     health: '/health',
     endpoints: {
-      items: '/api/items'
+      items: '/api/items',
       // Add more endpoints as needed
     },
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 

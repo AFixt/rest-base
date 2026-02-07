@@ -8,10 +8,10 @@
  * @author Karl Groves
  */
 
-const fs = require("fs").promises;
-const path = require("path");
-const readline = require("readline");
-const UpdateChecker = require("../shared/update-checker");
+const fs = require('fs').promises;
+const path = require('path');
+const readline = require('readline');
+const UpdateChecker = require('../shared/update-checker');
 
 class ProjectGenerator {
   constructor() {
@@ -25,8 +25,8 @@ class ProjectGenerator {
    * Prompt user for input
    */
   async prompt(question) {
-    return new Promise((resolve) => {
-      this.rl.question(question, (answer) => {
+    return new Promise(resolve => {
+      this.rl.question(question, answer => {
         resolve(answer.trim());
       });
     });
@@ -58,7 +58,7 @@ class ProjectGenerator {
   replaceTemplateVariables(content, variables) {
     let result = content;
     for (const [key, value] of Object.entries(variables)) {
-      const regex = new RegExp(`{{${key}}}`, "g");
+      const regex = new RegExp(`{{${key}}}`, 'g');
       result = result.replace(regex, value);
     }
     return result;
@@ -68,7 +68,7 @@ class ProjectGenerator {
    * Process template files
    */
   async processTemplateFiles(projectPath, variables) {
-    const processFile = async (filePath) => {
+    const processFile = async filePath => {
       const stats = await fs.stat(filePath);
 
       if (stats.isDirectory()) {
@@ -77,11 +77,8 @@ class ProjectGenerator {
           await processFile(path.join(filePath, entry));
         }
       } else {
-        const content = await fs.readFile(filePath, "utf8");
-        const processedContent = this.replaceTemplateVariables(
-          content,
-          variables,
-        );
+        const content = await fs.readFile(filePath, 'utf8');
+        const processedContent = this.replaceTemplateVariables(content, variables);
         await fs.writeFile(filePath, processedContent);
       }
     };
@@ -93,8 +90,8 @@ class ProjectGenerator {
    * Validate project name
    */
   validateProjectName(name) {
-    if (!name || typeof name !== "string" || name.trim().length === 0) {
-      throw new Error("Project name cannot be empty");
+    if (!name || typeof name !== 'string' || name.trim().length === 0) {
+      throw new Error('Project name cannot be empty');
     }
 
     const trimmedName = name.trim();
@@ -103,13 +100,13 @@ class ProjectGenerator {
     const invalidChars = /[<>:"|?*;\\&$`(){}[\]!]/;
     if (invalidChars.test(trimmedName)) {
       throw new Error(
-        "Project name contains invalid characters. Only letters, numbers, hyphens, underscores, and dots are allowed.",
+        'Project name contains invalid characters. Only letters, numbers, hyphens, underscores, and dots are allowed.'
       );
     }
 
     // Check for path separators
-    if (trimmedName.includes("/") || trimmedName.includes("\\")) {
-      throw new Error("Project name cannot contain path separators");
+    if (trimmedName.includes('/') || trimmedName.includes('\\')) {
+      throw new Error('Project name cannot contain path separators');
     }
 
     return trimmedName;
@@ -119,8 +116,8 @@ class ProjectGenerator {
    * Create new project
    */
   async createProject() {
-    console.log("REST-SPEC Project Generator");
-    console.log("===============================\\n");
+    console.log('REST-SPEC Project Generator');
+    console.log('===============================\\n');
 
     // Check for updates (non-blocking)
     const updateChecker = new UpdateChecker();
@@ -132,9 +129,9 @@ class ProjectGenerator {
 
     try {
       // Get project details
-      const projectName = await this.prompt("Project name: ");
-      const description = await this.prompt("Project description: ");
-      const author = await this.prompt("Author name: ");
+      const projectName = await this.prompt('Project name: ');
+      const description = await this.prompt('Project description: ');
+      const author = await this.prompt('Author name: ');
 
       const validatedName = this.validateProjectName(projectName);
       const projectPath = path.join(process.cwd(), validatedName);
@@ -151,11 +148,11 @@ class ProjectGenerator {
       console.log(`\nCreating project in: ${projectPath}`);
 
       // Copy template
-      const templatePath = path.join(__dirname, "../templates/default");
+      const templatePath = path.join(__dirname, '../templates/default');
       try {
         await fs.access(templatePath);
       } catch (error) {
-        console.error("Error: Default template not found");
+        console.error('Error: Default template not found');
         process.exit(1);
       }
 
@@ -164,22 +161,22 @@ class ProjectGenerator {
       // Process template variables
       const variables = {
         projectName: validatedName,
-        description: description || "A REST API built with REST-SPEC",
-        author: author || "Developer",
+        description: description || 'A REST API built with REST-SPEC',
+        author: author || 'Developer',
       };
 
-      console.log("Processing template files...");
+      console.log('Processing template files...');
       await this.processTemplateFiles(projectPath, variables);
 
-      console.log("\nSuccess: Project created successfully!");
-      console.log("\\nNext steps:");
+      console.log('\nSuccess: Project created successfully!');
+      console.log('\\nNext steps:');
       console.log(`  cd ${validatedName}`);
-      console.log("  npm install");
-      console.log("  cp .env.example .env");
-      console.log("  # Edit .env with your configuration");
-      console.log("  npm run dev");
+      console.log('  npm install');
+      console.log('  cp .env.example .env');
+      console.log('  # Edit .env with your configuration');
+      console.log('  npm run dev');
     } catch (error) {
-      console.error("Error: Failed to create project -", error.message);
+      console.error('Error: Failed to create project -', error.message);
       process.exit(1);
     } finally {
       this.rl.close();

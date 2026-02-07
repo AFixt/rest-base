@@ -1,6 +1,6 @@
 {
   "name": "microservice",
-  "description": "Production-ready microservice template with comprehensive features",
+  "description": "Production-ready Microservice template with comprehensive features",
   "version": "1.0.0",
   "author": "REST-SPEC",
   "tags": ["microservice", "api", "rest", "express", "nodejs", "production"],

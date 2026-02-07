@@ -22,8 +22,8 @@ const LOG_LEVEL = process.env.LOG_LEVEL || 'info';
 const streams = [
   {
     level: 'info',
-    stream: process.stdout
-  }
+    stream: process.stdout,
+  },
 ];
 
 // Add file streams in non-test environments
@@ -34,14 +34,14 @@ if (process.env.NODE_ENV !== 'test') {
       type: 'rotating-file',
       path: path.join(logsDir, 'app.log'),
       period: '1d',
-      count: 7
+      count: 7,
     },
     {
       level: 'error',
       type: 'rotating-file',
       path: path.join(logsDir, 'error.log'),
       period: '1d',
-      count: 14
+      count: 14,
     }
   );
 }
@@ -54,38 +54,47 @@ const logger = bunyan.createLogger({
   serializers: {
     req: bunyan.stdSerializers.req,
     res: bunyan.stdSerializers.res,
-    err: bunyan.stdSerializers.err
-  }
+    err: bunyan.stdSerializers.err,
+  },
 });
 
 // Add custom methods for common patterns
 logger.logRequest = (req, res, responseTime) => {
-  logger.info({
-    component: 'http',
-    method: req.method,
-    url: req.originalUrl || req.url,
-    userAgent: req.get('User-Agent'),
-    ip: req.ip || req.connection.remoteAddress,
-    statusCode: res.statusCode,
-    responseTime: `${responseTime}ms`
-  }, 'HTTP Request');
+  logger.info(
+    {
+      component: 'http',
+      method: req.method,
+      url: req.originalUrl || req.url,
+      userAgent: req.get('User-Agent'),
+      ip: req.ip || req.connection.remoteAddress,
+      statusCode: res.statusCode,
+      responseTime: `${responseTime}ms`,
+    },
+    'HTTP Request'
+  );
 };
 
 logger.logSocketEvent = (event, socket, data = {}) => {
-  logger.info({
-    component: 'websocket',
-    event,
-    socketId: socket.id,
-    userId: socket.userId,
-    ...data
-  }, `Socket event: ${event}`);
+  logger.info(
+    {
+      component: 'websocket',
+      event,
+      socketId: socket.id,
+      userId: socket.userId,
+      ...data,
+    },
+    `Socket event: ${event}`
+  );
 };
 
 logger.logError = (error, context = {}) => {
-  logger.error({
-    err: error,
-    ...context
-  }, error.message || 'An error occurred');
+  logger.error(
+    {
+      err: error,
+      ...context,
+    },
+    error.message || 'An error occurred'
+  );
 };
 
 module.exports = logger;
