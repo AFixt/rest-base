@@ -344,7 +344,7 @@ const utilityBenchmarks = suite('CLI Utilities', {
   .add('Create and Update Spinners', async () => {
     const { createSpinner } = require('../shared/cli-utils');
 
-    const spinner = createSpinner('Processing...');
+    const spinner = await createSpinner('Processing...');
     spinner.start();
 
     // Simulate work

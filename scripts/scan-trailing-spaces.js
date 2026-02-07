@@ -8,7 +8,23 @@
 
 const mysql = require('mysql2/promise');
 const chalk = require('chalk');
-const ora = require('ora');
+
+/**
+ * Cached ora module reference (ESM-only since v6)
+ * @type {Function|null}
+ */
+let _ora;
+
+/**
+ * Lazily loads the ora module via dynamic import (ESM-only since v6)
+ * @returns {Promise<Function>} The ora default export
+ */
+async function getOra() {
+  if (!_ora) {
+    _ora = (await import('ora')).default;
+  }
+  return _ora;
+}
 
 /**
  * Database configuration
@@ -122,6 +138,7 @@ async function scanDatabase() {
   console.log(chalk.gray(`Host: ${dbConfig.host}:${dbConfig.port}\n`));
 
   let connection;
+  const ora = await getOra();
   const spinner = ora('Connecting to database...').start();
 
   try {

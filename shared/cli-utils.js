@@ -5,17 +5,34 @@
  * @author Karl Groves
  */
 
-const ora = require('ora');
 const { getColorTheme, style, separator, getThemeInfo } = require('./color-themes');
+
+/**
+ * Cached ora module reference (ESM-only since v6)
+ * @type {Function|null}
+ */
+let _ora;
+
+/**
+ * Lazily loads the ora module via dynamic import (ESM-only since v6)
+ * @returns {Promise<Function>} The ora default export
+ */
+async function getOra() {
+  if (!_ora) {
+    _ora = (await import('ora')).default;
+  }
+  return _ora;
+}
 
 /**
  * Creates a spinner with theme-aware styling
  *
  * @param {string} text - Initial spinner text
  * @param {Object} options - Spinner options
- * @returns {Object} Ora spinner instance
+ * @returns {Promise<Object>} Ora spinner instance
  */
-function createSpinner(text, options = {}) {
+async function createSpinner(text, options = {}) {
+  const ora = await getOra();
   const spinnerOptions = {
     text,
     color: 'blue',
