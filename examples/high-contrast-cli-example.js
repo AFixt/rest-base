@@ -24,7 +24,7 @@ async function exampleCLIScript() {
   logger.info('Starting example process...');
 
   // Show a spinner for async operations
-  const spinner = createSpinner('Loading configuration...');
+  const spinner = await createSpinner('Loading configuration...');
   spinner.start();
 
   // Simulate async work

@@ -64,7 +64,7 @@ async function testColorOutput() {
 
   // Test spinner (will run for 2 seconds)
   console.log('\nTesting spinner:');
-  const spinner = createSpinner('Loading resources...');
+  const spinner = await createSpinner('Loading resources...');
   spinner.start();
 
   await new Promise(resolve => setTimeout(resolve, 2000));

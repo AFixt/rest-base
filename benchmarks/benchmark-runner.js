@@ -100,7 +100,7 @@ class BenchmarkSuite {
 
     // Warmup runs
     if (options.warmupRuns > 0) {
-      const spinner = createSpinner(`Warmup (${options.warmupRuns} runs)...`);
+      const spinner = await createSpinner(`Warmup (${options.warmupRuns} runs)...`);
       spinner.start();
 
       for (let i = 0; i < options.warmupRuns; i++) {
@@ -119,7 +119,7 @@ class BenchmarkSuite {
     }
 
     // Actual benchmark runs
-    const spinner = createSpinner(`Running ${options.iterations} iterations...`);
+    const spinner = await createSpinner(`Running ${options.iterations} iterations...`);
     spinner.start();
 
     for (let i = 0; i < options.iterations; i++) {
