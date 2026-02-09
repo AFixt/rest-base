@@ -106,7 +106,7 @@
     "jscpd": "4.0.8",
     "lint-staged": "^15.2.0",
     "markdownlint-cli": "0.47.0",
-    "nyc": "^15.1.0",
+    "nyc": "^17.1.0",
     "prettier": "^3.8.1",
     "supertest": "^6.3.3",
     "typescript": "^5.8.3"
