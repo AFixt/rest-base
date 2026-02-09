@@ -95,7 +95,7 @@
     "@commitlint/cli": "20.4.1",
     "@commitlint/config-conventional": "20.4.1",
     "@types/jest": "^30.0.0",
-    "@types/node": "^22.15.32",
+    "@types/node": "^25.2.2",
     "commit-and-tag-version": "12.6.1",
     "cross-env": "^10.1.0",
     "eslint": "^8.55.0",
