@@ -4,13 +4,9 @@
 
 const fs = require('fs').promises;
 const path = require('path');
-const {
-  parseRouteFile,
-  findRouteFiles,
-  generateOpenAPI,
-  generateMarkdown,
-  generateHTML,
-} = require('../../scripts/api-doc-generator');
+const apiDocGenerator = require('../../scripts/api-doc-generator');
+const { parseRouteFile, findRouteFiles, generateOpenAPI, generateMarkdown, generateHTML } =
+  apiDocGenerator;
 
 // Mock data
 const mockRouteContent = `
@@ -280,6 +276,20 @@ describe('API Documentation Generator', () => {
   });
 
   describe('generateHTML', () => {
+    beforeEach(() => {
+      // Mock loadMarked to avoid ESM dynamic import issues in Jest
+      apiDocGenerator.loadMarked = jest.fn().mockResolvedValue(md => {
+        // Simple markdown-to-HTML conversion for testing
+        return md
+          .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+          .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+          .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+          .replace(/^#### (.+)$/gm, '<h4>$1</h4>')
+          .replace(/\|(.+)\|/g, match => `<table><tr><th>${match}</th></tr></table>`)
+          .replace(/\n/g, '\n');
+      });
+    });
+
     test('should generate HTML documentation', async () => {
       const routeFile = path.join(tempDir, 'routes', 'users.js');
       await fs.writeFile(routeFile, mockRouteContent);
@@ -290,7 +300,7 @@ describe('API Documentation Generator', () => {
         version: '1.0.0',
       };
 
-      const html = generateHTML(routes, config);
+      const html = await generateHTML(routes, config);
 
       expect(html).toContain('<!DOCTYPE html>');
       expect(html).toContain('<title>Test API</title>');
@@ -304,7 +314,7 @@ describe('API Documentation Generator', () => {
       await fs.writeFile(routeFile, mockRouteContent);
       const routes = await parseRouteFile(routeFile);
 
-      const html = generateHTML(routes, {});
+      const html = await generateHTML(routes, {});
 
       expect(html).toContain('<style>');
       expect(html).toContain('.method-GET { background: #27ae60; }');
