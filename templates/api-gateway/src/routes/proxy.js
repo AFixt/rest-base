@@ -66,6 +66,7 @@ v1Router.use('/public/*', optionalJwtAuth);
  */
 v1Router.use(
   '/auth/*',
+  createCustomRateLimit(5, 15 * 60 * 1000, 'auth'), // 5 requests per 15 minutes
   asyncHandler(async (req, res, next) => {
     // Forward to auth service
     const authProxy = createServiceProxy('auth');
@@ -229,9 +230,9 @@ router.use('/v1', v1Router);
  * Default version redirect
  */
 router.use('/*', (req, res, _next) => {
-  // Redirect to v1 by default
-  const originalUrl = req.originalUrl.replace('/api', '/api/v1');
-  res.redirect(301, originalUrl);
+  // Redirect to v1 by default, ensuring the path stays on this server
+  const v1Path = req.path.replace(/^\//, '/v1/');
+  res.redirect(301, `/api${v1Path}`);
 });
 
 export default router;

@@ -423,11 +423,20 @@ function generateMarkdown(routes, config) {
 }
 
 /**
+ * Load the marked library (ESM-only, requires dynamic import)
+ * @returns {Promise<Function>} The marked parse function
+ */
+async function loadMarked() {
+  const mod = await import('marked');
+  return mod.marked;
+}
+
+/**
  * Generate HTML documentation
  */
-function generateHTML(routes, config) {
+async function generateHTML(routes, config) {
   const markdown = generateMarkdown(routes, config);
-  const marked = require('marked');
+  const marked = await module.exports.loadMarked();
 
   const html = `
 <!DOCTYPE html>
@@ -521,12 +530,10 @@ function generateHTML(routes, config) {
     </style>
 </head>
 <body>
-    ${marked
-      .parse(markdown)
-      .replace(
-        /<h4>(GET|POST|PUT|PATCH|DELETE)\s+(.+?)<\/h4>/g,
-        '<h4><span class="method method-$1">$1</span> $2</h4>'
-      )}
+    ${marked(markdown).replace(
+      /<h4>(GET|POST|PUT|PATCH|DELETE)\s+(.+?)<\/h4>/g,
+      '<h4><span class="method method-$1">$1</span> $2</h4>'
+    )}
 </body>
 </html>
   `;
@@ -637,7 +644,7 @@ async function main() {
         }
 
         case 'html': {
-          const html = generateHTML(allRoutes, config);
+          const html = await generateHTML(allRoutes, config);
           await fs.writeFile(path.join(options.output, 'index.html'), html);
           break;
         }
@@ -667,6 +674,7 @@ module.exports = {
   generateOpenAPI,
   generateMarkdown,
   generateHTML,
+  loadMarked,
 };
 
 // Run if called directly

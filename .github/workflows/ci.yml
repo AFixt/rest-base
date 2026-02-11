@@ -166,7 +166,7 @@ jobs:
         run: npm ci
 
       - name: Run E2E tests
-        run: npm run test:e2e || npm test -- --testPathPattern=e2e
+        run: npm run test:e2e || npm test -- --testPathPatterns=e2e
 
       - name: Test project creation workflow
         run: |

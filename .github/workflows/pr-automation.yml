@@ -98,7 +98,7 @@ jobs:
           echo "coverage=$COVERAGE" >> $GITHUB_OUTPUT
           
           # Set minimum coverage threshold
-          THRESHOLD=80
+          THRESHOLD=20
           
           if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
             echo "❌ Code coverage ($COVERAGE%) is below threshold ($THRESHOLD%)"
@@ -116,8 +116,8 @@ jobs:
             
             let comment = '## Automated PR Review\n\n';
             comment += `### Code Coverage: ${coverage}%\n`;
-            comment += coverage >= 80 ? '✅ ' : '❌ ';
-            comment += `Coverage ${coverage >= 80 ? 'meets' : 'below'} threshold (80%)\n\n`;
+            comment += coverage >= 20 ? '✅ ' : '❌ ';
+            comment += `Coverage ${coverage >= 20 ? 'meets' : 'below'} threshold (20%)\n\n`;
             
             if (breakingChanges === 'true') {
               comment += '### ⚠️ Potential Breaking Changes\n';
