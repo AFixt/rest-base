@@ -7,7 +7,7 @@ module.exports = {
   extends: ['eslint:recommended'],
   parserOptions: {
     ecmaVersion: 2022,
-    sourceType: 'module',
+    sourceType: 'commonjs',
   },
   ignorePatterns: ['*.d.ts', 'node_modules/', 'coverage/', 'dist/', 'build/'],
   rules: {
